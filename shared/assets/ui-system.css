@@ -1,0 +1,104 @@
+:root {
+  --ui-bg: #f5f7fb;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f8fafc;
+  --ui-text: #172033;
+  --ui-muted: #667085;
+  --ui-border: #e4e8ef;
+  --ui-primary: #6d3df5;
+  --ui-primary-2: #8b5cf6;
+  --ui-success: #12a36d;
+  --ui-danger: #d92d20;
+  --ui-shadow: 0 18px 50px rgba(28, 39, 68, .09);
+  --ui-radius: 20px;
+  color-scheme: light;
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+*, *::before, *::after { box-sizing: border-box; }
+img, svg, video, canvas { max-width: 100%; }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--ui-primary) 42%, transparent); outline-offset: 3px; }
+
+.k2-carte, .kadosk-carte, .adm-panneau, .adm-card, .panel, .card {
+  border-color: var(--ui-border) !important;
+  box-shadow: var(--ui-shadow);
+}
+
+input, select, textarea {
+  min-height: 46px;
+  border-radius: 12px !important;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+textarea { min-height: 96px; resize: vertical; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--ui-primary) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ui-primary) 12%, transparent) !important;
+}
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
+  border-color: var(--ui-danger) !important;
+}
+
+.k2-btn, .kadosk-btn, .adm-btn, button[type="submit"] {
+  min-height: 46px;
+  max-width: 100%;
+  height: auto;
+  min-width: 0;
+  padding-inline: 18px;
+  border-radius: 13px !important;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+.k2-btn > svg, .kadosk-btn > svg, .adm-btn > svg,
+.k2-btn > span:has(svg), .kadosk-btn > span:has(svg), .adm-btn > span:has(svg) { flex: 0 0 auto; }
+.k2-btn:hover, .kadosk-btn:hover, .adm-btn:hover, button[type="submit"]:hover { transform: translateY(-1px); }
+.k2-btn:active, .kadosk-btn:active, .adm-btn:active, button[type="submit"]:active { transform: translateY(0); }
+button:disabled { cursor: not-allowed; opacity: .62; }
+
+.ui-visually-hidden {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+  clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important;
+}
+
+.checkout-grid { display: grid; gap: 18px; }
+.checkout-section { padding: 18px; border: 1px solid var(--ui-border); border-radius: 16px; background: var(--ui-surface-2); }
+.checkout-section-title { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+.checkout-section-help { margin: 0 0 16px; color: var(--ui-muted); font-size: 13px; line-height: 1.5; }
+.checkout-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.checkout-fields .k2-champ { margin: 0; }
+.checkout-fields .checkout-field-full { grid-column: 1 / -1; }
+.checkout-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; color: var(--ui-muted); font-size: 13px; line-height: 1.45; }
+.checkout-consent input { min-height: 0; width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; accent-color: var(--ui-primary); }
+.checkout-trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.checkout-trust span { padding: 10px; border-radius: 12px; background: var(--ui-surface-2); color: var(--ui-muted); text-align: center; font-size: 12px; font-weight: 700; }
+
+@media (max-width: 760px) {
+  :root { --ui-radius: 16px; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .k2-main, .kadosk-main, .adm-main { padding-left: 14px !important; padding-right: 14px !important; }
+  .k2-carte, .kadosk-carte, .adm-panneau, .adm-card { border-radius: var(--ui-radius) !important; box-shadow: 0 10px 28px rgba(28,39,68,.08); }
+  .k2-stepper { overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+  .k2-stepper::-webkit-scrollbar { display: none; }
+  .k2-step { min-width: max-content; }
+  .k2-ligne-boutons-nav { position: sticky; bottom: 0; z-index: 20; margin: 18px -14px -14px !important; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--ui-surface) 92%, transparent); backdrop-filter: blur(16px); border-top: 1px solid var(--ui-border); }
+  .checkout-fields { grid-template-columns: 1fr; }
+  .checkout-fields .checkout-field-full { grid-column: auto; }
+  .checkout-section { padding: 15px; }
+  .checkout-trust { grid-template-columns: 1fr; }
+  table { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
