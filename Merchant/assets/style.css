@@ -1,0 +1,2336 @@
+:root {
+  --kadosk-violet: #6c4ce0;
+  --kadosk-violet-fonce: #4b2fb3;
+  --kadosk-violet-tint: rgba(108, 76, 224, 0.12);
+  --kadosk-vert: #1faa6c;
+  --kadosk-vert-tint: rgba(31, 170, 108, 0.13);
+  --kadosk-orange: #f5a623;
+  --kadosk-orange-tint: rgba(245, 166, 35, 0.15);
+  --kadosk-bleu: #2f80ed;
+  --kadosk-bleu-tint: rgba(47, 128, 237, 0.12);
+  --kadosk-teal: #8ab6a9;
+  --kadosk-teal-fonce: #4f7a6c;
+  --kadosk-sombre: #142723;
+  --kadosk-sombre-clair: #1e3b34;
+  --kadosk-sombre-bordure: #24443c;
+  --kadosk-sombre-texte: #a9c4bc;
+  --kadosk-sombre-texte-vif: #ffffff;
+  --kadosk-fond: #f7f7fb;
+  --kadosk-texte: #1b1730;
+  --kadosk-texte-clair: #6b6580;
+  --kadosk-bordure: #e6e4f0;
+  --kadosk-blanc: #ffffff;
+  --kadosk-danger: #e0473e;
+  --kadosk-danger-tint: rgba(224, 71, 62, 0.12);
+  --kadosk-rayon: 12px;
+  --kadosk-ombre: 0 2px 10px rgba(27, 23, 48, 0.06);
+}
+
+/* Refonte espace marchand 2026 : hiérarchie, lecture mobile et rendu rapide. */
+.kadosk-sous-titre { margin: 5px 0 0; color: var(--kadosk-texte-clair); font-size: 13px; font-weight: 400; }
+.kadosk-badge-role { display:inline-flex; margin-top:5px; padding:3px 8px; border-radius:999px; background:rgba(138,182,169,.18); color:var(--kadosk-teal-fonce); font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+.kadosk-kpi-mini-grille { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+.kadosk-kpi-mini { min-height:110px; padding:18px; background:linear-gradient(145deg,#fff,#fafcfb); border:1px solid var(--kadosk-bordure); border-radius:16px; box-shadow:0 8px 30px rgba(28,39,35,.04); display:flex; flex-direction:column; }
+.kadosk-kpi-mini span { color:var(--kadosk-texte-clair); font-size:12px; font-weight:700; }
+.kadosk-kpi-mini strong { margin:6px 0 2px; font-size:27px; line-height:1; color:var(--kadosk-sombre); }
+.kadosk-kpi-mini small { margin-top:auto; color:var(--kadosk-texte-clair); font-size:11px; }
+.kadosk-barre-outils { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+.kadosk-barre-outils .kadosk-filtres { margin:0; }
+.kadosk-filtre { border:0; font:inherit; cursor:pointer; }
+.kadosk-recherche { width:min(310px,100%); display:flex; align-items:center; gap:8px; padding:9px 12px; background:#fff; border:1px solid var(--kadosk-bordure); border-radius:10px; }
+.kadosk-recherche input { width:100%; border:0; outline:0; background:transparent; font:inherit; font-size:13px; }
+.kadosk-section-formulaire { display:flex; gap:12px; align-items:flex-start; margin:25px 0 16px; padding-top:20px; border-top:1px solid var(--kadosk-bordure); }
+.kadosk-section-formulaire:first-child { margin-top:0; padding-top:0; border:0; }
+.kadosk-section-formulaire h2 { margin:0; font-size:16px; }
+.kadosk-section-formulaire p { margin:3px 0 0; color:var(--kadosk-texte-clair); font-size:12px; }
+.kadosk-section-numero { width:28px; height:28px; flex:0 0 28px; border-radius:9px; display:grid; place-items:center; background:var(--kadosk-sombre); color:#fff; font-weight:800; font-size:12px; }
+.kadosk-modeles-carte { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:22px; }
+.kadosk-modele-carte { border:1px solid var(--kadosk-bordure); background:#fff; padding:7px; border-radius:11px; cursor:pointer; color:var(--kadosk-texte); font:inherit; font-size:11px; font-weight:700; text-align:left; transition:.18s ease; }
+.kadosk-modele-carte i { display:block; height:42px; border-radius:7px; margin-bottom:6px; }
+.kadosk-modele-carte:hover,.kadosk-modele-carte.selectionne { border-color:var(--kadosk-violet); box-shadow:0 0 0 2px rgba(108,76,224,.12); transform:translateY(-1px); }
+.kadosk-apercu-sticky { position:sticky; top:18px; }
+.kadosk-panneau-large,.kadosk-panneau { content-visibility:auto; contain-intrinsic-size:1px 420px; }
+
+@media (max-width: 1050px) {
+  .kadosk-kpi-mini-grille { grid-template-columns:repeat(2,1fr); }
+  .kadosk-modeles-carte { grid-template-columns:repeat(2,1fr); }
+  .kadosk-apercu-sticky { position:static; }
+}
+@media (max-width: 700px) {
+  .kadosk-entete { align-items:flex-start; }
+  .kadosk-sous-titre { max-width:260px; }
+  .kadosk-kpi-mini-grille { grid-template-columns:1fr 1fr; gap:9px; }
+  .kadosk-kpi-mini { min-height:96px; padding:14px; border-radius:13px; }
+  .kadosk-kpi-mini strong { font-size:23px; }
+  .kadosk-barre-outils { align-items:stretch; flex-direction:column; }
+  .kadosk-recherche { width:auto; }
+  .kadosk-panneau-large { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .kadosk-table { min-width:720px; }
+}
+.kadosk-nav-verrouille { opacity:.55; }
+.kadosk-nav-verrouille:hover { background:transparent; color:inherit; }
+.kadosk-nav-cadenas { margin-left:auto; font-size:11px; filter:grayscale(1); }
+.kadosk-toast-acces { position:fixed; right:22px; bottom:22px; z-index:2000; max-width:340px; padding:13px 16px; border-radius:11px; background:#211f2b; color:#fff; box-shadow:0 12px 35px rgba(0,0,0,.22); font-size:13px; animation:kadosk-toast-entree .2s ease-out; }
+@keyframes kadosk-toast-entree { from { opacity:0; transform:translateY(8px); } }
+.kadosk-quota-equipe { display:grid; grid-template-columns:1fr auto; gap:3px 16px; padding:14px 16px; margin:12px 0 16px; border-radius:12px; background:var(--kadosk-vert-tint); border:1px solid rgba(31,170,108,.18); }
+.kadosk-quota-equipe span { font-size:12px; color:var(--kadosk-texte-clair); }
+.kadosk-quota-equipe strong { grid-row:1 / span 2; grid-column:2; align-self:center; color:var(--kadosk-teal-fonce); }
+.kadosk-quota-equipe small { color:var(--kadosk-texte-clair); }
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--kadosk-fond);
+  color: var(--kadosk-texte);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kadosk-page-connexion {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.kadosk-carte-connexion {
+  background: var(--kadosk-blanc);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.kadosk-logo {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--kadosk-violet-fonce);
+  margin-bottom: 4px;
+}
+
+.kadosk-slogan {
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 28px;
+}
+
+.kadosk-champ {
+  margin-bottom: 16px;
+}
+
+.kadosk-champ label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.kadosk-champ input,
+.kadosk-champ select,
+.kadosk-champ textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 8px;
+  /* 16px minimum : en dessous, Safari iOS zoome automatiquement sur le champ au
+     focus (comportement natif du navigateur, pas un bug côté page). */
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.kadosk-champ input:focus,
+.kadosk-champ select:focus,
+.kadosk-champ textarea:focus {
+  outline: none;
+  border-color: var(--kadosk-violet);
+}
+
+.kadosk-champ input[type="checkbox"],
+.kadosk-champ-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  flex: 0 0 18px;
+  accent-color: var(--kadosk-violet);
+}
+
+.kadosk-resultat-operation { display:flex; align-items:flex-start; gap:9px; margin-top:12px; font-weight:600; }
+.kadosk-resultat-operation::before { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; color:#fff; line-height:1; flex:0 0 22px; }
+.kadosk-resultat-operation.succes::before { content:"\2713"; background:#1faa6c; }
+.kadosk-resultat-operation.erreur::before { content:"\00d7"; background:#c0392b; }
+
+.kadosk-champ-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.kadosk-bouton {
+  padding: 12px 16px;
+  background: var(--kadosk-violet);
+  color: var(--kadosk-blanc);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kadosk-bouton:hover {
+  background: var(--kadosk-violet-fonce);
+}
+
+.kadosk-bouton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.kadosk-bouton-secondaire {
+  background: var(--kadosk-blanc);
+  color: var(--kadosk-violet);
+  border: 1px solid var(--kadosk-violet);
+}
+
+.kadosk-message-erreur {
+  color: var(--kadosk-danger);
+  font-size: 13px;
+  margin-top: 12px;
+  min-height: 16px;
+}
+
+.kadosk-message-info {
+  color: var(--kadosk-texte-clair);
+  font-size: 13px;
+  margin-top: 12px;
+  min-height: 16px;
+}
+
+.kadosk-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.kadosk-sidebar {
+  width: 252px;
+  background: var(--kadosk-sombre);
+  padding: 20px 14px 16px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.kadosk-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 8px 22px;
+}
+
+.kadosk-sidebar-logo img {
+  height: 26px;
+  width: auto;
+  display: block;
+}
+
+.kadosk-sidebar-logo span {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--kadosk-sombre-texte-vif);
+}
+
+.kadosk-sidebar-marchand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 0 0 16px;
+  border-radius: 10px;
+  background: var(--kadosk-sombre-clair);
+}
+
+.kadosk-sidebar-marchand-logo {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kadosk-sidebar-marchand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.kadosk-sidebar-marchand-logo span {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--kadosk-violet-fonce);
+  display: flex;
+}
+
+.kadosk-sidebar-marchand-info {
+  min-width: 0;
+}
+
+.kadosk-sidebar-marchand-nom {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-sombre-texte-vif);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.kadosk-badge-palier {
+  display: none;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.kadosk-nav-groupe {
+  margin-bottom: 14px;
+}
+
+.kadosk-nav-titre-groupe {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5f7d74;
+  padding: 0 12px;
+  margin: 0 0 6px;
+}
+
+.kadosk-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kadosk-sombre-texte);
+  margin-bottom: 2px;
+}
+
+.kadosk-nav-item svg {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+}
+
+.kadosk-nav-item:hover {
+  background: var(--kadosk-sombre-clair);
+  color: var(--kadosk-sombre-texte-vif);
+}
+
+.kadosk-nav-item.actif {
+  background: var(--kadosk-violet);
+  color: #ffffff;
+}
+
+.kadosk-nav-badge {
+  margin-left: auto;
+  background: var(--kadosk-orange);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.kadosk-nav-item.actif .kadosk-nav-badge {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.kadosk-sidebar-pied {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--kadosk-sombre-bordure);
+}
+
+.kadosk-sidebar-aide {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--kadosk-sombre-clair);
+  color: var(--kadosk-sombre-texte-vif);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.kadosk-sidebar-aide svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.kadosk-main {
+  flex: 1;
+  padding: 24px 32px 48px;
+  max-width: 1240px;
+}
+
+.kadosk-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  gap: 16px;
+}
+
+.kadosk-entete h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.kadosk-entete-droite {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Bouton hamburger + overlay du tiroir mobile (nav.js les insère lui-même,
+   ils ne sont donc pas dans le HTML statique des pages). Masqués par défaut,
+   activés seulement sous le point de rupture mobile. */
+.kadosk-bouton-menu-mobile {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: none;
+  background: var(--kadosk-blanc);
+  box-shadow: var(--kadosk-ombre);
+  color: var(--kadosk-texte);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.kadosk-bouton-menu-mobile svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kadosk-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 40, 0.45);
+  z-index: 105;
+}
+
+.kadosk-sidebar-overlay.visible {
+  display: block;
+}
+
+.kadosk-cloche {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--kadosk-blanc);
+  box-shadow: var(--kadosk-ombre);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--kadosk-texte-clair);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.kadosk-cloche-panneau {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  width: 300px;
+  background: var(--kadosk-blanc);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(20, 15, 40, 0.16);
+  padding: 10px 0;
+  z-index: 40;
+  cursor: default;
+  text-align: left;
+}
+
+.kadosk-cloche-entete {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-texte);
+  padding: 4px 16px 10px;
+  border-bottom: 1px solid var(--kadosk-bordure);
+  margin-bottom: 4px;
+}
+
+.kadosk-cloche-item {
+  display: block;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.kadosk-cloche-item:hover {
+  background: var(--kadosk-violet-tint);
+}
+
+.kadosk-cloche-item-titre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kadosk-texte);
+}
+
+.kadosk-cloche-item-detail {
+  font-size: 11px;
+  color: var(--kadosk-texte-clair);
+  margin-top: 2px;
+}
+
+.kadosk-cloche-voir-tout {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kadosk-violet);
+  text-decoration: none;
+  padding: 10px 16px 2px;
+  border-top: 1px solid var(--kadosk-bordure);
+  margin-top: 6px;
+}
+
+.kadosk-cloche svg {
+  width: 18px;
+  height: 18px;
+}
+
+.kadosk-cloche-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--kadosk-danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+.kadosk-utilisateur {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kadosk-utilisateur-nom {
+  text-align: right;
+}
+
+.kadosk-utilisateur-nom .nom {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-texte);
+  line-height: 1.3;
+}
+
+.kadosk-utilisateur-nom .role {
+  font-size: 11px;
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--kadosk-violet);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.kadosk-lien-deconnexion {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kadosk-texte-clair);
+  cursor: pointer;
+}
+
+.kadosk-grille-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.kadosk-carte-kpi {
+  background: var(--kadosk-blanc);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 18px 20px;
+}
+
+.kadosk-kpi-icone {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.kadosk-kpi-icone svg {
+  width: 19px;
+  height: 19px;
+}
+
+.kadosk-kpi-icone.violet { background: var(--kadosk-violet-tint); color: var(--kadosk-violet); }
+.kadosk-kpi-icone.vert { background: var(--kadosk-vert-tint); color: var(--kadosk-vert); }
+.kadosk-kpi-icone.orange { background: var(--kadosk-orange-tint); color: #b06b00; }
+.kadosk-kpi-icone.bleu { background: var(--kadosk-bleu-tint); color: var(--kadosk-bleu); }
+
+.kadosk-carte-kpi .kadosk-kpi-label {
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 6px;
+}
+
+.kadosk-carte-kpi .kadosk-kpi-valeur {
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.kadosk-carte-kpi .kadosk-kpi-valeur .unite {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kadosk-texte-clair);
+  margin-left: 2px;
+}
+
+.kadosk-carte-kpi .kadosk-kpi-detail {
+  font-size: 12px;
+  color: var(--kadosk-texte-clair);
+  margin-top: 6px;
+}
+
+.kadosk-carte-kpi .kadosk-kpi-detail.hausse {
+  color: var(--kadosk-vert);
+  font-weight: 700;
+}
+
+.kadosk-grille-tableau-bord {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kadosk-grille-listes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.85fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: start;
+}
+
+.kadosk-panneau-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.kadosk-panneau-entete h2 {
+  margin: 0;
+}
+
+.kadosk-lien-voir-tout {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-violet);
+  cursor: pointer;
+}
+
+.kadosk-chart-conteneur {
+  width: 100%;
+  height: 180px;
+}
+
+.kadosk-liste-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--kadosk-bordure);
+}
+
+.kadosk-liste-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.kadosk-liste-item:first-child {
+  padding-top: 0;
+}
+
+.kadosk-liste-icone {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--kadosk-violet);
+}
+
+.kadosk-liste-corps {
+  flex: 1;
+  min-width: 0;
+}
+
+.kadosk-liste-titre {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-texte);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kadosk-liste-sous-titre {
+  font-size: 12px;
+  color: var(--kadosk-texte-clair);
+  margin-top: 2px;
+}
+
+.kadosk-liste-droite {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.kadosk-liste-montant {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.kadosk-liste-vide {
+  padding: 20px 0;
+  text-align: center;
+  color: var(--kadosk-texte-clair);
+  font-size: 13px;
+}
+
+.kadosk-finance-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--kadosk-bordure);
+  font-size: 13px;
+}
+
+.kadosk-finance-ligne:last-of-type {
+  border-bottom: none;
+}
+
+.kadosk-finance-ligne .label {
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-finance-ligne .valeur {
+  font-weight: 800;
+}
+
+.kadosk-finance-ligne .valeur.vert { color: var(--kadosk-vert); }
+.kadosk-finance-ligne .valeur.danger { color: var(--kadosk-danger); }
+.kadosk-finance-ligne .valeur.violet { color: var(--kadosk-violet); }
+
+.kadosk-grille-alertes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.kadosk-alerte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--kadosk-blanc);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 15px 16px;
+}
+
+.kadosk-alerte-icone {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kadosk-alerte-icone svg {
+  width: 17px;
+  height: 17px;
+}
+
+.kadosk-alerte-icone.orange { background: var(--kadosk-orange-tint); color: #b06b00; }
+.kadosk-alerte-icone.bleu { background: var(--kadosk-bleu-tint); color: var(--kadosk-bleu); }
+.kadosk-alerte-icone.danger { background: var(--kadosk-danger-tint); color: var(--kadosk-danger); }
+.kadosk-alerte-icone.vert { background: var(--kadosk-vert-tint); color: var(--kadosk-vert); }
+
+.kadosk-alerte-texte {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kadosk-texte);
+  flex: 1;
+}
+
+.kadosk-barre-recherche {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.kadosk-barre-recherche input {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.kadosk-barre-recherche input:focus {
+  outline: none;
+  border-color: var(--kadosk-violet);
+}
+
+.kadosk-filtres {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.kadosk-filtre {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-texte-clair);
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  cursor: pointer;
+}
+
+.kadosk-filtre.actif {
+  background: var(--kadosk-violet);
+  border-color: var(--kadosk-violet);
+  color: #fff;
+}
+
+.kadosk-panneau {
+  background: var(--kadosk-blanc);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 24px;
+  max-width: 480px;
+}
+
+.kadosk-bouton-onglet {
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-bouton-onglet.actif {
+  background: var(--kadosk-violet-tint);
+  border-color: var(--kadosk-violet);
+  color: var(--kadosk-violet);
+}
+
+.kadosk-panneau-large {
+  background: var(--kadosk-blanc);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 24px;
+}
+
+.kadosk-panneau h2,
+.kadosk-panneau-large h2 {
+  font-size: 16px;
+  margin: 0 0 18px;
+}
+
+.kadosk-ligne-boutons {
+  display: flex;
+  gap: 10px;
+}
+
+.kadosk-carte-info {
+  background: var(--kadosk-fond);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 14px;
+  margin-top: 16px;
+}
+
+.kadosk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.kadosk-table th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--kadosk-texte-clair);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--kadosk-bordure);
+}
+
+.kadosk-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--kadosk-bordure);
+  vertical-align: top;
+}
+
+.kadosk-table tr:last-child td {
+  border-bottom: none;
+}
+
+.kadosk-table tr.kadosk-ligne-selectionnee {
+  background: rgba(108, 76, 224, 0.06);
+}
+
+.kadosk-table tr.kadosk-ligne-cliquable:hover {
+  background: var(--kadosk-violet-tint);
+}
+
+.kadosk-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.kadosk-badge-attente {
+  background: rgba(245, 166, 35, 0.15);
+  color: #b06b00;
+}
+
+.kadosk-badge-actif {
+  background: rgba(31, 170, 108, 0.15);
+  color: var(--kadosk-vert);
+}
+
+.kadosk-badge-neutre {
+  background: var(--kadosk-fond);
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-placeholder {
+  background: var(--kadosk-blanc);
+  border: 1px dashed var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  padding: 32px;
+  text-align: center;
+  color: var(--kadosk-texte-clair);
+  font-size: 14px;
+}
+
+.kadosk-placeholder strong {
+  display: block;
+  color: var(--kadosk-texte);
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.kadosk-carte-apercu {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  background: #fbfbf8;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--kadosk-ombre);
+  border: 1px solid var(--kadosk-bordure);
+}
+
+/* Ratio 3:2 via un spacer en pourcentage de la largeur plutôt que la propriété
+   aspect-ratio - voir la même note dans assets/kadosk2.css : les enfants sont tous
+   en position:absolute avec des top/left/right/bottom en pourcentage, et
+   aspect-ratio recalcule parfois la boîte APRÈS ces enfants lors d'un changement
+   d'échelle (zoom navigateur/pincement mobile), ce qui les fait dériver. */
+.kadosk-carte-apercu::before {
+  content: "";
+  display: block;
+  padding-top: 66.6667%;
+}
+
+/* Fond personnalisable de la carte (voir assets/carte-visuelle.js,
+   appliquerAuxElements) : couleur unie (défaut, [data-fond="couleur"]), dégradé
+   libre ou image uploadée par le marchand. Toujours SOUS tout le reste - le badge
+   KADOSK (bas gauche) et la zone QR (bas droite) restent des blocs opaques
+   indépendants par-dessus, jamais affectés quel que soit le fond choisi. */
+.kadosk-carte-apercu-fond {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Voile de lisibilité automatique, uniquement en mode image (voir data-fond) -
+   jamais réglable par le marchand : garantit que le titre reste lisible quelle
+   que soit la photo choisie, sans réglage à faire de sa part. */
+.kadosk-carte-apercu-voile {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.55) 45%, rgba(255, 255, 255, 0.12) 75%);
+}
+.kadosk-carte-apercu[data-fond="image"] .kadosk-carte-apercu-voile {
+  display: block;
+}
+
+/* La vague décorative n'appartient qu'au look "couleur unie" historique - elle
+   se marierait mal avec une photo ou un dégradé personnalisé en dessous. */
+.kadosk-carte-apercu[data-fond="degrade"] .kadosk-carte-apercu-vague,
+.kadosk-carte-apercu[data-fond="image"] .kadosk-carte-apercu-vague {
+  display: none;
+}
+
+.kadosk-carte-apercu-logo-marchand {
+  position: absolute;
+  top: 8%;
+  left: 7%;
+  width: 34%;
+  height: 17%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(20, 39, 35, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.kadosk-carte-apercu-logo-marchand img {
+  max-width: 82%;
+  max-height: 70%;
+  object-fit: contain;
+}
+
+.kadosk-carte-apercu-logo-marchand::before {
+  content: "";
+  display: block;
+  width: 50%;
+  height: 50%;
+  border-radius: 6px;
+  background: var(--kadosk-bordure);
+}
+
+.kadosk-carte-apercu-logo-marchand.a-un-logo::before {
+  display: none;
+}
+
+.kadosk-carte-apercu-titre {
+  position: absolute;
+  top: 28%;
+  left: 7%;
+  width: 56%;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--kadosk-texte);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.kadosk-carte-apercu-cadeau {
+  position: absolute;
+  top: 6%;
+  right: 6%;
+  width: 22%;
+  height: auto;
+  opacity: 0.22;
+}
+
+.kadosk-carte-apercu-montant-bloc {
+  position: absolute;
+  top: 36%;
+  right: 6%;
+  text-align: right;
+}
+
+/* Zone réservée au QR (voir assets/carte-visuelle.js) : cette même carte visuelle
+   sert à la fois d'aperçu éditeur (settings.html, zone vide/placeholder) et de
+   carte affichée côté client dans "Mes cartes" (mes-commandes.js, QR réel une
+   fois généré) - la mise en page (position du bloc montant ci-dessus notamment)
+   est pensée pour ne jamais empiéter sur cet espace, en bas à droite, symétrique
+   du logo KADOSK en bas à gauche. */
+.kadosk-carte-apercu-qr-zone {
+  position: absolute;
+  right: 5%;
+  bottom: 8%;
+  width: 22%;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(20, 39, 35, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.kadosk-carte-apercu-qr-zone img,
+.kadosk-carte-apercu-qr-zone canvas {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+}
+
+.kadosk-carte-apercu-qr-zone-placeholder {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--kadosk-texte-clair);
+  border: 1.5px dashed var(--kadosk-bordure);
+  border-radius: 8px;
+}
+
+.kadosk-carte-apercu-qr-zone-placeholder svg {
+  width: 38%;
+  height: 38%;
+  opacity: 0.5;
+}
+
+.kadosk-carte-apercu-qr-zone-placeholder span {
+  font-size: 6.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.kadosk-carte-apercu-montant-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--kadosk-teal-fonce);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.kadosk-carte-apercu-montant-label .trait {
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  background: var(--kadosk-teal);
+}
+
+.kadosk-carte-apercu-montant-valeur {
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--kadosk-sombre);
+  white-space: nowrap;
+}
+
+.kadosk-carte-apercu-montant-valeur .devise {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.kadosk-carte-apercu-vague {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: 0;
+  height: 30%;
+  background: var(--kadosk-teal);
+  opacity: 0.32;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+.kadosk-carte-apercu-logo-kadosk {
+  position: absolute;
+  left: 5%;
+  bottom: 8%;
+  width: 36%;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(20, 39, 35, 0.1);
+}
+
+.kadosk-carte-apercu-logo-kadosk img {
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+}
+
+.kadosk-carte-apercu-logo-kadosk span {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--kadosk-texte-clair);
+}
+
+/* Couleur d'accent de la carte cadeau : ne modifie que la vague de fond et le
+   cadre du montant (--kadosk-teal / --kadosk-teal-fonce), pas le reste de la
+   charte (fond, logos, typographie), qui reste fixe. */
+.kadosk-carte-apercu[data-accent="violet"] {
+  --kadosk-teal: var(--kadosk-violet);
+  --kadosk-teal-fonce: var(--kadosk-violet-fonce);
+}
+.kadosk-carte-apercu[data-accent="orange"] {
+  --kadosk-teal: var(--kadosk-orange);
+  --kadosk-teal-fonce: #b06b00;
+}
+.kadosk-carte-apercu[data-accent="bleu"] {
+  --kadosk-teal: var(--kadosk-bleu);
+  --kadosk-teal-fonce: #1f5fc0;
+}
+.kadosk-carte-apercu[data-accent="rose"] {
+  --kadosk-teal: #e0629c;
+  --kadosk-teal-fonce: #a83f74;
+}
+
+.kadosk-choix-couleur {
+  display: flex;
+  gap: 10px;
+}
+
+.kadosk-pastille-couleur {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.kadosk-pastille-couleur.selectionnee {
+  border-color: var(--kadosk-texte);
+  box-shadow: 0 0 0 2px var(--kadosk-blanc), 0 0 0 4px var(--kadosk-texte);
+}
+
+/* Grille de vignettes (motifs de fond / icônes d'activité, voir settings.js) -
+   même logique de sélection que .kadosk-pastille-couleur ci-dessus. */
+.kadosk-grille-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kadosk-swatch {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  border: 2px solid var(--kadosk-bordure);
+  background: #fbfbf8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.kadosk-swatch img,
+.kadosk-swatch svg {
+  width: 60%;
+  height: 60%;
+}
+
+.kadosk-swatch.selectionnee {
+  border-color: var(--kadosk-violet);
+  box-shadow: 0 0 0 2px var(--kadosk-violet-tint);
+}
+
+.kadosk-swatch-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--kadosk-violet);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+/* Motif de fond de l'aperçu carte (voir assets/carte-visuelle.js, injecté
+   dynamiquement en tout premier enfant de .kadosk-carte-apercu). */
+.kadosk-carte-apercu {
+  --kadosk-carte-police: inherit;
+}
+.kadosk-carte-apercu-motif {
+  border-radius: inherit;
+}
+
+/* Interrupteur (toggle) réutilisé pour les préférences réseau KADOSK. */
+.kadosk-interrupteur {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.kadosk-interrupteur input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.kadosk-interrupteur-curseur {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--kadosk-bordure);
+  border-radius: 999px;
+  transition: background 0.15s;
+}
+
+.kadosk-interrupteur-curseur::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background: var(--kadosk-blanc);
+  border-radius: 50%;
+  transition: transform 0.15s;
+  box-shadow: 0 1px 3px rgba(20, 15, 40, 0.25);
+}
+
+.kadosk-interrupteur input:checked + .kadosk-interrupteur-curseur {
+  background: var(--kadosk-violet);
+}
+
+.kadosk-interrupteur input:checked + .kadosk-interrupteur-curseur::before {
+  transform: translateX(18px);
+}
+
+@media (max-width: 1080px) {
+  .kadosk-grille-kpi {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .kadosk-grille-tableau-bord,
+  .kadosk-grille-listes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  /* La sidebar quitte le flux normal pour devenir un tiroir plein écran en
+     hauteur, ouvert/fermé par le bouton hamburger (nav.js gère la classe
+     "ouverte"). Sur mobile, .kadosk-main récupère automatiquement toute la
+     largeur puisque la sidebar est en position fixed. */
+  .kadosk-bouton-menu-mobile {
+    display: flex;
+  }
+
+  .kadosk-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 110;
+    box-shadow: 0 0 28px rgba(10, 8, 20, 0.35);
+  }
+
+  .kadosk-sidebar.ouverte {
+    transform: translateX(0);
+  }
+
+  .kadosk-main {
+    padding: 16px 16px 40px;
+    max-width: 100%;
+  }
+
+  .kadosk-entete {
+    gap: 10px;
+  }
+
+  .kadosk-entete h1 {
+    font-size: 18px;
+  }
+
+  .kadosk-entete-droite {
+    gap: 10px;
+  }
+
+  .kadosk-utilisateur-nom {
+    display: none;
+  }
+
+  .kadosk-grille-kpi {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kadosk-panneau-large,
+  .kadosk-panneau {
+    padding: 18px;
+  }
+
+  .kadosk-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kadosk-carte-connexion {
+    padding: 28px 22px;
+  }
+}
+
+/* Pavé numérique tactile (Encaisser) : masqué par défaut, affiché uniquement sur mobile
+   via le media query ci-dessous, pour saisir le montant sans le clavier du téléphone.
+   Regroupé dans un cadre visuel distinct (fond légèrement teinté + bordure) pour bien le
+   séparer du reste du formulaire, avec des touches carrées type terminal de caisse. */
+.kadosk-pave-numerique {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--kadosk-fond);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 14px;
+}
+
+.kadosk-touche-pave {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--kadosk-texte);
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.05s ease, background 0.1s ease;
+}
+
+.kadosk-touche-pave:active {
+  background: var(--kadosk-bordure);
+  transform: scale(0.94);
+}
+
+.kadosk-touche-pave-effacer {
+  color: var(--kadosk-texte-clair);
+  font-size: 18px;
+  background: transparent;
+  box-shadow: none;
+  border-style: dashed;
+}
+
+@media (max-width: 520px) {
+  .kadosk-grille-kpi {
+    grid-template-columns: 1fr;
+  }
+
+  .kadosk-ligne-boutons {
+    flex-wrap: wrap;
+  }
+
+  .kadosk-choix-couleur {
+    flex-wrap: wrap;
+  }
+
+  .kadosk-finance-ligne {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .kadosk-cloche-panneau {
+    width: min(300px, calc(100vw - 32px));
+    right: -8px;
+  }
+
+  .kadosk-page-connexion {
+    padding: 16px;
+  }
+
+  .kadosk-carte-connexion {
+    padding: 24px 18px;
+  }
+
+  .kadosk-scan-conteneur {
+    max-width: 100% !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Boutique publique KADOSK (boutique.html / fiche-marchand.html / panier.html) :
+   pages sans connexion, accessibles à tout acheteur. Palette et rayons repris des
+   variables --kadosk-* existantes pour rester cohérent avec le reste du site.
+--------------------------------------------------------------------------- */
+
+.kadosk-public-body {
+  min-height: 100vh;
+}
+
+.kadosk-public-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--kadosk-blanc);
+  border-bottom: 1px solid var(--kadosk-bordure);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.kadosk-public-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.kadosk-public-logo img {
+  height: 26px;
+  width: auto;
+}
+
+.kadosk-public-logo span {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--kadosk-violet-fonce);
+}
+
+.kadosk-public-panier-lien {
+  position: relative;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kadosk-texte);
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--kadosk-fond);
+}
+
+.kadosk-public-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--kadosk-violet);
+  color: var(--kadosk-blanc);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.kadosk-public-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.kadosk-public-main-etroit {
+  max-width: 560px;
+}
+
+.kadosk-public-titre {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.kadosk-public-soustitre {
+  font-size: 14px;
+  color: var(--kadosk-texte-clair);
+  margin: 0 0 24px;
+}
+
+.kadosk-public-retour {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 18px;
+}
+
+.kadosk-grille-boutique {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kadosk-carte-marchand {
+  display: block;
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 18px;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.kadosk-carte-marchand:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(27, 23, 48, 0.1);
+}
+
+.kadosk-carte-marchand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--kadosk-fond);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 12px;
+  font-weight: 800;
+  color: var(--kadosk-violet-fonce);
+}
+
+.kadosk-carte-marchand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.kadosk-carte-marchand-nom {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.kadosk-carte-marchand-desc {
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.kadosk-fiche-marchand-entete {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.kadosk-fiche-marchand-desc {
+  font-size: 14px;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 8px;
+}
+
+.kadosk-montants-grille {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kadosk-montant-bouton {
+  padding: 10px 16px;
+  border: 1px solid var(--kadosk-bordure);
+  background: var(--kadosk-blanc);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kadosk-montant-bouton.actif {
+  background: var(--kadosk-violet);
+  border-color: var(--kadosk-violet);
+  color: var(--kadosk-blanc);
+}
+
+.kadosk-quantite-controle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kadosk-quantite-controle span {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}
+
+.kadosk-panier-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  margin: 8px 0 20px;
+  border-top: 1px solid var(--kadosk-bordure);
+  border-bottom: 1px solid var(--kadosk-bordure);
+  font-size: 16px;
+}
+
+.kadosk-panier-groupe {
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.kadosk-panier-groupe-entete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.kadosk-panier-groupe-entete img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.kadosk-panier-ligne {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.kadosk-panier-ligne + .kadosk-panier-ligne {
+  border-top: 1px solid var(--kadosk-bordure);
+}
+
+.kadosk-panier-quantite {
+  width: 52px;
+  padding: 6px;
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.kadosk-panier-sous-total {
+  margin-left: auto;
+  font-weight: 700;
+}
+
+.kadosk-panier-retirer {
+  border: none;
+  background: none;
+  color: var(--kadosk-texte-clair);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+}
+
+.kadosk-panier-retirer:hover {
+  color: var(--kadosk-danger);
+}
+
+@media (max-width: 520px) {
+  .kadosk-public-header {
+    padding: 12px 16px;
+  }
+  .kadosk-public-main {
+    padding: 20px 16px 48px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Page "Commander une carte cadeau" (fiche-marchand.html) - reprend l'identité
+   KADOSK (vert sauge / vert sombre du logo) dans une mise en page proche d'un
+   vrai tunnel d'achat e-commerce.
+--------------------------------------------------------------------------- */
+
+.kadosk-cmd-body {
+  min-height: 100vh;
+  background: var(--kadosk-fond);
+}
+
+.kadosk-cmd-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 32px;
+  background: var(--kadosk-blanc);
+  border-bottom: 1px solid var(--kadosk-bordure);
+}
+
+.kadosk-cmd-logo img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+.kadosk-cmd-liens {
+  display: flex;
+  gap: 26px;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kadosk-texte);
+}
+
+.kadosk-cmd-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-cmd-recherche span {
+  margin-left: 2px;
+}
+
+.kadosk-cmd-icone-panier {
+  position: relative;
+  font-size: 17px;
+}
+
+.kadosk-cmd-icone {
+  font-size: 17px;
+}
+
+.kadosk-cmd-fil-ariane {
+  padding: 14px 32px 0;
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+}
+
+/* Variante utilisée quand la page n'a pas de bandeau de navigation au-dessus
+   (ex : fiche-marchand.html, pensée pour être intégrée sans entête) : un peu
+   plus d'air en haut pour ne pas coller au bord de la fenêtre/iframe. */
+.kadosk-cmd-fil-ariane-sans-entete {
+  padding-top: 28px;
+}
+
+.kadosk-cmd-fil-ariane a {
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-cmd-fil-ariane span {
+  color: var(--kadosk-texte);
+  font-weight: 600;
+}
+
+.kadosk-cmd-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px 32px 60px;
+}
+
+.kadosk-cmd-titre {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 4px 0 4px;
+}
+
+.kadosk-cmd-soustitre {
+  font-size: 14px;
+  color: var(--kadosk-texte-clair);
+  margin: 0 0 26px;
+}
+
+.kadosk-cmd-grille {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.kadosk-cmd-colonne-principale {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kadosk-cmd-etapes {
+  display: flex;
+  align-items: center;
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 20px 24px;
+}
+
+.kadosk-cmd-etape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-cmd-etape-numero {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--kadosk-bordure);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  flex-shrink: 0;
+}
+
+.kadosk-cmd-etape-active {
+  color: var(--kadosk-texte);
+}
+
+.kadosk-cmd-etape-active .kadosk-cmd-etape-numero {
+  background: var(--kadosk-teal-fonce);
+  border-color: var(--kadosk-teal-fonce);
+  color: var(--kadosk-blanc);
+}
+
+.kadosk-cmd-etape-trait {
+  flex: 1;
+  height: 1px;
+  background: var(--kadosk-bordure);
+  margin: 0 16px;
+}
+
+.kadosk-cmd-carte {
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  box-shadow: var(--kadosk-ombre);
+  padding: 22px 24px;
+}
+
+.kadosk-cmd-produit {
+  display: flex;
+  gap: 16px;
+}
+
+.kadosk-cmd-produit-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  background: var(--kadosk-sombre);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--kadosk-blanc);
+}
+
+.kadosk-cmd-produit-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--kadosk-blanc);
+}
+
+.kadosk-cmd-produit-info {
+  min-width: 0;
+}
+
+.kadosk-cmd-badge-categorie {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kadosk-teal-fonce);
+  background: var(--kadosk-teal-tint, rgba(138, 182, 169, 0.18));
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.kadosk-cmd-produit-nom {
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.kadosk-cmd-produit-desc {
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 6px;
+}
+
+.kadosk-cmd-lien-conditions {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kadosk-teal-fonce);
+}
+
+.kadosk-cmd-note-validite {
+  margin-top: 16px;
+  background: var(--kadosk-vert-tint);
+  color: var(--kadosk-teal-fonce);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kadosk-cmd-label {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.kadosk-cmd-souslabel {
+  font-size: 12px;
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-cmd-montants-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.kadosk-cmd-montants-grille .kadosk-montant-bouton {
+  width: 100%;
+  text-align: center;
+}
+
+.kadosk-cmd-autre-montant {
+  margin-top: 14px;
+}
+
+.kadosk-cmd-autre-montant label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.kadosk-cmd-autre-montant-champ {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.kadosk-cmd-autre-montant-champ input {
+  flex: 1;
+  border: none;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.kadosk-cmd-autre-montant-champ input:focus {
+  outline: none;
+}
+
+.kadosk-cmd-autre-montant-champ span {
+  padding: 0 14px;
+  color: var(--kadosk-texte-clair);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kadosk-cmd-quantite-bloc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kadosk-cmd-total-partiel {
+  text-align: right;
+}
+
+.kadosk-cmd-total-valeur {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--kadosk-teal-fonce);
+}
+
+.kadosk-cmd-section-titre {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kadosk-cmd-icone-ronde {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--kadosk-vert-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.kadosk-cmd-champs-ligne {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.kadosk-cmd-compteur {
+  text-align: right;
+  font-size: 11px;
+  color: var(--kadosk-texte-clair);
+  margin-top: -10px;
+}
+
+.kadosk-cmd-colonne-laterale {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kadosk-cmd-recap {
+  background: var(--kadosk-vert-tint);
+  border: 1px solid rgba(31, 170, 108, 0.25);
+  border-radius: var(--kadosk-rayon);
+  padding: 20px;
+}
+
+.kadosk-cmd-recap-produit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(31, 170, 108, 0.2);
+}
+
+.kadosk-cmd-recap-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--kadosk-sombre);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.kadosk-cmd-recap-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--kadosk-blanc);
+}
+
+.kadosk-cmd-recap-info {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kadosk-cmd-recap-prix {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kadosk-cmd-recap-ligne {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 8px;
+}
+
+.kadosk-cmd-recap-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 800;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(31, 170, 108, 0.2);
+}
+
+.kadosk-cmd-securite {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  padding: 16px 18px;
+}
+
+.kadosk-cmd-icone-securite {
+  background: var(--kadosk-vert-tint);
+}
+
+.kadosk-cmd-avantages {
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: var(--kadosk-rayon);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kadosk-cmd-avantage {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.kadosk-cmd-avantage-titre {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.kadosk-cmd-cta {
+  width: 100%;
+  padding: 15px 18px;
+  background: var(--kadosk-sombre-clair);
+  color: var(--kadosk-blanc);
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kadosk-cmd-cta:hover {
+  background: var(--kadosk-sombre);
+}
+
+.kadosk-cmd-cta:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.kadosk-cmd-verrou {
+  text-align: center;
+  font-size: 12px;
+  color: var(--kadosk-texte-clair);
+  margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+  .kadosk-cmd-nav {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 12px 16px;
+  }
+  .kadosk-cmd-liens {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .kadosk-cmd-fil-ariane,
+  .kadosk-cmd-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .kadosk-cmd-grille {
+    grid-template-columns: 1fr;
+  }
+  .kadosk-cmd-colonne-laterale {
+    position: static;
+  }
+  .kadosk-cmd-champs-ligne {
+    grid-template-columns: 1fr;
+  }
+}
+@keyframes kadosk-tourne { to { transform: rotate(360deg); } }
+.kadosk-chargement-ligne { display:flex; align-items:center; justify-content:center; gap:9px; min-height:64px; color:var(--kadosk-texte-clair); }
+.kadosk-spinner { width:18px; height:18px; border:2px solid var(--kadosk-bordure); border-top-color:var(--kadosk-violet); border-radius:50%; animation:kadosk-tourne .75s linear infinite; }
+.kadosk-modal-emission{width:min(620px,calc(100vw - 32px));max-height:90vh;overflow:auto}.kadosk-modal-entete{display:flex;justify-content:space-between;gap:20px;padding:20px 22px;border-bottom:1px solid var(--kadosk-bordure)}.kadosk-modal-entete h2{margin:0 0 5px}.kadosk-modal-entete p{margin:0;color:var(--kadosk-texte-clair);font-size:12px}.kadosk-modal-fermer{border:0;background:none;font-size:24px;cursor:pointer}.kadosk-modal-corps{padding:22px}.kadosk-filtre-dates{display:flex;align-items:center;gap:8px;font-size:12px}.kadosk-filtre-dates input{border:1px solid var(--kadosk-bordure);border-radius:6px;padding:7px}.kadosk-vide-illustre{min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}.kadosk-vide-illustre strong{font-size:16px;color:var(--kadosk-texte)}.kadosk-resume-offre{margin-bottom:18px}.kadosk-resume-offre-corps{display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:center;padding:16px 0}.kadosk-resume-offre-image{height:130px;border-radius:8px;background:linear-gradient(135deg,#eef1f5,#dfe4ea);display:grid;place-items:center;font-weight:700}.kadosk-resume-offre-meta{display:flex;gap:80px;border-top:1px solid var(--kadosk-bordure);padding-top:16px}.kadosk-resume-offre-meta div{display:flex;flex-direction:column;gap:6px}.kadosk-resume-offre-meta span{font-size:11px;color:var(--kadosk-texte-clair)}@media(max-width:700px){.kadosk-resume-offre-corps{grid-template-columns:1fr}.kadosk-resume-offre-meta{gap:25px;flex-wrap:wrap}.kadosk-filtre-dates{width:100%;flex-wrap:wrap}}
+.kadosk-modal-fond{position:fixed;inset:0;z-index:10000;background:rgba(20,27,48,.68);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px}.kadosk-modal-carte{background:#fff;border-radius:12px;box-shadow:0 24px 70px rgba(10,18,40,.32);color:var(--kadosk-texte)}
+.kadosk-detail-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.kadosk-detail-grille>div,.kadosk-indice-fraude{border:1px solid var(--kadosk-bordure);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:5px}.kadosk-detail-grille span,.kadosk-indice-fraude span,.kadosk-indice-fraude small{font-size:11px;color:var(--kadosk-texte-clair)}.kadosk-indice-fraude{margin:14px 0}.kadosk-indice-fraude strong{font-size:20px}.kadosk-historique-carte{max-height:170px;overflow:auto;padding-left:20px;font-size:12px;line-height:1.9}.kadosk-bouton-danger{background:#b02a37!important;color:#fff!important}
+.kadosk-fraude-signaux{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}.kadosk-fraude-signaux>div{background:#f6f8fb;border-radius:7px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:12px}.kadosk-fraude-signaux>div strong{font-size:13px}.kadosk-fraude-note{margin:0 0 5px;font-size:12px}.kadosk-fraude-note strong{font-size:12px}
+.kadosk-ligne-detail td{padding:0!important;background:#f7faf9}.kadosk-validation-inline{padding:20px 24px;border-left:3px solid var(--kadosk-primaire,#6c4ce0);display:grid;gap:14px}.kadosk-validation-resume{font-size:13px;color:var(--kadosk-texte-clair)}.kadosk-validation-inline .bouton-whatsapp{width:max-content;text-decoration:none}.kadosk-ligne-selectionnee td{background:#f4f0ff}

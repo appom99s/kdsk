@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Tableau de bord</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <h1>Dashboard</h1>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-grille-kpi">
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone violet" id="iconeCA"></div>
+          <div class="kadosk-kpi-label">CA aujourd'hui</div>
+          <div class="kadosk-kpi-valeur"><span id="kpiCA">—</span><span class="unite">DH</span></div>
+          <div class="kadosk-kpi-detail" id="kpiCADetail"></div>
+        </div>
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone vert" id="iconeTransactions"></div>
+          <div class="kadosk-kpi-label">Transactions aujourd'hui</div>
+          <div class="kadosk-kpi-valeur" id="kpiTransactions">—</div>
+          <div class="kadosk-kpi-detail" id="kpiTransactionsDetail"></div>
+        </div>
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone orange" id="iconeAttente"></div>
+          <div class="kadosk-kpi-label">À encaisser</div>
+          <div class="kadosk-kpi-valeur"><span id="kpiEnAttente">—</span><span class="unite">DH</span></div>
+          <div class="kadosk-kpi-detail" id="kpiEnAttenteDetail"></div>
+        </div>
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone bleu" id="iconeEncours"></div>
+          <div class="kadosk-kpi-label">Encours cartes actives</div>
+          <div class="kadosk-kpi-valeur"><span id="kpiEncours">—</span><span class="unite">DH</span></div>
+          <div class="kadosk-kpi-detail" id="kpiEncoursDetail"></div>
+        </div>
+      </div>
+
+      <div class="kadosk-grille-tableau-bord">
+        <div class="kadosk-panneau-large">
+          <h2>Encaisser une carte cadeau</h2>
+          <p style="margin:-10px 0 16px; font-size:13px; color:var(--kadosk-texte-clair);">Scannez un QR code ou saisissez le code manuellement.</p>
+          <div style="display:flex; gap:14px;">
+            <a href="cashier.html?mode=scan" class="kadosk-encaisser-tuile" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:26px 16px; border:2px solid var(--kadosk-violet); background:var(--kadosk-violet-tint); border-radius:10px; text-align:center;">
+              <span id="iconeScan" style="color:var(--kadosk-violet);"></span>
+              <strong style="font-size:14px;">Scanner QR</strong>
+              <span style="font-size:12px; color:var(--kadosk-texte-clair);">Utiliser la caméra</span>
+            </a>
+            <a href="cashier.html?mode=manual" class="kadosk-encaisser-tuile" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:26px 16px; border:1px solid var(--kadosk-bordure); border-radius:10px; text-align:center;">
+              <span id="iconeManuel" style="color:var(--kadosk-texte-clair);"></span>
+              <strong style="font-size:14px;">Saisir un code</strong>
+              <span style="font-size:12px; color:var(--kadosk-texte-clair);">Entrer le code manuellement</span>
+            </a>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:16px; font-size:12px; color:var(--kadosk-texte-clair);">
+            <span id="iconeCoche" style="color:var(--kadosk-vert);"></span> Paiement sécurisé par KADOSK
+          </div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <div class="kadosk-panneau-entete">
+            <h2>Encaissements (7 derniers jours)</h2>
+          </div>
+          <div class="kadosk-chart-conteneur" id="conteneurGraphique"></div>
+        </div>
+      </div>
+
+      <div class="kadosk-grille-listes">
+        <div class="kadosk-panneau-large">
+          <div class="kadosk-panneau-entete">
+            <h2>Commandes en attente</h2>
+            <a href="orders.html" class="kadosk-lien-voir-tout">Voir tout</a>
+          </div>
+          <div id="listeCommandes"><div class="kadosk-liste-vide">Chargement…</div></div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <div class="kadosk-panneau-entete">
+            <h2>Transactions récentes</h2>
+            <a href="transactions.html" class="kadosk-lien-voir-tout">Voir tout</a>
+          </div>
+          <div id="listeTransactions"><div class="kadosk-liste-vide">Chargement…</div></div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <div class="kadosk-panneau-entete">
+            <h2>Aperçu</h2>
+            <a href="finance.html" class="kadosk-lien-voir-tout">Voir détails</a>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">CA généré (7j)</span>
+            <span class="valeur" id="apercuCA7j">—</span>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">Cartes actives</span>
+            <span class="valeur violet" id="apercuCartesActives">—</span>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">Encours cartes actives</span>
+            <span class="valeur vert" id="apercuEncours">—</span>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">Commande(s) en attente</span>
+            <span class="valeur" id="apercuCommandes">—</span>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">Cartes utilisées</span>
+            <span class="valeur" id="apercuUtilisees">—</span>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">Cartes expirées</span>
+            <span class="valeur" id="apercuExpirees">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kadosk-panneau-entete" style="margin-top:6px;">
+        <h2 style="font-size:15px;">Alertes</h2>
+      </div>
+      <div class="kadosk-grille-alertes" id="listeAlertes"></div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/dashboard.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

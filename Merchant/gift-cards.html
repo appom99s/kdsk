@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Cartes cadeaux</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <div><h1>Ventes de cartes cadeaux</h1><p class="kadosk-sous-titre">Suivez et gérez les cartes cadeaux émises par votre entreprise.</p></div>
+        <div style="display:flex;align-items:center;gap:12px"><button class="kadosk-bouton" id="ouvrirEmissionCarte">＋ Émettre une carte cadeau</button><div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div></div>
+      </div>
+
+      <div class="kadosk-kpi-mini-grille" id="resumeCartes">
+        <div class="kadosk-kpi-mini"><span>Actives</span><strong id="resumeActives">—</strong><small id="resumeSoldeActif">Solde —</small></div>
+        <div class="kadosk-kpi-mini"><span>Encaissées</span><strong id="resumeUtilisees">—</strong><small>Solde entièrement utilisé</small></div>
+        <div class="kadosk-kpi-mini"><span>Expirées</span><strong id="resumeExpirees">—</strong><small>Hors période de validité</small></div>
+        <div class="kadosk-kpi-mini"><span>Total émises</span><strong id="resumeTotal">—</strong><small id="resumeValeurEmise">Valeur —</small></div>
+      </div>
+
+      <div class="kadosk-modal-fond" id="modalEmissionCarte" style="display:none">
+      <div class="kadosk-modal-carte kadosk-modal-emission">
+        <div class="kadosk-modal-entete"><div><h2>Émettre une nouvelle carte cadeau</h2><p>Une fois créée, elle est envoyée de façon sécurisée au destinataire.</p></div><button type="button" class="kadosk-modal-fermer" id="fermerEmissionCarte" aria-label="Fermer">×</button></div>
+        <div class="kadosk-modal-corps">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
+          <div class="kadosk-champ"><label for="creationNom">Nom du client</label><input id="creationNom" maxlength="100" list="clientsMarchandNoms" autocomplete="off"><datalist id="clientsMarchandNoms"></datalist></div>
+          <div class="kadosk-champ"><label for="creationEmail">E-mail du client</label><input id="creationEmail" type="email" list="clientsMarchandEmails" autocomplete="off"><datalist id="clientsMarchandEmails"></datalist></div>
+          <div class="kadosk-champ"><label for="creationMontant">Montant (DH)</label><input id="creationMontant" type="number" min="1" max="1000" step="0.01"></div>
+        </div>
+        <div class="kadosk-champ"><label for="creationMessage">Message</label><textarea id="creationMessage" maxlength="250" rows="2"></textarea></div>
+        <div class="kadosk-ligne-boutons">
+          <button class="kadosk-bouton" id="creationEnvoyerEmail">Créer et envoyer par e-mail</button>
+        </div>
+        <div id="creationStatut" class="kadosk-message-erreur" aria-live="polite"></div>
+      </div>
+      </div></div>
+
+      <div class="kadosk-modal-fond" id="modalDetailCarte" style="display:none">
+        <div class="kadosk-modal-carte kadosk-modal-emission">
+          <div class="kadosk-modal-entete"><div><h2>Détail de la carte</h2><p id="detailCarteReference">Chargement…</p></div><button class="kadosk-modal-fermer" id="fermerDetailCarte" aria-label="Fermer">×</button></div>
+          <div class="kadosk-modal-corps" id="detailCarteCorps"><div class="kadosk-chargement-ligne"><span class="kadosk-spinner"></span> Chargement…</div></div>
+        </div>
+      </div>
+
+      <div class="kadosk-barre-outils">
+        <div class="kadosk-filtre-dates"><span>Date d’émission</span><input id="filtreDateDebut" type="date" aria-label="Date de début"><input id="filtreDateFin" type="date" aria-label="Date de fin"></div>
+        <div class="kadosk-filtres">
+          <button class="kadosk-filtre actif" data-filtre="ALL">Toutes</button>
+          <button class="kadosk-filtre" data-filtre="ACTIVE">Actives</button>
+          <button class="kadosk-filtre" data-filtre="USED">Encaissées</button>
+          <button class="kadosk-filtre" data-filtre="EXPIRED">Expirées</button>
+        </div>
+        <label class="kadosk-recherche"><span>⌕</span><input id="rechercheCartes" type="search" placeholder="Rechercher client ou carte…" /></label>
+      </div>
+
+      <div class="kadosk-panneau-large">
+        <table class="kadosk-table">
+          <thead>
+            <tr>
+              <th>Carte</th>
+              <th>Client</th>
+              <th>Créée le</th>
+              <th>Solde initial</th>
+              <th>Solde restant</th>
+              <th>Statut</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableCartes"></tbody>
+        </table>
+        <div class="kadosk-liste-vide kadosk-vide-illustre" id="etatVideCartes" style="display:none;"><strong>Aucune vente pour le moment</strong><span>Les cartes cadeaux émises apparaîtront ici.</span></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/carte-visuelle.js"></script>
+  <script src="assets/gift-cards.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

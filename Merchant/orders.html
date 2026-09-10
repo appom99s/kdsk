@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Commandes</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <div><h1>Commandes</h1><p class="kadosk-sous-titre">Validez le virement avant d’activer et d’envoyer la carte.</p></div>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-filtres">
+        <span class="kadosk-filtre actif" data-filtre="DRAFT">En attente</span>
+        <span class="kadosk-filtre" data-filtre="ACTIVE">Acceptées</span>
+        <span class="kadosk-filtre" data-filtre="REFUSED">Refusées</span>
+      </div>
+
+      <div class="kadosk-panneau-large" style="margin-bottom:20px;">
+        <table class="kadosk-table" id="tableCommandes">
+          <thead>
+            <tr>
+              <th>Montant</th>
+              <th>Portée</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Virement client</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableCommandes"></tbody>
+        </table>
+        <div class="kadosk-placeholder" id="aucuneCommande" style="display:none; margin-top:12px;">
+          <strong>Aucune commande</strong>
+          <span id="texteAucuneCommande">Les nouvelles commandes de vos clients apparaîtront ici pour approbation.</span>
+        </div>
+      </div>
+
+      <template id="modeleValidationCommande">
+        <div class="kadosk-validation-inline">
+          <div class="kadosk-validation-resume"></div>
+          <div class="kadosk-champ"><label>Message personnel pour le client (si acceptée)</label><textarea class="champ-message" rows="2"></textarea></div>
+          <div class="kadosk-champ"><label>Motif du refus (si refusée)</label><input class="champ-raison-refus" type="text" placeholder="Optionnel" /></div>
+          <div class="kadosk-ligne-boutons">
+            <button class="kadosk-bouton bouton-valider">Approuver et envoyer la carte</button>
+            <button class="kadosk-bouton bouton-refuser" style="background:var(--kadosk-danger);">Refuser</button>
+          </div>
+          <div class="kadosk-message-erreur message-statut" aria-live="polite"></div>
+          <a class="kadosk-bouton bouton-whatsapp" target="_blank" rel="noopener noreferrer" style="display:none;background:#1fa855;">Envoyer le message WhatsApp au client</a>
+        </div>
+      </template>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/orders.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

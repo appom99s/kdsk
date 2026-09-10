@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Connexion en cours — KADOSK</title>
+<link rel="stylesheet" href="assets/kadosk2.css" />
+<link rel="stylesheet" href="assets/client-shell.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="assets/mobile-reference.css" />
+</head>
+<body class="k2-body">
+  <main class="k2-main" style="max-width:420px; text-align:center;">
+    <img src="assets/logo.png" alt="KADOSK" style="height:30px; display:block; margin:40px auto 18px;" />
+    <div id="messageStatut" style="font-size:14px; color:var(--k2-texte-clair);">Connexion en cours...</div>
+  </main>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/client-shell.js"></script>
+  <script>
+    // Callback OAuth dédié à "Mes commandes" (voir mes-commandes.html/.js) : finalise
+    // l'échange PKCE démarré par KADOSK_AUTH.demarrerAutorisationMembre depuis le
+    // formulaire de connexion/inscription, puis revient sur mes-commandes.html qui se
+    // charge d'échanger cette session membre contre un jeton acheteur (voir
+    // KADOSK_API.getBuyerTokenFromMember). Chemin de callback dédié (pas
+    // login-callback.html, qui gère 2FA/dashboard marchand - non pertinents ici),
+    // même principe que boutique-callback.html pour la boutique publique.
+    // DOIT être identique, caractère pour caractère, à CHEMIN_CALLBACK_CONNEXION dans
+    // assets/mes-commandes.js (même clé de config optionnelle, même défaut).
+    const CHEMIN_CALLBACK =
+      (window.KADOSK_CONFIG && window.KADOSK_CONFIG.mesCommandesCallbackPath) || "/Client/mes-commandes-callback.html";
+    const messageStatut = document.getElementById("messageStatut");
+
+    (async function () {
+      try {
+        await KADOSK_AUTH.traiterRetourAutorisation(CHEMIN_CALLBACK);
+        window.location.href = "mes-commandes.html";
+      } catch (erreur) {
+        console.error("Erreur callback Mes commandes KADOSK :", erreur);
+        messageStatut.textContent = "La connexion a échoué. Merci de réessayer.";
+        setTimeout(() => {
+          window.location.href = "mes-commandes.html";
+        }, 2000);
+      }
+    })();
+  </script>
+  <script src="assets/wix-nav-bridge.js"></script>
+  <script src="assets/wix-iframe-resize.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
+

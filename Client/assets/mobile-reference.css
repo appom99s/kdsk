@@ -1,0 +1,160 @@
+:root {
+  --ref-green:#005b59;
+  --ref-green-dark:#003e3d;
+  --ref-mint:#eaf4f3;
+  --ref-line:#e7eeee;
+  --ref-muted:#667778;
+  --ref-red:#f04444;
+}
+
+@media (max-width:780px) {
+  html { background:#eef3f4; }
+  body.client-shell, body.k2-body.client-shell {
+    max-width:430px;
+    min-height:100dvh;
+    margin:0 auto !important;
+    padding-bottom:84px !important;
+    background:#fff !important;
+    color:#102f31 !important;
+    box-shadow:0 0 40px rgba(18,52,54,.08);
+  }
+  .k2-topbar, .shop-header, .k2-entete {
+    position:relative !important;
+    min-height:72px !important;
+    height:72px !important;
+    padding:18px 22px !important;
+    border:0 !important;
+    background:#fff !important;
+    backdrop-filter:none !important;
+  }
+  .k2-logo img, .brand img, .k2-entete-logo img { height:34px !important; width:auto !important; }
+  .shop-header .header-actions { margin-left:auto; }
+  .shop-header .icon-link { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; color:var(--ref-green); }
+  .shop-header .cart-link { font-size:0; }
+  .shop-header .cart-link::before { content:"▢"; font-size:23px; color:var(--ref-green); }
+
+  .client-mobile-nav {
+    left:50% !important;
+    right:auto !important;
+    bottom:0 !important;
+    width:min(430px,100%) !important;
+    height:72px;
+    transform:translateX(-50%);
+    padding:8px 14px calc(7px + env(safe-area-inset-bottom)) !important;
+    border:0 !important;
+    border-top:1px solid #edf1f1 !important;
+    border-radius:0 !important;
+    background:rgba(255,255,255,.98) !important;
+    box-shadow:0 -5px 20px rgba(18,52,54,.045) !important;
+  }
+  .client-mobile-nav a { gap:5px !important; padding:5px 2px !important; background:transparent !important; color:#587072 !important; font-size:9.5px !important; font-weight:650 !important; }
+  .client-mobile-nav a span:first-child { font-size:20px !important; font-weight:400; }
+  .client-mobile-nav a.is-active { color:var(--ref-green) !important; font-weight:850 !important; }
+
+  /* Accueil */
+  .shop-header .desktop-nav,.shop-header .account-link { display:none !important; }
+  .hero {
+    min-height:0 !important;
+    padding:12px 22px 20px !important;
+    border-radius:0 !important;
+    background:#fff !important;
+    color:#102f31 !important;
+  }
+  .hero-copy::before { content:"Bonjour 👋"; display:block; margin:2px 0 10px; font-size:16px; font-weight:850; }
+  .hero .eyebrow { display:none; }
+  .hero h1 { max-width:330px; font-size:27px !important; line-height:1.12 !important; letter-spacing:-.045em; }
+  .hero-text { max-width:330px; margin:12px 0 18px !important; color:var(--ref-muted) !important; font-size:13.5px !important; line-height:1.55; }
+  .hero .primary-button { display:none; }
+  .hero .reassurance,.hero-visual,.how-it-works { display:none !important; }
+  .catalogue-section { padding:0 22px 26px !important; }
+  .catalogue-tools { margin:0 !important; display:flex; flex-direction:column; }
+  .search-field { order:-2; height:54px !important; border:1px solid #dce6e6 !important; border-radius:15px !important; box-shadow:0 5px 18px rgba(22,63,64,.035); }
+  .search-field input { font-size:13px !important; }
+  .category-filter { order:-1; gap:10px; padding:18px 0 8px !important; }
+  .filter-chip { min-height:36px; padding:8px 15px !important; border:0 !important; background:#eff5f5 !important; color:#35595a !important; }
+  .filter-chip[aria-pressed="true"] { background:var(--ref-green) !important; color:white !important; }
+  .section-heading { margin-top:25px; align-items:center !important; }
+  .section-heading .eyebrow { display:none; }
+  .section-heading h2 { font-size:18px !important; letter-spacing:-.02em; }
+  .section-heading h2::before { content:"Nos meilleures cartes"; font-size:18px; }
+  .section-heading h2 { font-size:0 !important; }
+  .text-link { color:var(--ref-green) !important; font-size:11px !important; }
+  .catalogue-status { margin:12px 0; font-size:12px; }
+  .merchant-grid { display:grid !important; grid-auto-flow:column; grid-auto-columns:30%; grid-template-columns:none !important; gap:10px !important; overflow-x:auto; padding:2px 1px 12px; scroll-snap-type:x mandatory; scrollbar-width:none; }
+  .merchant-grid::-webkit-scrollbar { display:none; }
+  .merchant-card { min-height:176px !important; border:1px solid var(--ref-line) !important; border-radius:12px !important; scroll-snap-align:start; box-shadow:0 6px 16px rgba(17,53,54,.06); }
+  .merchant-logo { height:102px !important; background:linear-gradient(145deg,#0a3898,#061d70) !important; color:white !important; }
+  .merchant-info { padding:10px !important; }
+  .merchant-name { font-size:12px !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .merchant-category { font-size:10px !important; }
+  .merchant-cta { margin-top:7px !important; font-size:10px !important; }
+  .shop-footer { display:none !important; }
+
+  /* Annuaire commerçants */
+  .k2-menu-mobile,.k2-menu-mobile-fond,.k2-entete-catalogue { display:none !important; }
+  body.client-shell #contenuPrincipal { padding:0 14px 20px; }
+  .k2-hero-annuaire { padding:18px 0 10px !important; background:#fff !important; }
+  .k2-hero-annuaire-inner { padding:0 !important; }
+  .k2-hero-annuaire h1 { margin:0 !important; font-size:23px !important; letter-spacing:-.035em; }
+  .k2-hero-annuaire p,.k2-hero-annuaire-visuel,.k2-hero-annuaire-deco { display:none !important; }
+  .k2-filtres-conteneur { position:static !important; padding:8px 0 !important; background:#fff !important; box-shadow:none !important; }
+  .k2-filtres-barre { display:grid !important; grid-template-columns:1fr 46px; gap:9px !important; padding:0 !important; }
+  .k2-filtre-recherche { grid-column:1; height:50px; border:1px solid #dce6e6 !important; border-radius:14px !important; }
+  .k2-filtre-select { display:none !important; }
+  .k2-filtre-reset { grid-column:2; width:46px; height:50px; padding:0 !important; overflow:hidden; font-size:0 !important; border:1px solid #dce6e6 !important; border-radius:14px !important; background:#fff !important; }
+  .k2-filtre-reset span { margin:0 !important; }
+  .k2-resultats-compte { margin:8px 0 10px !important; color:var(--ref-muted) !important; font-size:11px !important; }
+  .k2-grille-annuaire { display:none !important; }
+  .k2-liste-annuaire-mobile { display:flex !important; flex-direction:column; gap:10px; }
+  .k2-ligne-marchand-mobile { min-height:82px; padding:10px !important; border:1px solid var(--ref-line) !important; border-radius:14px !important; background:#fff !important; box-shadow:0 5px 14px rgba(17,53,54,.045); }
+  .k2-ligne-marchand-mobile-logo { width:62px !important; height:62px !important; border-radius:11px !important; }
+  .k2-ligne-marchand-mobile-nom { font-size:14px !important; font-weight:850 !important; }
+  .k2-ligne-marchand-mobile-meta { color:var(--ref-muted) !important; font-size:11px !important; }
+  .k2-statut-disponible { display:none !important; }
+  .k2-favori-btn { color:#617476 !important; }
+  .k2-pagination,.k2-avantages { display:none !important; }
+
+  /* Mes cartes / commandes */
+  .k2-main { max-width:none !important; padding:18px 14px 92px !important; }
+  .k2-main>.k2-titre { display:none; }
+  .k2-sous-titre { margin:0 0 18px !important; font-size:23px !important; letter-spacing:-.035em !important; }
+  #ongletsMesComptes { gap:6px !important; margin:0 0 18px !important; overflow:auto; }
+  #ongletsMesComptes .k2-btn { min-height:34px !important; flex:0 0 auto !important; padding:7px 14px !important; border:0 !important; border-radius:999px !important; background:#edf4f4 !important; color:#31585a !important; font-size:11px !important; box-shadow:none !important; }
+  #ongletsMesComptes .k2-btn-primaire { background:var(--ref-green) !important; color:white !important; }
+  #grilleCartes { display:flex !important; flex-direction:column !important; gap:14px !important; height:auto !important; overflow:visible !important; padding:0 !important; }
+  #grilleCartes .k2-carte-pile-item { position:relative !important; inset:auto !important; top:auto !important; left:auto !important; right:auto !important; width:100% !important; cursor:default !important; }
+  #grilleCartes .kadosk-carte-apercu { width:100% !important; max-width:none !important; min-height:190px; border-radius:12px !important; box-shadow:0 7px 16px rgba(11,34,34,.13) !important; }
+  #grilleCartes .k2-qr-bouton-ligne { visibility:visible !important; }
+  .k2-qr-bouton-carte { min-height:38px !important; border-radius:8px !important; background:rgba(255,255,255,.92) !important; color:var(--ref-green-dark) !important; font-weight:800 !important; }
+  #listeCommandes .k2-carte { margin-bottom:9px !important; padding:12px !important; border-radius:12px !important; box-shadow:none !important; }
+  #listeCommandes { display:flex; flex-direction:column; gap:11px; }
+  .client-order-card { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; padding:14px; border:1px solid var(--ref-line); border-radius:16px; background:#fff; box-shadow:0 7px 22px rgba(17,53,54,.055); }
+  .client-order-card__logo { display:grid; place-items:center; width:52px; height:52px; border-radius:13px; background:linear-gradient(145deg,var(--ref-green),var(--ref-green-dark)); color:#fff; font-size:20px; font-weight:900; }
+  .client-order-card__body { min-width:0; }
+  .client-order-card__topline { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .client-order-card__number { min-width:0; overflow:hidden; color:var(--ref-muted); font-size:10px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+  .client-payment-badge { flex:0 0 auto; padding:5px 8px; border-radius:999px; font-size:9px; font-weight:850; line-height:1; }
+  .client-payment-badge.is-paid { background:#e7f7ef; color:#087747; }
+  .client-payment-badge.is-pending { background:#fff4d7; color:#946000; }
+  .client-payment-badge.is-cancelled { background:#ffebeb; color:#b42318; }
+  .client-order-card__merchant { margin:6px 0 5px; overflow:hidden; color:#143536; font-size:14px; font-weight:850; text-overflow:ellipsis; white-space:nowrap; }
+  .client-order-card__meta { display:flex; flex-wrap:wrap; gap:3px 10px; color:var(--ref-muted); font-size:10px; }
+  .client-order-card__amount { display:block; margin-top:8px; color:#102f31; font-size:15px; }
+
+  .k2-btn,.kadosk-btn,.primary-button,.secondary-button { width:auto; max-width:100%; min-width:0; min-height:44px; padding:11px 16px !important; line-height:1.25 !important; text-align:center; white-space:normal; overflow-wrap:anywhere; }
+  .k2-btn svg,.kadosk-btn svg { flex:0 0 auto; }
+
+  /* Compte */
+  #carteConnecte,#carteEmail,#carteCode,.checkout-section { border:1px solid var(--ref-line) !important; border-radius:14px !important; box-shadow:0 6px 18px rgba(17,53,54,.045) !important; }
+  #carteConnecte .k2-carte-select-logo,#carteEmail .k2-carte-select-logo { border-radius:50% !important; background:linear-gradient(145deg,#0b7773,#054c4b) !important; color:white !important; }
+  .checkout-section { background:#fff !important; }
+  body.client-shell .k2-main>a.k2-carte { min-height:62px; padding:13px !important; border:0 !important; border-bottom:1px solid #eef2f2 !important; border-radius:0 !important; box-shadow:none !important; }
+  #btnOublier { margin-top:18px; border:0 !important; background:transparent !important; color:#e12828 !important; text-align:left !important; box-shadow:none !important; }
+
+  .quick-cart { max-width:430px; left:50% !important; transform:translate(-50%,105%) !important; }
+  .quick-cart.is-open { transform:translate(-50%,0) !important; }
+}
+
+@media (min-width:781px) {
+  .client-shell { --client-canvas:#f5f8f8; }
+}

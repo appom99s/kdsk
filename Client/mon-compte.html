@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mon compte — KADOSK</title>
+<link rel="stylesheet" href="assets/kadosk2.css" />
+<link rel="stylesheet" href="assets/client-shell.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="assets/mobile-reference.css" />
+</head>
+<body class="k2-body">
+  <div class="k2-topbar">
+    <a href="boutique-client.html" class="k2-logo">
+      <img src="assets/logo.png" alt="KADOSK" />
+    </a>
+  </div>
+
+  <main class="k2-main" style="max-width:560px;">
+    <p class="k2-titre">ESPACE CLIENT</p>
+    <h1 class="k2-sous-titre" style="text-align:left;">Mon compte</h1>
+
+    <!-- KADOSK n'a pas de compte acheteur avec mot de passe (achat 100% invité, suivi
+         par e-mail uniquement). L'identité est prouvée par un code à 6 chiffres
+         envoyé par e-mail (même mécanisme que la confirmation de commande, étape 5)
+         - c'est LE point de connexion unique du site : une fois connecté ici (ou lors
+         d'une commande), "Mes commandes"/"Mes cartes"/favoris réutilisent la même
+         session partout, sans redemander de code. -->
+    <div class="k2-carte" id="carteEmail" style="margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+        <div class="k2-carte-select-logo" style="width:48px;height:48px;">
+          <span id="k2IconeUser"></span>
+        </div>
+        <div>
+          <div style="font-weight:800; font-size:15px;">Connexion</div>
+          <div style="font-size:12px; color:var(--k2-texte-clair);">Identifié par e-mail (pas de mot de passe chez KADOSK)</div>
+        </div>
+      </div>
+
+      <div class="k2-champ" style="margin-bottom:8px;">
+        <div class="k2-champ-input-icone">
+          <span id="k2IconeMail"></span>
+          <input type="email" id="inputEmail" placeholder="votre-email@exemple.com" />
+        </div>
+      </div>
+      <button type="button" class="k2-btn k2-btn-primaire" id="btnRechercher" style="width:100%;">
+        <span id="k2IconeRecherche"></span> Se connecter par e-mail
+      </button>
+      <p id="messageErreur" class="k2-etat-erreur" style="font-size:13px;margin:10px 0 0;display:none;"></p>
+    </div>
+
+    <div class="k2-carte" id="carteCode" style="display:none;margin-bottom:14px;">
+      <p style="font-size:13px;color:var(--k2-texte-clair);margin:0 0 14px;">
+        Un code à 6 chiffres a été envoyé à <strong id="texteEmailCode"></strong>. Il est valable 10 minutes.
+      </p>
+      <div class="k2-champ" style="margin-bottom:6px;">
+        <label>Code reçu par e-mail</label>
+        <input type="text" id="inputCode" inputmode="numeric" maxlength="6" placeholder="123456" style="letter-spacing:4px;text-align:center;font-size:18px;" />
+      </div>
+      <button type="button" class="k2-btn k2-btn-primaire" id="btnValiderCode" style="width:100%;">Valider le code</button>
+      <p id="messageErreurCode" class="k2-etat-erreur" style="font-size:13px;margin:10px 0 0;display:none;"></p>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:13px;">
+        <a href="#" id="btnRenvoyerCode">Renvoyer le code</a>
+        <a href="#" id="btnChangerEmail">Changer d'e-mail</a>
+      </div>
+    </div>
+
+    <div class="k2-carte" id="carteConnecte" style="display:none;margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="k2-carte-select-logo" style="width:48px;height:48px;">
+          <span id="k2IconeUserConnecte"></span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:800; font-size:15px;" id="texteEmailCompte"></div>
+          <div style="font-size:12px; color:var(--k2-texte-clair);">Connecté sur cet appareil</div>
+        </div>
+      </div>
+    </div>
+
+    <section class="k2-carte checkout-section" aria-labelledby="titreProfilLocal" style="margin-bottom:14px;">
+      <h2 class="checkout-section-title" id="titreProfilLocal">Mes coordonnées de commande</h2>
+      <p class="checkout-section-help">Enregistrées uniquement sur cet appareil pour accélérer vos prochains achats.</p>
+      <div class="checkout-fields">
+        <div class="k2-champ">
+          <label for="profilNom">Nom complet</label>
+          <input type="text" id="profilNom" autocomplete="name" maxlength="100" />
+        </div>
+        <div class="k2-champ">
+          <label for="profilTelephone">Téléphone</label>
+          <input type="tel" id="profilTelephone" autocomplete="tel" inputmode="tel" maxlength="20" />
+        </div>
+        <div class="k2-champ checkout-field-full">
+          <label for="profilEmail">E-mail</label>
+          <input type="email" id="profilEmail" autocomplete="email" maxlength="254" />
+        </div>
+      </div>
+      <button type="button" class="k2-btn k2-btn-secondaire" id="btnSauverProfil" style="width:100%;margin-top:14px;">Enregistrer sur cet appareil</button>
+      <p id="messageProfil" role="status" style="font-size:13px;margin:10px 0 0;display:none;"></p>
+    </section>
+
+    <a href="mes-commandes.html?view=orders" class="k2-carte" style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+      <span id="k2IconeCommandes"></span>
+      <div style="flex:1;">
+        <div style="font-weight:700; font-size:14px;">Mes commandes</div>
+        <div style="font-size:12px; color:var(--k2-texte-clair);">Historique et suivi de vos commandes</div>
+      </div>
+      <span id="k2IconeFleche1"></span>
+    </a>
+
+    <a href="favoris.html" class="k2-carte" style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+      <span id="k2IconeCoeur"></span>
+      <div style="flex:1;">
+        <div style="font-weight:700; font-size:14px;">Mes favoris</div>
+        <div style="font-size:12px; color:var(--k2-texte-clair);">Enregistrés sur votre compte</div>
+      </div>
+      <span id="k2IconeFleche2"></span>
+    </a>
+
+    <button type="button" class="k2-btn k2-btn-secondaire" id="btnOublier" style="width:100%;display:none;">
+      <span id="k2IconeDeconnexion"></span> Se déconnecter de cet appareil
+    </button>
+  </main>
+
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/icons.js"></script>
+  <script src="assets/nav2.js"></script>
+  <script src="assets/panier2.js"></script>
+  <script src="assets/wix-bridge.js"></script>
+  <script src="assets/mon-compte.js"></script>
+  <script src="assets/client-shell.js"></script>
+  <script src="assets/wix-nav-bridge.js"></script>
+  <script src="assets/wix-iframe-resize.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
+

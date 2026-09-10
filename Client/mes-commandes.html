@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mes cartes — KADOSK</title>
+<link rel="stylesheet" href="assets/kadosk2.css" />
+<link rel="stylesheet" href="assets/client-shell.css" />
+<style>
+  /* Pile "Mes cartes" façon Apple Wallet : les cartes sont empilées en position
+     absolue (voir assets/mes-commandes.js), chacune ne laissant dépasser qu'une
+     bande du haut de la précédente. Taper sur une carte qui n'est pas au premier
+     plan la fait remonter, avec une transition douce sur "top". */
+  #grilleCartes {
+    position: relative;
+  }
+  .k2-carte-pile-item {
+    transition: top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+    cursor: pointer;
+  }
+  .k2-carte-pile-item .kadosk-carte-apercu {
+    box-shadow: 0 2px 6px rgba(27, 23, 48, 0.1);
+  }
+  .k2-carte-pile-item.k2-carte-pile-front {
+    cursor: default;
+  }
+  .k2-carte-pile-item.k2-carte-pile-front .kadosk-carte-apercu {
+    box-shadow: 0 10px 24px rgba(27, 23, 48, 0.18);
+  }
+  .k2-carte-pile-item:not(.k2-carte-pile-front) .k2-qr-bouton-ligne {
+    visibility: hidden;
+  }
+  /* Confirmation "QR scanné avec succès" affichée à la place du QR une fois
+     l'encaissement détecté (voir afficherSuccesEncaissement dans mes-commandes.js). */
+  .k2-qr-succes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #e5f6ec;
+    color: #1f8a4c;
+  }
+  .k2-qr-succes svg {
+    width: 48px;
+    height: 48px;
+  }
+</style>
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="assets/mobile-reference.css" />
+</head>
+<body class="k2-body">
+  <div class="k2-topbar">
+    <a href="boutique-client.html" class="k2-logo">
+      <img src="assets/logo.png" alt="KADOSK" />
+    </a>
+  </div>
+
+  <main class="k2-main" style="max-width:640px;">
+    <h1 class="k2-sous-titre" style="text-align:left;">Mes cartes</h1>
+
+    <!-- L'identification (code à 6 chiffres par e-mail) est désormais gérée
+         entièrement par "Mon compte" (mon-compte.html) - un seul point de connexion
+         pour tout le site. Cette page se contente de lire la session déjà établie
+         là-bas (ou lors d'une commande, étape 5) ; si aucune session valide n'existe
+         encore sur cet appareil, elle invite simplement à s'y rendre. -->
+    <div class="k2-carte" id="carteNonConnecte">
+      <p id="messageErreur" class="k2-etat-erreur" style="font-size:13px;margin:0 0 12px;display:none;"></p>
+      <p style="font-size:13.5px;color:var(--k2-texte-clair);margin:0 0 14px;">
+        Connectez-vous depuis "Mon compte" pour retrouver vos commandes et vos cartes cadeaux.
+      </p>
+      <a href="mon-compte.html" class="k2-btn k2-btn-primaire" style="width:100%;display:block;text-align:center;">Aller à Mon compte</a>
+    </div>
+
+    <!-- Deux onglets : "Mes commandes" (liste simple - marchand, montant, date, voir
+         getCommandesParEmail) et "Mes cartes" (vue à plat des cartes déjà acceptées,
+         dessinées avec le design du marchand + la zone QR temporaire - voir
+         getMesCartesParEmail). Affichés uniquement une fois connecté. -->
+    <div id="ongletsMesComptes" style="display:none; gap:8px; margin:16px 0 14px;">
+      <button type="button" class="k2-btn k2-btn-primaire" id="ongletCartes" style="flex:1;">Mes cartes</button>
+      <button type="button" class="k2-btn k2-btn-secondaire" id="ongletCommandes" style="flex:1;">Mes commandes</button>
+    </div>
+
+    <div id="panneauCommandes">
+      <div id="etatChargement" class="k2-etat-chargement" style="display:none"><div class="k2-spinner"></div><br />Recherche...</div>
+      <div id="etatVide" class="k2-etat" style="display:none">Aucune commande trouvée pour cet e-mail.</div>
+      <div id="listeCommandes"></div>
+    </div>
+
+    <div id="panneauCartes" style="display:none;">
+      <div id="cartesMobileSeulement" class="k2-carte k2-mobile-only-message" style="display:none;">
+        <strong>Vos cartes sont disponibles sur téléphone</strong>
+        <p>Pour protéger le QR d’encaissement, ouvrez KADOSK depuis votre téléphone. Réduire la fenêtre ou activer l’aperçu mobile sur un ordinateur ne débloque pas les cartes.</p>
+      </div>
+      <div id="etatChargementCartes" class="k2-etat-chargement" style="display:none"><div class="k2-spinner"></div><br />Recherche...</div>
+      <div id="etatVideCartes" class="k2-etat" style="display:none">Aucune carte cadeau pour le moment.</div>
+      <div id="grilleCartes" style="display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scroll-padding:0 16px; padding:4px 4px 14px;"></div>
+    </div>
+  </main>
+
+
+  <div id="modalQr" class="k2-qr-overlay" style="display:none;">
+    <div class="k2-qr-modal">
+      <button type="button" id="btnFermerQr" class="k2-qr-fermer" aria-label="Fermer">&times;</button>
+      <h3 style="margin:0 0 4px;">Présentez ce QR en caisse</h3>
+      <p style="font-size:12px;color:var(--k2-texte-clair);margin:0 0 16px;">
+        Ce code se renouvelle automatiquement toutes les 30 secondes pour votre sécurité — inutile de faire une capture d'écran, elle ne fonctionnera plus.
+      </p>
+      <div id="qrCanvasZone" style="display:flex;justify-content:center;margin-bottom:12px;"></div>
+      <div id="qrEtatTexte" style="text-align:center;font-size:13px;color:var(--k2-texte-clair);"></div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/icons.js"></script>
+  <script src="assets/nav2.js"></script>
+  <script src="assets/panier2.js"></script>
+  <script src="assets/wix-bridge.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="assets/carte-visuelle.js"></script>
+  <script src="assets/carte-cadeau-pdf.js"></script>
+  <script src="../Merchant/assets/facture-achat-pdf.js"></script>
+  <script src="assets/mes-commandes.js"></script>
+  <script src="assets/client-shell.js"></script>
+  <script src="assets/wix-nav-bridge.js"></script>
+  <script src="assets/wix-iframe-resize.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Connexion en cours — KADOSK</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="assets/client-shell.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="assets/mobile-reference.css" />
+</head>
+<body class="kadosk-public-body">
+  <div class="kadosk-page-connexion">
+    <div class="kadosk-carte-connexion" style="text-align:center;">
+      <img src="assets/logo.png" alt="KADOSK" style="height:30px; display:block; margin:0 auto 18px;" />
+      <div class="kadosk-message-info" id="messageStatut">Connexion en cours...</div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/client-shell.js"></script>
+  <script>
+    // Callback OAuth léger dédié à la boutique publique : pas de 2FA, pas de dashboard
+    // marchand - juste finaliser l'échange PKCE puis revenir sur la boutique. Ce flow
+    // est déclenché en arrière-plan par ma-boutique.page.js (voir postMessage), pas par
+    // un clic explicite du visiteur, donc cet écran ne devrait s'afficher que très
+    // brièvement.
+    const messageStatut = document.getElementById("messageStatut");
+
+    (async function () {
+      try {
+        await KADOSK_AUTH.traiterRetourAutorisationPourBoutique();
+        window.location.href = "boutique-client.html";
+      } catch (erreur) {
+        console.error("Erreur callback boutique KADOSK :", erreur);
+        // On ne bloque jamais le visiteur : en cas d'échec de cette authentification
+        // silencieuse, retour à la boutique en mode invité (le parcours sans connexion
+        // continue de fonctionner normalement).
+        messageStatut.textContent = "Retour à la boutique...";
+        setTimeout(() => {
+          window.location.href = "boutique-client.html";
+        }, 800);
+      }
+    })();
+  </script>
+  <script src="assets/wix-nav-bridge.js"></script>
+  <script src="assets/wix-iframe-resize.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
+

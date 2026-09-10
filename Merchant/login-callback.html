@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Connexion en cours</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-page-connexion">
+    <div class="kadosk-carte-connexion" style="text-align:center;">
+      <img src="assets/logo.png" alt="KADOSK" style="height:30px; display:block; margin:0 auto 18px;" />
+      <div class="kadosk-message-info" id="messageStatut">Connexion en cours...</div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/webauthn.js"></script>
+  <script>
+    const messageStatut = document.getElementById("messageStatut");
+    const CLE_CODE_REINIT = "kadosk_reset_code_en_attente";
+
+    // Tente une connexion biométrique (Face ID / Touch ID). Retourne true si
+    // la vérification a réussi, false si elle doit basculer sur le TOTP.
+    async function tenterConnexionBiometrique() {
+      try {
+        const disponible = await KADOSK_WEBAUTHN.biometrieDisponibleSurCetAppareil();
+        if (!disponible) return false;
+
+        const depart = await KADOSK_API.startBiometricLogin();
+        const assertion = await KADOSK_WEBAUTHN.obtenirAssertionConnexion(depart);
+        await KADOSK_API.verifyBiometricLogin(
+          assertion.clientDataJSON,
+          assertion.authenticatorData,
+          assertion.signature
+        );
+        return true;
+      } catch (erreurBiometrie) {
+        console.error("Connexion biométrique indisponible ou refusée :", erreurBiometrie);
+        return false;
+      }
+    }
+
+    (async function () {
+      try {
+        await KADOSK_AUTH.traiterRetourAutorisation();
+        // Nouvelle connexion : on efface tout marqueur 2FA résiduel pour forcer une
+        // vérification fraîche auprès du serveur (qui décide, selon TwoFactorLastVerifiedAt,
+        // si un nouveau code est réellement nécessaire - au maximum tous les 15 jours).
+        KADOSK_AUTH.effacerVerification2FA();
+
+        const codeReinitialisation = sessionStorage.getItem(CLE_CODE_REINIT);
+        if (codeReinitialisation) {
+          sessionStorage.removeItem(CLE_CODE_REINIT);
+          messageStatut.textContent = "Mise à jour du mot de passe...";
+          try {
+            await KADOSK_API.confirmPasswordChange(codeReinitialisation);
+          } catch (erreurMdp) {
+            console.error("Echec finalisation réinitialisation mot de passe :", erreurMdp);
+          }
+        }
+
+        let etat2FA = null;
+        try {
+          etat2FA = await KADOSK_API.need2FA();
+        } catch (erreur2FA) {
+          console.error("Vérification besoin 2FA indisponible :", erreur2FA);
+        }
+
+        if (etat2FA && (etat2FA.enrollmentRequired || (etat2FA.enabled && etat2FA.required))) {
+          if (etat2FA.enrollmentRequired) {
+            window.location.href = "two-factor.html";
+            return;
+          }
+          if (etat2FA.biometricEnabled) {
+            messageStatut.textContent = "Vérification biométrique...";
+            const reussi = await tenterConnexionBiometrique();
+            if (reussi) {
+              KADOSK_AUTH.marquerVerification2FA();
+              window.location.href = "dashboard.html";
+              return;
+            }
+          }
+          // Pas de biométrie, ou échec/annulation : bascule sur le code TOTP.
+          window.location.href = "two-factor.html";
+          return;
+        }
+
+        // 2FA non activée : rien à vérifier pour cette session.
+        KADOSK_AUTH.marquerVerification2FA();
+        window.location.href = "dashboard.html";
+      } catch (erreur) {
+        console.error("Erreur callback KADOSK :", erreur);
+        messageStatut.textContent = "La connexion a échoué. Merci de réessayer.";
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2500);
+      }
+    })();
+  </script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

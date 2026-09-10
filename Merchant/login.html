@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Connexion</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-page-connexion">
+    <div class="kadosk-carte-connexion">
+      <img src="assets/logo.png" alt="KADOSK" style="height:34px; display:block; margin-bottom:22px;" />
+
+      <div class="kadosk-champ">
+        <label for="champEmail">Email</label>
+        <input type="email" id="champEmail" autocomplete="username" />
+      </div>
+
+      <div class="kadosk-champ">
+        <label for="champMotDePasse">Mot de passe</label>
+        <input type="password" id="champMotDePasse" autocomplete="current-password" />
+      </div>
+
+      <button class="kadosk-bouton" id="boutonConnexion" style="width:100%;">Se connecter</button>
+
+      <div class="kadosk-message-erreur" id="messageErreur"></div>
+
+      <p style="text-align:center; margin-top:14px;">
+        <a href="forgot-password.html" style="color:var(--kadosk-violet); font-weight:700; font-size:13px;">Mot de passe oublié ?</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script>
+    const boutonConnexion = document.getElementById("boutonConnexion");
+    const champEmail = document.getElementById("champEmail");
+    const champMotDePasse = document.getElementById("champMotDePasse");
+    const messageErreur = document.getElementById("messageErreur");
+
+    if (KADOSK_AUTH.estConnecte()) {
+      window.location.href = "dashboard.html";
+    }
+
+    async function tenterConnexion() {
+      messageErreur.textContent = "";
+      const email = champEmail.value.trim();
+      const motDePasse = champMotDePasse.value;
+
+      if (!email || !motDePasse) {
+        messageErreur.textContent = "Merci de renseigner votre email et votre mot de passe.";
+        return;
+      }
+
+      boutonConnexion.disabled = true;
+      boutonConnexion.textContent = "Connexion en cours...";
+
+      try {
+        try {
+          const limite = await KADOSK_API.checkLoginLimit(email);
+          if (limite && limite.allowed === false) {
+            messageErreur.textContent = limite.secondesRestantes
+              ? "Merci de patienter " + limite.secondesRestantes + " seconde(s) avant de réessayer."
+              : "Trop de tentatives échouées. Réessayez dans " + (limite.minutesRestantes || 15) + " minute(s).";
+            return;
+          }
+        } catch (erreurLimite) {
+          console.error("Vérification limite de connexion indisponible :", erreurLimite);
+        }
+
+        const resultat = await KADOSK_AUTH.loginMembre(email, motDePasse);
+
+        if (resultat.state === "SUCCESS") {
+          KADOSK_API.recordLoginResult(email, true).catch(() => {});
+          await KADOSK_AUTH.demarrerAutorisationMembre(resultat.sessionToken);
+          return;
+        }
+
+        KADOSK_API.recordLoginResult(email, false).catch(() => {});
+
+        if (resultat.state === "REQUIRE_OWNER_APPROVAL") {
+          messageErreur.textContent = "Votre compte marchand est en attente d'approbation.";
+        } else if (resultat.state === "REQUIRE_EMAIL_VERIFICATION") {
+          messageErreur.textContent = "Merci de vérifier votre adresse email avant de continuer.";
+        } else {
+          messageErreur.textContent = "Connexion impossible. Vérifiez vos identifiants.";
+        }
+      } catch (erreur) {
+        console.error("Erreur connexion KADOSK :", erreur);
+        KADOSK_API.recordLoginResult(email, false).catch(() => {});
+        if (erreur.message === "ERREUR_RESEAU") {
+          messageErreur.textContent = "Impossible de contacter Wix (réseau/CORS). Voir la console.";
+        } else {
+          messageErreur.textContent = "Email ou mot de passe incorrect. (Détail en console)";
+        }
+      } finally {
+        boutonConnexion.disabled = false;
+        boutonConnexion.textContent = "Se connecter";
+      }
+    }
+
+    boutonConnexion.addEventListener("click", tenterConnexion);
+    champMotDePasse.addEventListener("keydown", (evenement) => {
+      if (evenement.key === "Enter") tenterConnexion();
+    });
+  </script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Mon entreprise</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <h1>Mon entreprise</h1>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-grille-tableau-bord">
+        <div class="kadosk-panneau-large">
+          <h2>Identité de l'entreprise</h2>
+          <div class="kadosk-finance-ligne"><span class="label">Nom commercial</span><span class="valeur" id="pBusinessName">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Raison sociale</span><span class="valeur" id="pLegalName">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Forme juridique</span><span class="valeur" id="pLegalForm">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">ICE</span><span class="valeur" id="pIce">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">RC</span><span class="valeur" id="pRc">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">IF</span><span class="valeur" id="pIf">—</span></div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <h2>Représentant</h2>
+          <div class="kadosk-finance-ligne"><span class="label">Nom</span><span class="valeur" id="pRepName">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Téléphone</span><span class="valeur" id="pRepPhone">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Email</span><span class="valeur" id="pRepEmail">—</span></div>
+        </div>
+      </div>
+
+      <div class="kadosk-grille-tableau-bord">
+        <div class="kadosk-panneau-large">
+          <h2>Activité</h2>
+          <div class="kadosk-finance-ligne"><span class="label">Catégorie</span><span class="valeur" id="pCategory">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Sous-catégorie</span><span class="valeur" id="pSubCategory">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Description</span><span class="valeur" id="pDescription" style="text-align:right; max-width:60%;">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Produits / services</span><span class="valeur" id="pProducts" style="text-align:right; max-width:60%;">—</span></div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <h2>Adresse &amp; présence en ligne</h2>
+          <div class="kadosk-finance-ligne"><span class="label">Adresse</span><span class="valeur" id="pAddress" style="text-align:right; max-width:60%;">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Ville</span><span class="valeur" id="pCity">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Localisation</span><a class="valeur" id="pMapsLink" href="#" target="_blank" rel="noopener">Ouvrir Google Maps</a></div>
+          <div class="kadosk-finance-ligne"><span class="label">Site web</span><span class="valeur" id="pWebsite">—</span></div>
+        </div>
+      </div>
+
+      <div class="kadosk-grille-tableau-bord">
+        <div class="kadosk-panneau-large">
+          <h2>Coordonnées bancaires</h2>
+          <div class="kadosk-finance-ligne"><span class="label">Banque</span><span class="valeur" id="pBankName">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">RIB</span><span class="valeur" id="pRib">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Titulaire du compte</span><span class="valeur" id="pRibHolder">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Statut de vérification</span><span class="valeur" id="pRibStatus">—</span></div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <h2>Abonnement KADOSK</h2>
+          <div class="kadosk-finance-ligne"><span class="label">Palier actuel</span><span class="valeur" id="pPlanTier">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Commission KADOSK</span><span class="valeur" id="pPlanCommission">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Expiration</span><span class="valeur" id="pPlanExpiration">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Renouvellement</span><span class="valeur" id="pPlanRenewal">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Dernier paiement</span><span class="valeur" id="pPlanPaiement">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Comptes caissiers</span><span class="valeur" id="pPlanCashiers">—</span></div>
+          <p id="pPlanChangementInfo" style="font-size:12px;color:var(--kadosk-texte-clair);margin:12px 0 0;">Une résiliation ou une baisse de formule s’applique au prochain renouvellement. Les accès déjà payés restent actifs jusque-là.</p>
+          <div class="kadosk-ligne-boutons" style="margin-top:10px;">
+            <a id="lienChangerAbonnement" href="#" target="_blank" class="kadosk-bouton kadosk-bouton-secondaire" style="text-decoration:none; text-align:center;">Changer d'abonnement</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="kadosk-placeholder" style="margin-bottom:20px;">
+        <strong>Informations figées</strong>
+        Ces informations ont été saisies lors de votre inscription et ne sont pas modifiables ici. Pour toute correction, contactez le support KADOSK. Votre mot de passe, vos préférences réseau et votre sécurité peuvent être modifiés ci-dessous.
+      </div>
+
+      <section class="kadosk-panneau-large" id="dossierFinalSection" style="display:none;margin-bottom:20px;">
+        <h2>Compléter le dossier de validation finale</h2>
+        <p id="dossierFinalResume" style="font-size:13px;color:var(--kadosk-texte-clair);"></p>
+        <div id="dossierFinalForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;"></div>
+        <label class="kadosk-champ-checkbox"><input type="checkbox" id="dossierCertified"> Je certifie l’exactitude des informations.</label>
+        <label class="kadosk-champ-checkbox"><input type="checkbox" id="dossierTerms"> J’accepte les conditions de partenariat.</label>
+        <label class="kadosk-champ-checkbox"><input type="checkbox" id="dossierPrivacy"> J’autorise le traitement de ces données pour l’étude du dossier.</label>
+        <button class="kadosk-bouton" id="dossierSubmit">Envoyer pour la deuxième approbation</button>
+        <div class="kadosk-message-erreur" id="dossierMessage"></div>
+      </section>
+
+      <div class="kadosk-grille-tableau-bord" style="display:none" aria-hidden="true">
+        <div class="kadosk-panneau-large">
+          <h2>Réseau KADOSK</h2>
+          <p style="font-size:13px; color:var(--kadosk-texte-clair); margin:0 0 16px;">
+            Les cartes cadeaux que vous créez restent toujours propres à votre commerce. En rejoignant le réseau KADOSK, vous acceptez en plus, à la caisse, les cartes cadeaux émises par KADOSK valables sur tout le réseau, ou celles valables uniquement dans votre sous-catégorie d'activité (<strong id="pSubCategoryReseau">—</strong>).
+          </p>
+
+          <div class="kadosk-finance-ligne">
+            <span class="label">Accepter les cartes universelles KADOSK</span>
+            <label class="kadosk-interrupteur">
+              <input type="checkbox" id="toggleAcceptUniversal" />
+              <span class="kadosk-interrupteur-curseur"></span>
+            </label>
+          </div>
+          <div class="kadosk-finance-ligne">
+            <span class="label">Accepter les cartes par domaine (Sous-catégorie)</span>
+            <label class="kadosk-interrupteur">
+              <input type="checkbox" id="toggleAcceptDomain" />
+              <span class="kadosk-interrupteur-curseur"></span>
+            </label>
+          </div>
+
+          <div class="kadosk-message-erreur" id="messageStatutReseau"></div>
+        </div>
+
+        <div class="kadosk-panneau-large">
+          <h2>Sécurité — double authentification</h2>
+          <p style="font-size:13px; color:var(--kadosk-texte-clair); margin:0 0 16px;">
+            Protégez votre compte avec un code généré par une application comme Google Authenticator, en plus de votre mot de passe. Ce code vous sera redemandé tous les 15 jours.
+          </p>
+
+          <div id="totpEtatDesactive">
+            <div class="kadosk-finance-ligne"><span class="label">Statut</span><span class="valeur">Désactivée</span></div>
+            <div class="kadosk-ligne-boutons" style="margin-top:10px;">
+              <button class="kadosk-bouton" id="bouton2FAActiver">Activer la 2FA</button>
+            </div>
+          </div>
+
+          <div id="totpEtatEnrolement" style="display:none;">
+            <div id="totpQrCode" style="margin:12px 0; display:flex; justify-content:center;"></div>
+            <div class="kadosk-champ">
+              <label>Clé secrète (si vous ne pouvez pas scanner le QR code)</label>
+              <input type="text" id="totpSecretTexte" readonly style="font-family:monospace; letter-spacing:1px;" />
+            </div>
+            <div class="kadosk-champ">
+              <label for="champCode2FAConfirmation">Code affiché par votre application</label>
+              <input type="text" id="champCode2FAConfirmation" inputmode="numeric" maxlength="6" placeholder="000000" />
+            </div>
+            <div class="kadosk-ligne-boutons">
+              <button class="kadosk-bouton" id="bouton2FAConfirmer">Confirmer l'activation</button>
+              <button class="kadosk-bouton kadosk-bouton-secondaire" id="bouton2FAAnnuler">Annuler</button>
+            </div>
+          </div>
+
+          <div id="totpEtatActif" style="display:none;">
+            <div class="kadosk-finance-ligne"><span class="label">Statut</span><span class="valeur" style="color:#1faa6c;">Activée</span></div>
+            <div class="kadosk-champ" style="margin-top:12px;">
+              <label for="champCode2FADesactivation">Code pour désactiver</label>
+              <input type="text" id="champCode2FADesactivation" inputmode="numeric" maxlength="6" placeholder="000000" />
+            </div>
+            <div class="kadosk-ligne-boutons">
+              <button class="kadosk-bouton kadosk-bouton-secondaire" id="bouton2FADesactiver">Désactiver la 2FA</button>
+            </div>
+
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--kadosk-bordure);">
+              <h3 style="margin:0 0 6px; font-size:13px;">Face ID / Touch ID</h3>
+              <p style="font-size:12px; color:var(--kadosk-texte-clair); margin:0 0 12px;">
+                Une fois activée sur cet appareil, vous n'aurez plus besoin de saisir le code à chaque connexion depuis celui-ci.
+              </p>
+
+              <div id="biometrieEtatDesactive">
+                <div class="kadosk-ligne-boutons">
+                  <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonBiometrieActiver">Activer sur cet appareil</button>
+                </div>
+              </div>
+
+              <div id="biometrieEtatActive" style="display:none;">
+                <div class="kadosk-finance-ligne"><span class="label">Statut</span><span class="valeur" id="valBiometrieLabel" style="color:#1faa6c;">Activée</span></div>
+                <div class="kadosk-champ" style="margin-top:10px;">
+                  <label for="champCode2FADesactivationBiometrie">Code pour désactiver la biométrie</label>
+                  <input type="text" id="champCode2FADesactivationBiometrie" inputmode="numeric" maxlength="6" placeholder="000000" />
+                </div>
+                <div class="kadosk-ligne-boutons">
+                  <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonBiometrieDesactiver">Désactiver la biométrie</button>
+                </div>
+              </div>
+
+              <div class="kadosk-message-erreur" id="messageStatutBiometrie"></div>
+            </div>
+          </div>
+
+          <div class="kadosk-message-erreur" id="messageStatut2FA"></div>
+        </div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="max-width:480px;">
+        <h2>Changer mon mot de passe</h2>
+
+        <div id="mdpEtape1">
+          <div class="kadosk-champ">
+            <label for="champNouveauMdp">Nouveau mot de passe</label>
+            <input type="password" id="champNouveauMdp" autocomplete="new-password" />
+          </div>
+          <div class="kadosk-champ">
+            <label for="champConfirmationMdp">Confirmer le mot de passe</label>
+            <input type="password" id="champConfirmationMdp" autocomplete="new-password" />
+          </div>
+          <div class="kadosk-ligne-boutons">
+            <button class="kadosk-bouton" id="boutonDemanderCode">Recevoir un code par email</button>
+          </div>
+        </div>
+
+        <div id="mdpEtape2" style="display:none; margin-top:16px;">
+          <div class="kadosk-champ">
+            <label for="champCodeMdp">Code reçu par email</label>
+            <input type="text" id="champCodeMdp" inputmode="numeric" maxlength="6" placeholder="000000" />
+          </div>
+          <div class="kadosk-ligne-boutons">
+            <button class="kadosk-bouton" id="boutonConfirmerMdp">Confirmer le changement</button>
+          </div>
+        </div>
+
+        <div class="kadosk-message-erreur" id="messageStatutMdp"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/webauthn.js"></script>
+  <script src="assets/business.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

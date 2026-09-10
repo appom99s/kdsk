@@ -1,0 +1,19 @@
+/* Micro-interactions KADOSK : elles restent décoratives et n'empêchent jamais
+   une action métier. Toutes les animations sont désactivables par l'OS. */
+@media (prefers-reduced-motion: no-preference) {
+  .kadosk-ux-enter { opacity: 0; transform: translateY(14px); }
+  .kadosk-ux-enter.kadosk-ux-visible { animation: kadosk-enter .46s cubic-bezier(.2,.75,.25,1) forwards; animation-delay: var(--kadosk-enter-delay, 0ms); }
+  .k2-hero-annuaire::before { animation: kadosk-drift 7s ease-in-out infinite alternate; }
+  .k2-carte-select, .k2-categorie-tuile, .k2-montant-btn, .k2-btn, .k2-icone-action, .k2-detail-carte-visuelle-wrap { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; }
+  .k2-carte-select:hover, .k2-categorie-tuile:hover { transform: translateY(-3px); }
+  .k2-montant-btn:hover, .k2-btn:hover, .k2-icone-action:hover { transform: translateY(-1px); }
+  .k2-carte-select.selectionnee, .k2-montant-btn.selectionne { animation: kadosk-select .28s ease-out; }
+  .k2-confirmation-icone { animation: kadosk-success .62s cubic-bezier(.16,.9,.3,1) both; }
+  .kadosk-panier-total, .k2-total-bloc { transition: transform .2s ease, background-color .2s ease; }
+  .kadosk-ux-total-updated { animation: kadosk-total .36s ease-out; }
+}
+@keyframes kadosk-enter { to { opacity: 1; transform: translateY(0); } }
+@keyframes kadosk-drift { from { transform: translate3d(-8px,-4px,0) rotate(-1deg); } to { transform: translate3d(9px,5px,0) rotate(1deg); } }
+@keyframes kadosk-select { 45% { transform: scale(1.025); } 100% { transform: scale(1); } }
+@keyframes kadosk-success { 0% { opacity:0; transform:scale(.55) rotate(-12deg); } 70% { transform:scale(1.08) rotate(2deg); } 100% { opacity:1; transform:scale(1) rotate(0); } }
+@keyframes kadosk-total { 50% { transform: scale(1.02); background-color: var(--k2-succes-tint, rgba(127,181,171,.16)); } }

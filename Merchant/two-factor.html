@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Vérification en deux étapes</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-page-connexion">
+    <div class="kadosk-carte-connexion">
+      <img src="assets/logo.png" alt="KADOSK" style="height:34px; display:block; margin-bottom:22px;" />
+
+      <h2 style="margin:0 0 6px; font-size:17px;">Vérification en deux étapes</h2>
+      <p style="font-size:13px; color:var(--kadosk-texte-clair); margin:0 0 20px;">
+        Saisissez le code à 6 chiffres généré par votre application d'authentification (Google Authenticator ou équivalent).
+      </p>
+
+      <div id="zoneEnrolement2FA" style="display:none; margin-bottom:18px;">
+        <p style="font-size:13px;">La double authentification est obligatoire pour les propriétaires et les caissiers. Ajoutez cette clé dans votre application d’authentification :</p>
+        <input id="secretEnrolement2FA" type="text" readonly style="width:100%;font-family:monospace;letter-spacing:1px;" />
+      </div>
+
+      <div class="kadosk-champ">
+        <label for="champCode2FA">Code de vérification</label>
+        <input type="text" id="champCode2FA" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
+      </div>
+
+      <button class="kadosk-bouton" id="boutonVerifier2FA" style="width:100%;">Vérifier</button>
+
+      <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonBiometrie2FA" style="width:100%; margin-top:10px; display:none;">
+        Utiliser Face ID / Touch ID
+      </button>
+
+      <div class="kadosk-message-erreur" id="messageErreur2FA"></div>
+
+      <p style="text-align:center; margin-top:14px;">
+        <a href="#" id="lienDeconnexion2FA" style="color:var(--kadosk-texte-clair); font-weight:600; font-size:12px;">Se déconnecter</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/webauthn.js"></script>
+  <script>
+    if (!KADOSK_AUTH.estConnecte()) {
+      window.location.href = "login.html";
+    }
+
+    const champCode2FA = document.getElementById("champCode2FA");
+    const boutonVerifier2FA = document.getElementById("boutonVerifier2FA");
+    const boutonBiometrie2FA = document.getElementById("boutonBiometrie2FA");
+    const messageErreur2FA = document.getElementById("messageErreur2FA");
+    const lienDeconnexion2FA = document.getElementById("lienDeconnexion2FA");
+    const zoneEnrolement2FA = document.getElementById("zoneEnrolement2FA");
+    const secretEnrolement2FA = document.getElementById("secretEnrolement2FA");
+    let modeEnrolement = false;
+
+    function pageDeRetour() {
+      const parametres = new URLSearchParams(window.location.search);
+      const retour = parametres.get("retour");
+      if (!retour || retour.includes("/") || retour.includes(":") || !/^[a-zA-Z0-9_-]+\.html$/.test(retour)) {
+        return "dashboard.html";
+      }
+      return retour;
+    }
+
+    // Si la 2FA n'est finalement pas requise (désactivée entre-temps, ou déjà
+    // vérifiée pour cette session), on ne bloque pas l'accès inutilement.
+    // Sinon, on affiche l'option biométrique si l'appareil et le compte la
+    // supportent tous les deux.
+    (async function verifierBesoin() {
+      try {
+        const etat = await KADOSK_API.need2FA();
+        if (etat && etat.enrollmentRequired) {
+          modeEnrolement = true;
+          const depart = await KADOSK_API.start2FA();
+          secretEnrolement2FA.value = depart.secretBase32 || "";
+          zoneEnrolement2FA.style.display = "block";
+          boutonVerifier2FA.textContent = "Activer et continuer";
+          return;
+        }
+        if (!etat || !etat.required) {
+          KADOSK_AUTH.marquerVerification2FA();
+          window.location.href = pageDeRetour();
+          return;
+        }
+        if (etat.biometricEnabled) {
+          const disponible = await KADOSK_WEBAUTHN.biometrieDisponibleSurCetAppareil();
+          if (disponible) {
+            boutonBiometrie2FA.style.display = "block";
+          }
+        }
+      } catch (erreur) {
+        console.error("Vérification besoin 2FA indisponible :", erreur);
+      }
+    })();
+
+    async function verifierCode() {
+      messageErreur2FA.textContent = "";
+      const code = champCode2FA.value.trim();
+
+      if (!/^\d{6}$/.test(code)) {
+        messageErreur2FA.textContent = "Merci de saisir les 6 chiffres du code.";
+        return;
+      }
+
+      boutonVerifier2FA.disabled = true;
+      boutonVerifier2FA.textContent = "Vérification...";
+
+      try {
+        if (modeEnrolement) await KADOSK_API.confirm2FA(code);
+        else await KADOSK_API.verify2FA(code);
+        KADOSK_AUTH.marquerVerification2FA();
+        window.location.href = pageDeRetour();
+      } catch (erreur) {
+        console.error("Erreur vérification 2FA :", erreur);
+        if (erreur.message === "TROP_DE_TENTATIVES") {
+          messageErreur2FA.textContent = "Trop de tentatives échouées. Réessayez dans 15 minutes.";
+        } else {
+          messageErreur2FA.textContent = "Code invalide. Merci de réessayer.";
+        }
+      } finally {
+        boutonVerifier2FA.disabled = false;
+        boutonVerifier2FA.textContent = "Vérifier";
+      }
+    }
+
+    async function verifierBiometrie() {
+      messageErreur2FA.textContent = "";
+      boutonBiometrie2FA.disabled = true;
+      boutonBiometrie2FA.textContent = "Vérification...";
+
+      try {
+        const depart = await KADOSK_API.startBiometricLogin();
+        const assertion = await KADOSK_WEBAUTHN.obtenirAssertionConnexion(depart);
+        await KADOSK_API.verifyBiometricLogin(
+          assertion.clientDataJSON,
+          assertion.authenticatorData,
+          assertion.signature
+        );
+        KADOSK_AUTH.marquerVerification2FA();
+        window.location.href = pageDeRetour();
+      } catch (erreur) {
+        console.error("Erreur vérification biométrique :", erreur);
+        if (erreur.message === "TROP_DE_TENTATIVES") {
+          messageErreur2FA.textContent = "Trop de tentatives échouées. Réessayez dans 15 minutes.";
+        } else {
+          messageErreur2FA.textContent = "Vérification biométrique impossible. Utilisez votre code d'application.";
+        }
+      } finally {
+        boutonBiometrie2FA.disabled = false;
+        boutonBiometrie2FA.textContent = "Utiliser Face ID / Touch ID";
+      }
+    }
+
+    boutonVerifier2FA.addEventListener("click", verifierCode);
+    champCode2FA.addEventListener("keydown", (evenement) => {
+      if (evenement.key === "Enter") verifierCode();
+    });
+    boutonBiometrie2FA.addEventListener("click", verifierBiometrie);
+
+    lienDeconnexion2FA.addEventListener("click", (evenement) => {
+      evenement.preventDefault();
+      KADOSK_AUTH.deconnecter();
+    });
+  </script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

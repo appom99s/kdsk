@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,follow" />
+<title>Paiement sécurisé — KADOSK</title>
+<link rel="stylesheet" href="assets/kadosk2.css" />
+<link rel="stylesheet" href="assets/client-shell.css" />
+<link rel="stylesheet" href="assets/checkout-kadosk.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body class="k2-body checkout-page">
+  <header class="checkout-header">
+    <a href="boutique-client.html" class="checkout-brand" aria-label="Retour à KADOSK">
+      <img src="assets/logo.png" alt="KADOSK" />
+    </a>
+    <div class="checkout-header-security"><span id="k2IconeSecurite"></span> Paiement sécurisé</div>
+  </header>
+
+  <main class="checkout-container">
+    <div class="checkout-heading">
+      <p class="checkout-eyebrow">FINALISER LA COMMANDE</p>
+      <h1>Vos informations</h1>
+      <p>Vérifiez votre commande et indiquez à qui envoyer les cartes cadeaux.</p>
+    </div>
+
+    <div class="checkout-layout">
+      <div class="checkout-main-column">
+        <section class="checkout-card" aria-labelledby="titreCoordonneesAcheteur">
+          <div class="checkout-card-heading">
+            <span class="checkout-number">1</span>
+            <div><h2 id="titreCoordonneesAcheteur">Vos coordonnées</h2><p>Pour la confirmation et le suivi de la commande.</p></div>
+          </div>
+          <div class="checkout-fields">
+            <div class="k2-champ">
+              <label for="inputNomAcheteur">Nom complet</label>
+              <input type="text" id="inputNomAcheteur" autocomplete="name" maxlength="100" placeholder="Votre nom complet" required />
+            </div>
+            <div class="k2-champ">
+              <label for="inputTelephoneAcheteur">Téléphone</label>
+              <input type="tel" id="inputTelephoneAcheteur" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="06 00 00 00 00" required />
+            </div>
+            <div class="k2-champ checkout-field-full">
+              <label for="inputEmailAcheteur" id="labelEmailAcheteur">Votre e-mail</label>
+              <div class="k2-champ-input-icone"><span id="k2IconeMailAcheteur"></span><input type="email" id="inputEmailAcheteur" autocomplete="email" maxlength="254" placeholder="votre-email@exemple.com" required /></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="checkout-card" aria-labelledby="titreDestinataire">
+          <div class="checkout-card-heading">
+            <span class="checkout-number">2</span>
+            <div><h2 id="titreDestinataire">Destinataire</h2><p>Les cartes et votre message seront envoyés par e-mail.</p></div>
+          </div>
+          <div class="k2-champ">
+            <label>Cette carte cadeau est...</label>
+            <div class="k2-pour-qui checkout-choice" id="choixPourQui">
+              <button type="button" class="k2-pour-qui-option" id="btnPourMoi" data-valeur="moi">Pour moi-même</button>
+              <button type="button" class="k2-pour-qui-option" id="btnPourAutre" data-valeur="autre">Pour quelqu’un d’autre</button>
+            </div>
+          </div>
+          <div class="checkout-fields checkout-recipient-fields">
+            <div class="k2-champ">
+              <label for="inputNomDestinataire" id="labelNomDestinataire">Destinataire — Nom complet</label>
+              <div class="k2-champ-input-icone"><span id="k2IconeUser"></span><input type="text" id="inputNomDestinataire" autocomplete="name" maxlength="100" placeholder="Nom complet" required /></div>
+            </div>
+            <div class="k2-champ" id="champEmailDestinataire">
+              <label for="inputEmailDestinataire">E-mail du destinataire</label>
+              <div class="k2-champ-input-icone"><span id="k2IconeMailDest"></span><input type="email" id="inputEmailDestinataire" autocomplete="email" maxlength="254" placeholder="exemple@email.com" /></div>
+            </div>
+            <div class="k2-champ checkout-field-full">
+              <label for="inputMessage" id="labelMessage">Message personnalisé (optionnel)</label>
+              <div class="k2-champ-input-icone checkout-textarea"><span id="k2IconeMessage"></span><textarea id="inputMessage" maxlength="250" rows="4" placeholder="Ajoutez un message personnalisé..."></textarea></div>
+              <div class="k2-compteur"><span id="compteurMessage">0</span>/250</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="checkout-summary" aria-labelledby="titreRecapitulatif">
+        <h2 id="titreRecapitulatif">Récapitulatif</h2>
+        <div id="listeRecap" class="checkout-summary-lines"></div>
+        <div class="checkout-total"><span>Total</span><strong id="texteTotal">0,00 DH</strong></div>
+        <p id="checkoutReference" class="checkout-reference"></p>
+        <p id="messageErreur" class="k2-etat-erreur checkout-error" role="alert"></p>
+        <label class="checkout-consent" for="inputConsentement">
+          <input type="checkbox" id="inputConsentement" required />
+          <span>J’accepte l’utilisation de mes coordonnées pour traiter la commande.</span>
+        </label>
+        <label class="checkout-consent" for="inputConservationDonnees">
+          <input type="checkbox" id="inputConservationDonnees" />
+          <span>Je souhaite que mes coordonnées soient conservées dans mon profil client pour faciliter mes prochains achats.</span>
+        </label>
+        <button type="button" class="k2-btn k2-btn-primaire checkout-submit" id="btnValider"><span id="k2IconeCadenas"></span> Confirmer la commande</button>
+        <button type="button" class="checkout-back" id="btnRetour"><span id="k2IconeRetour"></span> Retour au panier</button>
+        <div class="checkout-trust"><span>Validation marchand</span><span>Données protégées</span><span>Suivi par e-mail</span></div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="assets/config.js"></script><script src="assets/auth.js"></script><script src="assets/api.js"></script>
+  <script src="assets/icons.js"></script><script src="assets/nav2.js"></script><script src="assets/panier2.js"></script>
+  <script src="assets/wix-bridge.js"></script><script src="assets/etape4.js"></script><script src="assets/client-shell.js"></script>
+  <script src="assets/wix-nav-bridge.js"></script><script src="assets/wix-iframe-resize.js"></script><script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>

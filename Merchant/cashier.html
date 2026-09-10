@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Encaisser</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <h1>Encaisser</h1>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="max-width:520px;">
+        <div style="display:flex; gap:10px; margin-bottom:18px;">
+          <button type="button" id="ongletScan" class="kadosk-bouton-onglet" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600;">
+            <span id="iconeOngletScan"></span> Scanner QR
+          </button>
+          <button type="button" id="ongletManuel" class="kadosk-bouton-onglet" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600;">
+            <span id="iconeOngletManuel"></span> Saisir un code
+          </button>
+        </div>
+
+        <div id="panneauScan">
+          <div class="kadosk-scan-conteneur" id="blocVideoScan" style="position:relative; border-radius:10px; overflow:hidden; background:#0d0b18; aspect-ratio:1/1; max-width:340px; margin:0 auto;">
+            <video id="videoScan" playsinline muted style="width:100%; height:100%; object-fit:cover; display:block;"></video>
+            <div style="position:absolute; inset:0; border:2px solid rgba(255,255,255,0.55); margin:14%; border-radius:14px; pointer-events:none;"></div>
+          </div>
+          <canvas id="canvasScan" style="display:none;"></canvas>
+          <div id="messageStatutScan" style="text-align:center; font-size:13px; color:var(--kadosk-texte-clair); margin-top:12px;">Initialisation de la caméra…</div>
+          <div class="kadosk-ligne-boutons" style="justify-content:center; margin-top:8px;">
+            <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonArreterScan">Arrêter le scan</button>
+            <button class="kadosk-bouton" id="boutonRescanner" style="display:none;">Scanner une autre carte</button>
+          </div>
+        </div>
+
+        <div id="panneauManuel" style="display:none;">
+          <div class="kadosk-champ">
+            <label for="champCode">Code de la carte</label>
+            <input type="text" id="champCode" placeholder="Saisir le code" />
+          </div>
+
+          <div class="kadosk-ligne-boutons">
+            <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonRechercher">Rechercher</button>
+          </div>
+        </div>
+
+        <div class="kadosk-carte-info" id="carteInfo" style="display:none;"></div>
+
+        <div class="kadosk-champ" id="blocMontant" style="display:none; margin-top:16px;">
+          <label for="champMontant">Montant à encaisser</label>
+          <input type="text" id="champMontant" inputmode="decimal" autocomplete="off" />
+        </div>
+
+        <!-- Pavé numérique tactile : visible uniquement sur mobile (voir style.css), pour
+             saisir le montant plus facilement qu'avec le clavier du téléphone. -->
+        <div class="kadosk-pave-numerique" id="paveNumerique" style="display:none;">
+          <button type="button" class="kadosk-touche-pave" data-touche="1">1</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="2">2</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="3">3</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="4">4</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="5">5</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="6">6</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="7">7</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="8">8</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="9">9</button>
+          <button type="button" class="kadosk-touche-pave" data-touche=",">,</button>
+          <button type="button" class="kadosk-touche-pave" data-touche="0">0</button>
+          <button type="button" class="kadosk-touche-pave kadosk-touche-pave-effacer" id="toucheEffacerPave" aria-label="Effacer un chiffre">⌫</button>
+        </div>
+
+        <div class="kadosk-ligne-boutons" id="blocBoutonEncaisser" style="display:none; margin-top:8px;">
+          <button class="kadosk-bouton" id="boutonEncaisser">Encaisser</button>
+        </div>
+
+        <div class="kadosk-message-erreur" id="messageStatutEncaissement"></div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="max-width:520px; margin-top:20px;">
+        <h2>Mes dernières transactions</h2>
+        <div id="listeTransactionsCashier"><div class="kadosk-liste-vide">Chargement…</div></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="assets/jsqr-loader.js"></script>
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/cashier.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

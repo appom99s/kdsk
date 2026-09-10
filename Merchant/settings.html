@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Paramètres de l'offre</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <div><h1>Carte cadeau</h1><p class="kadosk-sous-titre">Configurez et gérez les détails de votre carte cadeau.</p></div>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <section class="kadosk-panneau-large" id="blocOnboarding" style="display:none;" hidden>
+        <h2>Validation de votre profil marchand</h2>
+        <p id="onboardingResume">Chargement de votre dossier…</p>
+        <div id="onboardingCommentaire" class="kadosk-message-erreur"></div>
+        <div id="onboardingChecklist" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:14px 0;"></div>
+        <div id="onboardingForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+          <div class="kadosk-champ"><label>Nom commercial</label><input id="obBusinessName" maxlength="120"></div>
+          <div class="kadosk-champ"><label>Raison sociale</label><input id="obLegalName" maxlength="160"></div>
+          <div class="kadosk-champ"><label>Forme juridique</label><input id="obLegalForm" maxlength="80"></div>
+          <div class="kadosk-champ"><label>ICE</label><input id="obIce" maxlength="40"></div>
+          <div class="kadosk-champ"><label>RC</label><input id="obRc" maxlength="50"></div>
+          <div class="kadosk-champ"><label>IF</label><input id="obIf" maxlength="50"></div>
+          <div class="kadosk-champ"><label>Prénom du représentant</label><input id="obRepFirstName" maxlength="100"></div>
+          <div class="kadosk-champ"><label>Nom du représentant</label><input id="obRepName" maxlength="100"></div>
+          <div class="kadosk-champ"><label>Téléphone</label><input id="obRepPhone" type="tel" maxlength="30"></div>
+          <div class="kadosk-champ"><label>Email professionnel</label><input id="obRepEmail" type="email" maxlength="180"></div>
+          <div class="kadosk-champ"><label>Activité</label><input id="obActivity" maxlength="100"></div>
+          <div class="kadosk-champ"><label>Produits / services</label><input id="obProducts" maxlength="500"></div>
+          <div class="kadosk-champ"><label>Adresse</label><input id="obAddress" maxlength="250"></div>
+          <div class="kadosk-champ"><label>Ville</label><input id="obCity" maxlength="100"></div>
+          <div class="kadosk-champ"><label>Région</label><input id="obRegion" maxlength="100"></div>
+          <div class="kadosk-champ"><label>Abonnement de départ</label><select id="obPlan"><option value="">Choisir…</option><option value="04c91516-7a6c-46ef-b047-5cfcd8560e4c">Starter — 299 MAD</option><option value="eb963ebe-0868-4bbe-be67-7a60a00b4e0b">Essentiel — 599 MAD</option><option value="0ad4eb1b-b6ee-4c5a-bb9e-24a1751bb057">Business — 999 MAD</option><option value="4835a00f-340c-42e1-8417-6d00293749e3">Premium — 1 549 MAD</option><option value="161469e8-6d86-44d9-bc20-06e70b1bbf9d">Enterprise — 2 299 MAD</option><option value="834e74fd-1346-4ff7-9fc5-df5af470faeb">Réseau — 3 899 MAD</option></select></div>
+          <div class="kadosk-champ"><label>Banque</label><input id="obBank" maxlength="120"></div>
+          <div class="kadosk-champ"><label>Titulaire du RIB</label><input id="obRibHolder" maxlength="160"></div>
+          <div class="kadosk-champ"><label>RIB</label><input id="obRib" maxlength="64" inputmode="numeric"></div>
+          <div class="kadosk-champ"><label>URL document RC</label><input id="obDocRc" type="url"></div>
+          <div class="kadosk-champ"><label>URL pièce d'identité du représentant</label><input id="obDocIdentity" type="url"></div>
+          <div class="kadosk-champ"><label>URL attestation RIB</label><input id="obDocRib" type="url"></div>
+        </div>
+        <label class="kadosk-champ-checkbox"><input type="checkbox" id="obCertified"> Je certifie l’exactitude des informations et documents.</label>
+        <label class="kadosk-champ-checkbox"><input type="checkbox" id="obTerms"> J’accepte les conditions du partenariat et de l’abonnement choisi.</label>
+        <label class="kadosk-champ-checkbox"><input type="checkbox" id="obPrivacy"> J’ai lu la politique de confidentialité et j’accepte le traitement de mes données pour l’étude et la gestion de mon partenariat.</label>
+        <p style="font-size:12px;color:var(--kadosk-texte-clair);">Vous pouvez enregistrer un brouillon. Après envoi à KADOSK, le dossier est verrouillé pendant l’examen. En cas de refus, le commentaire Admin vous permet de le corriger et de le renvoyer.</p>
+        <div class="kadosk-ligne-boutons"><button class="kadosk-bouton kadosk-bouton-secondaire" id="obSave">Enregistrer le brouillon</button><button class="kadosk-bouton" id="obSubmit">Envoyer pour validation</button></div>
+        <div class="kadosk-message-erreur" id="obMessage"></div>
+      </section>
+
+      <section class="kadosk-panneau-large kadosk-resume-offre">
+        <div class="kadosk-panneau-entete"><div><h2>Détails de la carte cadeau</h2><p class="kadosk-sous-titre">Ce sont les informations que les clients verront.</p></div><button type="button" class="kadosk-bouton" id="boutonModifierCarte">Modifier la carte cadeau</button></div>
+        <div class="kadosk-resume-offre-corps"><div class="kadosk-resume-offre-image" id="resumeImageCarte">Carte cadeau</div><div><strong id="resumeNomCarte">Carte cadeau</strong><p id="resumeDescriptionCarte">Configurez votre offre.</p></div></div>
+        <div class="kadosk-resume-offre-meta"><div><span>Montants</span><strong id="resumeMontantsCarte">—</strong></div><div><span>Date d’expiration</span><strong id="resumeExpirationCarte">—</strong></div></div>
+      </section>
+
+      <div class="kadosk-grille-tableau-bord" id="editeurCarteCadeau" style="align-items:start;display:none;">
+        <div class="kadosk-panneau-large">
+          <div class="kadosk-section-formulaire">
+            <div class="kadosk-section-numero">1</div><div><h2>Identité</h2><p>Nom, description et logo de votre enseigne.</p></div>
+          </div>
+          <div class="kadosk-champ">
+            <label for="champNom">Nom de la carte cadeau</label>
+            <input type="text" id="champNom" />
+          </div>
+
+          <div class="kadosk-champ">
+            <label for="champDescription">Description</label>
+            <textarea id="champDescription" rows="3"></textarea>
+          </div>
+
+          <div class="kadosk-champ">
+            <label>Logo affiché sur la carte</label>
+            <input type="hidden" id="champLogoUrl" />
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div id="apercuLogoActuel" style="width:52px; height:52px; border-radius:8px; border:1px solid var(--kadosk-bordure); background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                <img id="apercuLogoActuelImg" src="" alt="" style="max-width:80%; max-height:80%; object-fit:contain; display:none;" />
+              </div>
+              <div>
+                <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonUploaderLogo" style="padding:8px 14px; font-size:13px;">Choisir une image…</button>
+                <input type="file" id="champFichierLogo" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" />
+              </div>
+            </div>
+            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;">
+              Récupéré automatiquement depuis le logo de votre entreprise. Envoyez une image (PNG/JPEG/WEBP, 5 Mo max) pour le remplacer.
+              <a href="#" id="lienReinitialiserLogo" style="color:var(--kadosk-violet); font-weight:600;">Réinitialiser</a>
+            </div>
+            <div class="kadosk-message-erreur" id="messageStatutLogo" style="margin-top:6px;"></div>
+          </div>
+
+          <div class="kadosk-section-formulaire">
+            <div class="kadosk-section-numero">2</div><div><h2>Style visuel</h2><p>Commencez avec un modèle puis personnalisez chaque détail.</p></div>
+          </div>
+          <div class="kadosk-modeles-carte" id="modelesCarte">
+            <button type="button" class="kadosk-modele-carte" data-modele="emeraude"><i style="background:linear-gradient(135deg,#0f766e,#5eead4)"></i><span>Émeraude</span></button>
+            <button type="button" class="kadosk-modele-carte" data-modele="crepuscule"><i style="background:linear-gradient(135deg,#4338ca,#e879f9)"></i><span>Crépuscule</span></button>
+            <button type="button" class="kadosk-modele-carte" data-modele="sable"><i style="background:linear-gradient(135deg,#f4e4c1,#b7791f)"></i><span>Sable</span></button>
+            <button type="button" class="kadosk-modele-carte" data-modele="nuit"><i style="background:linear-gradient(135deg,#111827,#475569)"></i><span>Nuit</span></button>
+          </div>
+
+          <div class="kadosk-champ">
+            <label>Couleur d'accent de la carte</label>
+            <div class="kadosk-choix-couleur" id="choixCouleurAccent" style="align-items:center;">
+              <button type="button" class="kadosk-pastille-couleur" data-couleur="teal" style="background:var(--kadosk-teal);"></button>
+              <button type="button" class="kadosk-pastille-couleur" data-couleur="violet" style="background:var(--kadosk-violet);"></button>
+              <button type="button" class="kadosk-pastille-couleur" data-couleur="orange" style="background:var(--kadosk-orange);"></button>
+              <button type="button" class="kadosk-pastille-couleur" data-couleur="bleu" style="background:var(--kadosk-bleu);"></button>
+              <button type="button" class="kadosk-pastille-couleur" data-couleur="rose" style="background:#e0629c;"></button>
+              <input type="color" id="champCouleurLibre" value="#8ab6a9" title="Couleur libre" style="width:34px; height:34px; padding:0; border:2px solid transparent; border-radius:50%; cursor:pointer; background:none;" />
+            </div>
+            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;">
+              Choisissez une des couleurs prédéfinies, ou une couleur libre avec la pastille arc-en-ciel.
+            </div>
+          </div>
+
+          <div class="kadosk-champ">
+            <label>Type de fond de la carte</label>
+            <div id="choixTypeFond" style="display:flex; gap:8px;">
+              <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" data-type-fond="couleur" style="padding:8px 14px; font-size:13px;">Couleur unie</button>
+              <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" data-type-fond="degrade" style="padding:8px 14px; font-size:13px;">Dégradé</button>
+              <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" data-type-fond="image" style="padding:8px 14px; font-size:13px;">Image</button>
+            </div>
+          </div>
+
+          <div class="kadosk-champ" id="blocDegrade" style="display:none;">
+            <label>Couleurs du dégradé</label>
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <input type="color" id="champGradientFrom" value="#8ab6a9" style="width:34px; height:34px; padding:0; border:2px solid transparent; border-radius:50%; cursor:pointer; background:none;" />
+                <span style="font-size:12px; color:var(--kadosk-texte-clair);">Début</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <input type="color" id="champGradientTo" value="#4f7a6c" style="width:34px; height:34px; padding:0; border:2px solid transparent; border-radius:50%; cursor:pointer; background:none;" />
+                <span style="font-size:12px; color:var(--kadosk-texte-clair);">Fin</span>
+              </div>
+              <div style="flex:1; min-width:140px; display:flex; align-items:center; gap:8px;">
+                <input type="range" id="champGradientAngle" min="0" max="360" value="135" style="flex:1;" />
+                <span style="font-size:12px; color:var(--kadosk-texte-clair); width:38px;" id="texteAngleDegrade">135°</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kadosk-champ" id="blocImageFond" style="display:none;">
+            <label>Image de fond</label>
+            <input type="hidden" id="champBackgroundImageUrl" />
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div id="apercuFondActuel" style="width:70px; height:46px; border-radius:8px; border:1px solid var(--kadosk-bordure); background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                <img id="apercuFondActuelImg" src="" alt="" style="width:100%; height:100%; object-fit:cover; display:none;" />
+              </div>
+              <div>
+                <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonUploaderFond" style="padding:8px 14px; font-size:13px;">Choisir une image…</button>
+                <input type="file" id="champFichierFond" accept="image/png,image/jpeg,image/webp" style="display:none;" />
+              </div>
+            </div>
+            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;">
+              PNG/JPEG/WEBP, 5 Mo max. Un voile clair est appliqué automatiquement pour garder le titre lisible.
+            </div>
+            <div class="kadosk-message-erreur" id="messageStatutFond" style="margin-top:6px;"></div>
+          </div>
+
+          <div class="kadosk-champ">
+            <label>Motif de fond</label>
+            <div class="kadosk-grille-swatches" id="choixMotifCarte"></div>
+          </div>
+
+          <div class="kadosk-champ">
+            <label for="champPoliceCarte">Police</label>
+            <select id="champPoliceCarte"></select>
+          </div>
+
+          <div class="kadosk-champ">
+            <label>Icône d'activité</label>
+            <div class="kadosk-grille-swatches" id="choixIconeActivite"></div>
+            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;" id="texteIconeSuggeree"></div>
+          </div>
+
+          <div class="kadosk-section-formulaire">
+            <div class="kadosk-section-numero">3</div><div><h2>Règles de vente</h2><p>Montants, validité et visibilité dans la boutique.</p></div>
+          </div>
+          <div class="kadosk-champ">
+            <label for="champMontants">Montants proposés (séparés par des virgules)</label>
+            <input type="text" id="champMontants" placeholder="100, 200, 500" />
+          </div>
+
+          <div class="kadosk-champ-checkbox">
+            <input type="checkbox" id="champMontantLibreActif" />
+            <label for="champMontantLibreActif" style="margin:0;">Autoriser un montant libre</label>
+          </div>
+
+          <div id="blocMontantLibre" style="display:none;">
+            <div class="kadosk-champ">
+              <label for="champMontantLibreMin">Montant libre minimum</label>
+              <input type="number" id="champMontantLibreMin" min="1" max="1000" />
+            </div>
+            <div class="kadosk-champ">
+              <label for="champMontantLibreMax">Montant libre maximum</label>
+              <input type="number" id="champMontantLibreMax" min="1" max="1000" />
+            </div>
+          </div>
+
+          <div class="kadosk-champ">
+            <label for="champExpiration">Durée de validité (mois, 0 = pas d'expiration)</label>
+            <input type="number" id="champExpiration" min="0" />
+          </div>
+
+          <div class="kadosk-champ-checkbox">
+            <input type="checkbox" id="champVisible" checked />
+            <label for="champVisible" style="margin:0;">Visible dans le catalogue public KADOSK</label>
+          </div>
+          <div style="font-size:11px; color:var(--kadosk-texte-clair); margin:-10px 0 16px;">
+            Décochez pour retirer temporairement votre carte du catalogue (boutique.html) sans désactiver votre compte marchand. Les commandes déjà passées restent valables.
+          </div>
+
+          <div class="kadosk-ligne-boutons">
+            <button class="kadosk-bouton" id="boutonEnregistrer">Enregistrer</button>
+          </div>
+
+          <div class="kadosk-message-erreur" id="messageStatutParametres"></div>
+        </div>
+
+        <div class="kadosk-panneau-large kadosk-apercu-sticky">
+          <h2>Aperçu de la carte</h2>
+          <div class="kadosk-carte-apercu" id="carteApercu" data-accent="teal">
+            <div class="kadosk-carte-apercu-logo-marchand">
+              <img id="apercuLogoMarchand" src="" alt="" style="display:none;" />
+            </div>
+            <div class="kadosk-carte-apercu-titre" id="apercuTitreCarte">Nom de la carte cadeau</div>
+
+            <svg class="kadosk-carte-apercu-cadeau" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="35" width="80" height="55" rx="4" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
+              <rect x="10" y="35" width="80" height="18" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
+              <line x1="50" y1="35" x2="50" y2="90" stroke="var(--kadosk-teal)" stroke-width="3"/>
+              <path d="M50 35 C30 35 25 15 40 10 C50 8 50 25 50 35 Z" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
+              <path d="M50 35 C70 35 75 15 60 10 C50 8 50 25 50 35 Z" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
+            </svg>
+
+            <div class="kadosk-carte-apercu-montant-bloc">
+              <div class="kadosk-carte-apercu-montant-label">
+                <span class="trait"></span> MONTANT <span class="trait"></span>
+              </div>
+              <div class="kadosk-carte-apercu-montant-valeur">
+                <span id="apercuMontantCarte">100</span> <span class="devise">MAD</span>
+              </div>
+            </div>
+
+            <div class="kadosk-carte-apercu-vague"></div>
+            <div class="kadosk-carte-apercu-logo-kadosk">
+              <img src="assets/logo.png" alt="KADOSK" />
+              <span>GÉRÉ PAR KADOSK</span>
+            </div>
+          </div>
+          <p style="font-size:12px; color:var(--kadosk-texte-clair); margin-top:10px;">
+            Personnalisez librement le fond, le motif, la police et l’icône. Le badge « Géré par KADOSK » reste affiché sur toutes les cartes.
+            Votre logo et votre couleur d’accent sont également utilisés dans l’e-mail envoyé au bénéficiaire.
+          </p>
+        </div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div><h2>Facture client</h2><p style="font-size:12px;color:var(--kadosk-texte-clair);margin:0">Personnalisez l’en-tête, les couleurs, l’échéance, le paiement et le pied de page avec un aperçu en direct.</p></div>
+        <a class="kadosk-bouton" href="invoice-settings.html">Personnaliser la facture</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/carte-visuelle.js"></script>
+  <script src="assets/settings.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
