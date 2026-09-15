@@ -255,6 +255,12 @@
     // même marchand ET ce même montant (quantités cumulées) - un second passage sur
     // cette fiche avec le même montant n'écrase donc plus la quantité précédente,
     // il s'y ajoute. Un montant différent crée une ligne à part.
+    const panierActuel = KADOSK_PANIER2.lire();
+    if (panierActuel.some(l => l.merchantId !== merchantId) || KADOSK_PANIER2.compterArticles() + quantite > 5) {
+      messageAjout.textContent = "Un seul commerce et 5 cartes maximum par panier. Modifiez votre panier pour continuer.";
+      messageAjout.style.color = "var(--k2-danger)";
+      return;
+    }
     KADOSK_PANIER2.ajouterArticle({
       merchantId,
       businessName: offre.businessName,

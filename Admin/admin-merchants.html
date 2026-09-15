@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Marchands</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete">
+        <h1>Marchands</h1>
+        <span class="adm-badge-role" id="admBadgeRole">—</span>
+      </div>
+
+      <div class="adm-panneau">
+        <div class="adm-toolbar">
+          <input class="adm-input" id="champRecherche" placeholder="Rechercher par nom commercial..." style="flex:1; min-width:220px;" />
+          <select class="adm-select" id="selectStatut">
+            <option value="">Tous les statuts</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Under Review">Under Review</option>
+            <option value="PreApproved">PreApproved — compte invité</option>
+            <option value="Approved">Approved</option>
+            <option value="Active">Active</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+          <button class="adm-bouton secondaire" id="boutonRechercher">Rechercher</button>
+        </div>
+        <div id="conteneurListe"><div class="adm-vide">Chargement…</div></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modale de confirmation, réutilisée pour approuver/rejeter/suspendre/réactiver -
+       raison toujours obligatoire (section 16.3 de l'audit), jamais d'action sensible
+       sans confirmation explicite. -->
+  <div class="adm-modal-fond" id="modalFond" style="display:none;">
+    <div class="adm-modal">
+      <h3 id="modalTitre">Confirmer l'action</h3>
+      <textarea id="modalRaison" placeholder="Raison (obligatoire)..."></textarea>
+      <div class="adm-message-erreur" id="modalErreur"></div>
+      <div class="adm-modal-actions">
+        <button class="adm-bouton secondaire" id="modalAnnuler">Annuler</button>
+        <button class="adm-bouton" id="modalConfirmer">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="assets/admin-guard.js"></script>
+  <script src="assets/admin-merchants.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

@@ -67,6 +67,7 @@
       </div>
     `;
 
+    div.querySelector('[data-action="plus"]').disabled = KADOSK_PANIER2.compterArticles() >= KADOSK_PANIER2.QUANTITE_MAX;
     const ligneId = ligne.ligneId;
     const ligneActuelle = () => KADOSK_PANIER2.lire().find((l) => l.ligneId === ligneId);
 

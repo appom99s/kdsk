@@ -239,28 +239,6 @@
 
   afficherCommande(commande);
 
-  // Diagnostic temporaire et explicite de la réplication KADOSK -> Wix eCommerce.
-  // Sans ce bloc, l'échec best-effort reste invisible puisque la commande KADOSK
-  // elle-même est bien créée et la page affiche normalement "Merci".
-  const diagnosticSyncWix = document.getElementById("diagnosticSyncWix");
-  if (diagnosticSyncWix) {
-    const sync = commande.wixOrderSync;
-    diagnosticSyncWix.style.display = "block";
-    if (sync && sync.ok === true) {
-      diagnosticSyncWix.style.background = "#eaf8f1";
-      diagnosticSyncWix.style.color = "#157347";
-      diagnosticSyncWix.textContent = "Synchronisation Wix réussie — commande Wix " + (sync.wixOrderNumber || sync.wixOrderId || "créée") + ".";
-    } else if (sync && sync.ok === false) {
-      diagnosticSyncWix.style.background = "#fdecec";
-      diagnosticSyncWix.style.color = "#b02a37";
-      diagnosticSyncWix.textContent = "Synchronisation Wix échouée : " + (sync.erreur || "erreur inconnue") + ".";
-    } else {
-      diagnosticSyncWix.style.background = "#fff3cd";
-      diagnosticSyncWix.style.color = "#664d03";
-      diagnosticSyncWix.textContent = "Diagnostic Wix absent : le nouveau backend n'est probablement pas encore publié ou cette confirmation provient d'une ancienne commande.";
-    }
-  }
-
   // --- Connexion par code, nécessaire pour révéler le RIB ---
   const buyerEmail = String(commande.buyerEmail || "").trim().toLowerCase();
   let codeDejaEnvoye = false;

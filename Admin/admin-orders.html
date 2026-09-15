@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Commandes</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete">
+        <h1>Commandes</h1>
+        <span class="adm-badge-role" id="admBadgeRole">—</span>
+      </div>
+      <div class="adm-panneau">
+        <div class="adm-toolbar">
+          <select class="adm-select" id="selectStatut">
+            <option value="">Tous les statuts</option>
+            <option value="DRAFT">DRAFT (en attente marchand)</option>
+            <option value="ACTIVE">ACTIVE (acceptée)</option>
+            <option value="REFUSED">REFUSED (refusée)</option>
+          </select>
+          <button class="adm-bouton secondaire" id="boutonFiltrer">Filtrer</button>
+          <button class="adm-bouton secondaire" id="boutonRelancesAuto" title="Envoie immédiatement les relances automatiques aux commandes en brouillon depuis plus de 48h (sans attendre le job planifié)">Lancer les relances auto</button>
+        </div>
+        <span id="messageRelancesAuto" style="font-size:12px;"></span>
+        <div id="conteneurListe"><div class="adm-vide">Chargement…</div></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="assets/admin-guard.js"></script>
+  <script src="assets/admin-orders.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

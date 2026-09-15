@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Connexion</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-page-connexion">
+    <div class="adm-carte-connexion">
+      <div class="adm-sidebar-titre" style="color:var(--adm-dark); padding-bottom:18px;">KAD<span style="color:var(--adm-primary);">OSK</span> · Admin</div>
+
+      <div class="adm-champ">
+        <label for="champEmail">Email</label>
+        <input type="email" id="champEmail" autocomplete="username" />
+      </div>
+      <div class="adm-champ">
+        <label for="champMotDePasse">Mot de passe</label>
+        <input type="password" id="champMotDePasse" autocomplete="current-password" />
+      </div>
+
+      <button class="adm-bouton" id="boutonConnexion" style="width:100%;">Se connecter</button>
+      <div class="adm-message-erreur" id="messageErreur"></div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script>
+    // Callback dédié (admin-login-callback.html), distinct du callback marchand :
+    // évite de faire transiter une connexion Admin par la logique 2FA/dashboard
+    // marchand. ⚠️ Cette URL doit être enregistrée comme redirect URI autorisée
+    // dans la configuration OAuth Wix (même clientId que le marchand) avant que
+    // cette page fonctionne de bout en bout - même étape que celle déjà faite
+    // pour login-callback.html/boutique-callback.html.
+    const ADMIN_LOGIN_CALLBACK_PATH = "/Admin/admin-login-callback.html";
+
+    const boutonConnexion = document.getElementById("boutonConnexion");
+    const champEmail = document.getElementById("champEmail");
+    const champMotDePasse = document.getElementById("champMotDePasse");
+    const messageErreur = document.getElementById("messageErreur");
+
+    if (KADOSK_AUTH.estConnecte()) {
+      window.location.href = "admin-dashboard.html";
+    }
+
+    async function tenterConnexion() {
+      messageErreur.textContent = "";
+      const email = champEmail.value.trim();
+      const motDePasse = champMotDePasse.value;
+
+      if (!email || !motDePasse) {
+        messageErreur.textContent = "Merci de renseigner votre email et votre mot de passe.";
+        return;
+      }
+
+      boutonConnexion.disabled = true;
+      boutonConnexion.textContent = "Connexion en cours...";
+
+      try {
+        const resultat = await KADOSK_AUTH.loginMembre(email, motDePasse);
+
+        if (resultat.state === "SUCCESS") {
+          await KADOSK_AUTH.demarrerAutorisationMembre(resultat.sessionToken, ADMIN_LOGIN_CALLBACK_PATH);
+          return;
+        }
+
+        messageErreur.textContent = "Connexion impossible. Vérifiez vos identifiants.";
+      } catch (erreur) {
+        console.error("Erreur connexion Admin KADOSK :", erreur);
+        if (erreur.message === "ERREUR_RESEAU") {
+          messageErreur.textContent = "Impossible de contacter Wix (réseau/CORS). Voir la console.";
+        } else {
+          messageErreur.textContent = "Email ou mot de passe incorrect.";
+        }
+      } finally {
+        boutonConnexion.disabled = false;
+        boutonConnexion.textContent = "Se connecter";
+      }
+    }
+
+    boutonConnexion.addEventListener("click", tenterConnexion);
+    champMotDePasse.addEventListener("keydown", (evenement) => {
+      if (evenement.key === "Enter") tenterConnexion();
+    });
+  </script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

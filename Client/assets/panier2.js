@@ -38,12 +38,22 @@ const KADOSK_PANIER2 = (function () {
   }
 
   function ecrire(lignes) {
+    const total = lignes.reduce((n, l) => n + Number(l.quantite), 0);
+    if (new Set(lignes.map(l => l.merchantId)).size > 1) {
+      window.alert("Votre panier est réservé à un seul commerce. Terminez votre commande ou videz le panier avant de changer de commerce.");
+      return false;
+    }
+    if (total > QUANTITE_MAX || lignes.some(l => !Number.isInteger(l.quantite) || l.quantite < 1)) {
+      window.alert("Vous pouvez commander au maximum 5 cartes cadeaux par panier.");
+      return false;
+    }
     try {
       localStorage.setItem(CLE_STOCKAGE, JSON.stringify(lignes));
     } catch (erreur) {
       console.error("KADOSK_PANIER2 : impossible d'enregistrer le panier :", erreur);
     }
     mettreAJourBadges();
+    return true;
   }
 
   // Étape 1 : sélectionner une carte (sans montant pour l'instant). N'ajoute rien si
@@ -64,13 +74,13 @@ const KADOSK_PANIER2 = (function () {
       montant: null,
       quantite: 1
     });
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
   function deselectionner(merchantId) {
     const lignes = lire().filter((l) => l.merchantId !== merchantId);
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
@@ -83,21 +93,21 @@ const KADOSK_PANIER2 = (function () {
     const ligne = lignes.find((l) => l.merchantId === merchantId);
     if (!ligne) return lignes;
     ligne.montant = Number(montant) > 0 ? Number(montant) : null;
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
   // Plafond aligné sur la limite serveur (creerCommandeMultiMarchand) - garder les
   // deux synchronisés : le plafond client n'est qu'un confort d'UX, la vraie limite
   // est toujours revérifiée côté backend.
-  const QUANTITE_MAX = 1;
+  const QUANTITE_MAX = 5;
 
   function definirQuantite(merchantId, quantite) {
     const lignes = lire();
     const ligne = lignes.find((l) => l.merchantId === merchantId);
     if (!ligne) return lignes;
     ligne.quantite = Math.max(1, Math.min(QUANTITE_MAX, Math.floor(Number(quantite) || 1)));
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
@@ -132,7 +142,7 @@ const KADOSK_PANIER2 = (function () {
         quantite: Math.min(QUANTITE_MAX, quantiteAjoutee)
       });
     }
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
@@ -142,7 +152,7 @@ const KADOSK_PANIER2 = (function () {
   // lignes (montants différents).
   function retirerLigne(ligneId) {
     const lignes = lire().filter((l) => l.ligneId !== ligneId);
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
@@ -151,7 +161,7 @@ const KADOSK_PANIER2 = (function () {
     const ligne = lignes.find((l) => l.ligneId === ligneId);
     if (!ligne) return lignes;
     ligne.quantite = Math.max(1, Math.min(QUANTITE_MAX, Math.floor(Number(quantite) || 1)));
-    ecrire(lignes);
+    if (!ecrire(lignes)) return lire();
     return lignes;
   }
 
@@ -165,7 +175,7 @@ const KADOSK_PANIER2 = (function () {
   }
 
   function compterArticles() {
-    return lire().length;
+    return lire().reduce((n, l) => n + (Number(l.quantite) || 1), 0);
   }
 
   function toutesLignesOntUnMontant() {
@@ -222,6 +232,7 @@ const KADOSK_PANIER2 = (function () {
   function mettreAJourBadges() {
     const total = compterArticles();
     document.querySelectorAll("[data-panier-badge]").forEach((el) => {
+      el.hidden = total === 0;
       el.textContent = String(total);
       el.style.display = total > 0 ? "" : "none";
     });

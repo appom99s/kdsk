@@ -30,8 +30,6 @@
   .k2-logo img, .brand img, .k2-entete-logo img { height:34px !important; width:auto !important; }
   .shop-header .header-actions { margin-left:auto; }
   .shop-header .icon-link { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; color:var(--ref-green); }
-  .shop-header .cart-link { font-size:0; }
-  .shop-header .cart-link::before { content:"▢"; font-size:23px; color:var(--ref-green); }
 
   .client-mobile-nav {
     left:50% !important;
@@ -150,9 +148,6 @@
   .checkout-section { background:#fff !important; }
   body.client-shell .k2-main>a.k2-carte { min-height:62px; padding:13px !important; border:0 !important; border-bottom:1px solid #eef2f2 !important; border-radius:0 !important; box-shadow:none !important; }
   #btnOublier { margin-top:18px; border:0 !important; background:transparent !important; color:#e12828 !important; text-align:left !important; box-shadow:none !important; }
-
-  .quick-cart { max-width:430px; left:50% !important; transform:translate(-50%,105%) !important; }
-  .quick-cart.is-open { transform:translate(-50%,0) !important; }
 }
 
 @media (min-width:781px) {

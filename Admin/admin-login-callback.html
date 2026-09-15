@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Connexion en cours</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-page-connexion">
+    <div class="adm-carte-connexion" style="text-align:center;">
+      <div class="adm-sidebar-titre" style="color:var(--adm-dark); padding-bottom:14px; justify-content:center;">KAD<span style="color:var(--adm-primary);">OSK</span> · Admin</div>
+      <div id="messageStatut" style="font-size:13.5px; color:var(--adm-texte-clair);">Connexion en cours...</div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script>
+    const ADMIN_LOGIN_CALLBACK_PATH = "/Admin/admin-login-callback.html";
+    const messageStatut = document.getElementById("messageStatut");
+
+    (async function () {
+      try {
+        await KADOSK_AUTH.traiterRetourAutorisation(ADMIN_LOGIN_CALLBACK_PATH);
+
+        // Vérifie tout de suite que ce membre Wix a bien une entrée AdminUsers
+        // côté serveur - une connexion Wix Member réussie ne suffit pas : voir
+        // adminSecurity.web.js :: obtenirAdminConfirme. Si ce n'est pas le cas,
+        // on déconnecte immédiatement plutôt que de laisser un marchand ou
+        // acheteur connecté accéder par erreur à une page admin-*.html.
+        await KADOSK_API.getAdminDashboard();
+        window.location.href = "admin-dashboard.html";
+      } catch (erreur) {
+        console.error("Erreur callback Admin KADOSK :", erreur);
+        if (erreur && erreur.message === "NOT_ADMIN") {
+          messageStatut.textContent = "Ce compte n'a pas accès à l'espace Admin.";
+        } else {
+          // Affiche le détail technique (ex. "ECHEC_LECTURE_MEMBRE: ...") plutôt
+          // qu'un message générique : nécessaire pour diagnostiquer une erreur de
+          // connexion Admin sans avoir à ouvrir la console réseau du navigateur.
+          messageStatut.textContent =
+            "La connexion a échoué. Merci de réessayer. (" + ((erreur && erreur.message) || "erreur inconnue") + ")";
+        }
+        // Efface la session Wix Member dans TOUS les cas d'erreur (pas
+        // seulement NOT_ADMIN) - sinon admin-login.html voit encore des jetons
+        // valides dans localStorage, se croit "déjà connecté" et renvoie
+        // aussitôt vers admin-dashboard.html, où admin-guard.js relance le même
+        // appel et échoue à nouveau : une boucle qui empêche toute nouvelle
+        // tentative de connexion tant que le vrai problème n'est pas réglé.
+        try {
+          await KADOSK_AUTH.deconnecterSansRedirection();
+        } catch (erreurStockage) {}
+        KADOSK_AUTH.effacerVerification2FA();
+        setTimeout(() => {
+          window.location.href = "admin-login.html";
+        }, 2500);
+      }
+    })();
+  </script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

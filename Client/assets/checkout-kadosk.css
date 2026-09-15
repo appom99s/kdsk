@@ -1,4 +1,4 @@
-:root{--checkout-green:#007f6d;--checkout-ink:#16211f;--checkout-muted:#60706c;--checkout-line:#dfe7e4;--checkout-bg:#f6f8f7}
+:root{--checkout-green:#1f3a34;--checkout-ink:#16211f;--checkout-muted:#60706c;--checkout-line:#dfe7e4;--checkout-bg:#f7faf9}
 *{box-sizing:border-box}.checkout-page{background:var(--checkout-bg);color:var(--checkout-ink);overflow-x:hidden}
 .checkout-header{height:74px;background:#fff;border-bottom:1px solid var(--checkout-line);display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1120px)/2));position:relative;z-index:2}
 .checkout-brand img{display:block;width:auto;height:36px}.checkout-header-security{display:flex;align-items:center;gap:8px;color:var(--checkout-muted);font-size:13px;font-weight:600}.checkout-header-security svg{width:18px;height:18px;color:var(--checkout-green)}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Transaction 360°</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete">
+        <h1>Transaction 360°</h1>
+        <span class="adm-badge-role" id="admBadgeRole">—</span>
+      </div>
+
+      <div class="adm-panneau">
+        <div class="adm-toolbar">
+          <input class="adm-input" id="champRefCmd" placeholder="REF CMD (ex: CMD-00125)..." style="flex:1; min-width:220px;" />
+          <button class="adm-bouton" id="boutonRechercher">Rechercher</button>
+        </div>
+      </div>
+
+      <div id="conteneurResultat"></div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="assets/admin-guard.js"></script>
+  <script src="assets/admin-transaction-360.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

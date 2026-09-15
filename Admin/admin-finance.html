@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Finance</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete">
+        <h1>Finance</h1>
+        <span class="adm-badge-role" id="admBadgeRole">—</span>
+      </div>
+
+      <div class="adm-grille-kpi" style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px;">
+        <div class="adm-panneau" style="margin:0;">
+          <div style="font-size:12px; color:var(--adm-texte-clair,#888);">Commissions cumulées</div>
+          <div style="font-size:22px; font-weight:600;" id="kpiCommissions">—</div>
+        </div>
+        <div class="adm-panneau" style="margin:0;">
+          <div style="font-size:12px; color:var(--adm-texte-clair,#888);">Facturé TTC cumulé</div>
+          <div style="font-size:22px; font-weight:600;" id="kpiFactureTTC">—</div>
+        </div>
+        <div class="adm-panneau" style="margin:0;">
+          <div style="font-size:12px; color:var(--adm-texte-clair,#888);">Nombre de factures</div>
+          <div style="font-size:22px; font-weight:600;" id="kpiNombreFactures">—</div>
+        </div>
+        <div class="adm-panneau" style="margin:0;">
+          <div style="font-size:12px; color:var(--adm-texte-clair,#888);">Remboursements en attente</div>
+          <div style="font-size:22px; font-weight:600;" id="kpiRemboursementsAttente">—</div>
+        </div>
+      </div>
+
+      <div class="adm-panneau">
+        <div class="adm-panneau-entete">
+          <h2>Réconciliation financière</h2>
+          <button class="adm-bouton secondaire" id="boutonRelancerReconciliation">Relancer la vérification</button>
+        </div>
+        <p style="font-size:12px; color:var(--adm-texte-clair,#888); margin:-6px 0 12px;">
+          Vérification en lecture seule de la chaîne Commande → Gift Card → Commission → Facture. Aucune correction automatique - signalement uniquement.
+        </p>
+        <div id="conteneurAnomalies"><div class="adm-vide">Chargement…</div></div>
+      </div>
+
+      <div class="adm-panneau">
+        <div class="adm-toolbar" style="flex-wrap:wrap;">
+          <select class="adm-input" id="champMerchantIdCommissions" style="flex:1; min-width:220px;">
+            <option value="">Tous les marchands</option>
+          </select>
+          <label style="font-size:12px; color:var(--adm-texte-clair,#888);">Du
+            <input class="adm-input" id="champDateDebutCommissions" type="date" style="max-width:160px;" />
+          </label>
+          <label style="font-size:12px; color:var(--adm-texte-clair,#888);">Au
+            <input class="adm-input" id="champDateFinCommissions" type="date" style="max-width:160px;" />
+          </label>
+          <button class="adm-bouton secondaire" id="boutonFiltrerCommissions">Filtrer</button>
+          <button class="adm-bouton secondaire" id="boutonExporterCommissions">Extraire en Excel</button>
+        </div>
+        <h2 style="margin-top:4px;">Commissions (toutes les transactions)</h2>
+        <div id="resumeCACommissions" style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:14px; font-size:13px;"></div>
+        <div id="conteneurCommissions"><div class="adm-vide">Chargement…</div></div>
+      </div>
+
+      <div class="adm-panneau">
+        <div class="adm-panneau-entete">
+          <h2>Facture mensuelle (Auto-Entrepreneur)</h2>
+        </div>
+        <div class="adm-toolbar">
+          <select class="adm-input" id="champMerchantIdFactureMensuelle" style="flex:1; min-width:220px;">
+            <option value="">— Choisir un marchand —</option>
+          </select>
+          <select class="adm-input" id="champMoisFactureMensuelle" style="min-width:140px;"></select>
+          <input class="adm-input" id="champAnneeFactureMensuelle" type="number" style="width:100px;" />
+          <button class="adm-bouton" id="boutonGenererFactureMensuelle">Générer / afficher</button>
+          <button class="adm-bouton secondaire" id="boutonEnvoyerFactureMensuelleEmail">Envoyer par email</button>
+        </div>
+        <p style="font-size:12px; color:var(--adm-texte-clair,#888); margin:-6px 0 12px;">
+          Sans action ici, la facture d'un marchand devient de toute façon disponible automatiquement dans son espace 1 jour après la fin du mois. "Générer / afficher" et "Envoyer par email" permettent de l'émettre/l'envoyer plus tôt.
+        </p>
+        <span id="messageStatutEnvoiEmail" style="font-size:12px;"></span>
+        <div id="conteneurFactureMensuelle"><div class="adm-vide">Renseignez un marchand et un mois.</div></div>
+        <h3 style="margin-top:18px;">Historique des factures générées pour ce marchand</h3>
+        <div id="conteneurFacturesMensuellesListe"><div class="adm-vide">—</div></div>
+      </div>
+
+      <div class="adm-panneau">
+        <div class="adm-panneau-entete">
+          <h2>Informations Auto-Entrepreneur KADOSK</h2>
+        </div>
+        <p style="font-size:12px; color:var(--adm-texte-clair,#888); margin:-6px 0 12px;">
+          Ces informations apparaissent en bas de chaque facture mensuelle émise à un marchand (mentions légales du régime auto-entrepreneur).
+        </p>
+        <div class="adm-form-grille" style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px;">
+          <label>Auto Entrepreneur (nom)
+            <input class="adm-input" id="champAeName" />
+          </label>
+          <label>CNIE
+            <input class="adm-input" id="champAeCnie" />
+          </label>
+          <label style="grid-column:1 / -1;">Adresse
+            <input class="adm-input" id="champAeAddress" />
+          </label>
+          <label>ICE (N° d'inscription au registre national de l'auto-entrepreneur)
+            <input class="adm-input" id="champAeIce" />
+          </label>
+          <label>IF
+            <input class="adm-input" id="champAeIf" />
+          </label>
+          <label>Taxe professionnelle N°
+            <input class="adm-input" id="champAeTaxePro" />
+          </label>
+          <label>TEL
+            <input class="adm-input" id="champAeTel" />
+          </label>
+          <label>Mail
+            <input class="adm-input" id="champAeMail" />
+          </label>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="adm-bouton" id="boutonEnregistrerAe">Enregistrer</button>
+          <span id="messageStatutAe" style="margin-left:10px; font-size:13px;"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="assets/admin-guard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="assets/kadosk-ae-logo.js"></script>
+  <script src="assets/invoice-pdf.js"></script>
+  <script src="assets/admin-finance.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

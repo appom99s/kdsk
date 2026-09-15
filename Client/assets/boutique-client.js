@@ -7,13 +7,6 @@
   const error = document.getElementById("error-state");
   const filter = document.getElementById("category-filter");
   const search = document.getElementById("merchant-search");
-  const quickCartItems = document.getElementById("quick-cart-items");
-  const quickCartTotal = document.getElementById("quick-cart-total");
-  const quickCartCheckout = document.getElementById("quick-cart-checkout");
-  const quickCart = document.getElementById("quick-cart");
-  const quickCartBackdrop = document.getElementById("quick-cart-backdrop");
-  const quickCartClose = document.getElementById("quick-cart-close");
-  const cartLink = document.querySelector(".cart-link");
   // Dans Wix, config.js peut définir KADOSK_IFRAME_PARENT_ORIGIN. Le referrer
   // sert de repli seulement s'il fournit une origine explicite.
   let parentOrigin = window.KADOSK_IFRAME_PARENT_ORIGIN || "";
@@ -39,46 +32,6 @@
     filter.innerHTML = ["Toutes", ...categories].map((category) => `<button type="button" class="filter-chip" data-category="${escapeHtml(category === "Toutes" ? "" : category)}" aria-pressed="${(category === "Toutes" ? !state.category : state.category === category)}">${escapeHtml(category)}</button>`).join("");
     filter.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => { state.category = button.dataset.category; renderFilters(); render(); }));
   }
-  function formatAmount(amount) { return Number(amount || 0).toLocaleString("fr-FR", { maximumFractionDigits: 2 }) + " DH"; }
-  function renderQuickCart() {
-    if (!window.KADOSK_PANIER2 || !quickCartItems) return;
-    const lines = KADOSK_PANIER2.lire();
-    quickCartItems.innerHTML = lines.length ? lines.map((line) => `<article class="quick-cart-line"><span class="quick-cart-mark">${escapeHtml((line.businessName || line.name || "?").slice(0,1))}</span><div><p class="quick-cart-name">${escapeHtml(line.businessName || line.name)}</p><p class="quick-cart-detail">${line.quantite || 1} × ${formatAmount(line.montant)}</p></div><button type="button" class="quick-cart-remove" data-remove-line="${escapeHtml(line.ligneId)}" aria-label="Retirer ${escapeHtml(line.businessName || line.name)}">×</button></article>`).join("") : '<p class="quick-cart-empty">Votre panier est vide. Ajoutez une carte cadeau pour commencer.</p>';
-    quickCartTotal.hidden = quickCartCheckout.hidden = !lines.length;
-    if (lines.length) quickCartTotal.querySelector("strong").textContent = formatAmount(KADOSK_PANIER2.totalGeneral());
-    quickCartItems.querySelectorAll("[data-remove-line]").forEach((button) => button.addEventListener("click", () => { KADOSK_PANIER2.retirerLigne(button.dataset.removeLine); renderQuickCart(); }));
-  }
-  // Panier rapide (.quick-cart) : sur desktop il reste une barre latérale
-  // toujours visible (voir boutique-client.css), mais sur mobile il n'a pas la
-  // place - il ne s'affiche que sur un clic sur "Panier" dans l'en-tête,
-  // comme un panneau qui coulisse depuis le bas. Avant, "Panier" ne faisait
-  // que naviguer directement vers etape-3-recap.html, sans jamais rien
-  // montrer sur place : la classe .is-open (ajoutée/retirée ici) est ce qui
-  // manquait pour que le clic ouvre réellement ce menu.
-  function ouvrirPanierRapide(evenement) {
-    if (evenement) evenement.preventDefault();
-    if (!quickCart) return;
-    quickCart.classList.add("is-open");
-    if (quickCartBackdrop) {
-      quickCartBackdrop.hidden = false;
-      requestAnimationFrame(() => quickCartBackdrop.classList.add("is-open"));
-    }
-  }
-  function fermerPanierRapide() {
-    if (!quickCart) return;
-    quickCart.classList.remove("is-open");
-    if (quickCartBackdrop) {
-      quickCartBackdrop.classList.remove("is-open");
-      setTimeout(() => { quickCartBackdrop.hidden = true; }, 250);
-    }
-  }
-  if (cartLink) cartLink.addEventListener("click", ouvrirPanierRapide);
-  if (quickCartClose) quickCartClose.addEventListener("click", fermerPanierRapide);
-  if (quickCartBackdrop) quickCartBackdrop.addEventListener("click", fermerPanierRapide);
-  document.addEventListener("keydown", (evenement) => {
-    if (evenement.key === "Escape") fermerPanierRapide();
-  });
-
   async function load() {
     error.hidden = true; empty.hidden = true;
     const appliquerCatalogue = (response) => {
@@ -98,7 +51,6 @@
   search.addEventListener("input", () => { state.query = search.value.trim(); render(); });
   document.getElementById("reset-filters").addEventListener("click", () => { state.query = state.category = ""; search.value = ""; renderFilters(); render(); });
   document.getElementById("retry-load").addEventListener("click", load);
-  window.addEventListener("storage", renderQuickCart);
   // Le parent Wix transmet uniquement le jeton de session attendu, depuis son
   // origine configurée. Aucun message d'une autre origine ne peut déclencher le
   // flux d'authentification dans l'iframe.
@@ -111,5 +63,4 @@
   });
   if (window.parent !== window && parentOrigin) window.parent.postMessage({ type: "KADOSK_BOUTIQUE_CLIENT_READY" }, parentOrigin);
   load();
-  renderQuickCart();
 }());

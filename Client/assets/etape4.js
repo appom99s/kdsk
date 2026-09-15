@@ -26,7 +26,7 @@
   try { checkoutIdSession = sessionStorage.getItem("kadosk_checkout_id") || ""; } catch (_) {}
   const checkoutIdValide = /^[a-f0-9-]{36}$/i.test(checkoutIdUrl) && checkoutIdUrl === checkoutIdSession;
   if (checkoutReference) {
-    checkoutReference.textContent = checkoutIdValide ? "Session de commande : " + checkoutIdUrl : "";
+    checkoutReference.textContent = "Un seul commerce · 5 cartes maximum · Paiement par virement";
   }
 
   // "Pour moi-même" / "Pour quelqu'un d'autre" : un choix explicite plutôt que de
@@ -242,6 +242,8 @@
     } catch (erreur) {
       console.error("Echec de la commande :", erreur);
       const messages = {
+        SINGLE_MERCHANT_ONLY: "Choisissez un seul commerce par commande. Modifiez votre panier pour continuer.",
+        QUANTITY_EXCEEDS_MAX: "Votre panier peut contenir au maximum 5 cartes cadeaux.",
         INVALID_AMOUNT_FOR_OFFER: "Un des montants choisis n'est plus valide pour ce marchand. Retournez à l'étape 2.",
         MERCHANT_NOT_FOUND: "Un des marchands sélectionnés n'est plus disponible.",
         TROP_DE_COMMANDES: "Trop de commandes ont été passées récemment, merci de réessayer dans quelques minutes.",

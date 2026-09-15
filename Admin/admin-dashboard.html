@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Dashboard</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete">
+        <h1>Dashboard</h1>
+        <span class="adm-badge-role" id="admBadgeRole">—</span>
+      </div>
+
+      <div class="adm-grille-kpi">
+        <div class="adm-carte-kpi">
+          <div class="adm-kpi-label">Marchands actifs</div>
+          <div class="adm-kpi-valeur" id="kpiMerchants">—</div>
+        </div>
+        <div class="adm-carte-kpi">
+          <div class="adm-kpi-label">Gift Cards disponibles</div>
+          <div class="adm-kpi-valeur" id="kpiDisponibles">—</div>
+        </div>
+        <div class="adm-carte-kpi">
+          <div class="adm-kpi-label">Gift Cards utilisées</div>
+          <div class="adm-kpi-valeur" id="kpiUtilisees">—</div>
+        </div>
+        <div class="adm-carte-kpi">
+          <div class="adm-kpi-label">Gift Cards expirées</div>
+          <div class="adm-kpi-valeur" id="kpiExpirees">—</div>
+        </div>
+        <div class="adm-carte-kpi">
+          <div class="adm-kpi-label">Tickets support ouverts</div>
+          <div class="adm-kpi-valeur" id="kpiTickets">—</div>
+        </div>
+        <div class="adm-carte-kpi">
+          <div class="adm-kpi-label">Remboursements en attente</div>
+          <div class="adm-kpi-valeur" id="kpiRemboursements">—</div>
+        </div>
+      </div>
+
+      <div class="adm-panneau" id="panneauAlertesSecurite" style="display:none;">
+        <h2>Alertes de sécurité <span id="compteurAlertesSecurite"></span></h2>
+        <div style="overflow:auto;">
+          <table class="adm-tableau">
+            <thead><tr><th>Date</th><th>Type</th><th>Endpoint</th><th>IP</th><th>Appareil</th><th>Sévérité</th></tr></thead>
+            <tbody id="corpsAlertesSecurite"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-panneau">
+        <h2>Accès rapide</h2>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a class="adm-bouton secondaire" href="admin-merchants.html">Marchands</a>
+          <a class="adm-bouton secondaire" href="admin-orders.html">Commandes</a>
+          <a class="adm-bouton secondaire" href="admin-giftcards.html">Gift Cards</a>
+          <a class="adm-bouton secondaire" href="admin-transaction-360.html">Transaction 360°</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="assets/admin-guard.js"></script>
+  <script src="assets/admin-dashboard.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
