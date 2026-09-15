@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KADOSK — Tester gratuitement</title><meta name="description" content="Créez votre compte marchand KADOSK et émettez vos 10 premières cartes cadeaux gratuitement, sans carte bancaire."><meta name="robots" content="noindex"><meta name="theme-color" content="#F7FAF9"><link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/landing.css">
+<style>
+  .signup-wrap{min-height:calc(100vh - 84px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
+  .signup-card{max-width:480px;width:100%;background:#fff;border:1px solid var(--line);border-radius:28px;padding:40px}
+  .signup-card h1{font-size:26px;margin-bottom:10px}
+  .signup-card>p{margin-bottom:26px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+  .field input,.field select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;background:var(--paper)}
+  .field input:focus,.field select:focus{outline:2px solid var(--accent)}
+  .signup-submit{width:100%;justify-content:center;margin-top:6px}
+  .signup-note{font-size:12px;color:var(--muted);margin-top:18px;text-align:center}
+  .signup-success{display:none;text-align:center}
+  .signup-success.show{display:block}
+  .signup-form.hide{display:none}
+  .signup-error{color:#b3413a;font-size:13px;margin-top:12px;display:none}
+  .signup-error.show{display:block}
+</style>
+</head>
+<body>
+<header class="header"><div class="bar">
+  <a class="brand" href="index.html" aria-label="KADOSK, accueil"><img src="assets/logo.png" alt="" width="39" height="39">KADOSK</a>
+  <div style="margin-left:auto"><a class="btn login" href="login.html">Se connecter</a></div>
+</div></header>
+
+<main class="signup-wrap">
+  <div class="signup-card">
+    <div class="signup-form" id="signupForm">
+      <span class="badge">10 cartes offertes · Sans carte bancaire</span>
+      <h1>Devenir partenaire KADOSK</h1>
+      <p>Laissez-nous vos coordonnées : notre équipe active votre compte marchand et votre essai gratuit (10 cartes cadeaux) sous peu.</p>
+      <form id="trialForm" novalidate>
+        <div class="field"><label for="businessName">Nom de votre commerce</label><input id="businessName" name="businessName" type="text" required maxlength="120" autocomplete="organization"></div>
+        <div class="field"><label for="category">Catégorie</label><select id="category" name="category">
+          <option value="Restaurants & cafés">Restaurants & cafés</option>
+          <option value="Beauté & bien-être">Beauté & bien-être</option>
+          <option value="Mode & boutiques">Mode & boutiques</option>
+          <option value="Loisirs & expériences">Loisirs & expériences</option>
+          <option value="Maison & décoration">Maison & décoration</option>
+          <option value="Autre">Autre</option>
+        </select></div>
+        <div class="field"><label for="email">Adresse e-mail</label><input id="email" name="email" type="email" required maxlength="190" autocomplete="email"></div>
+        <div class="field"><label for="phone">Téléphone (optionnel)</label><input id="phone" name="phone" type="tel" maxlength="40" autocomplete="tel"></div>
+        <button class="btn gradient signup-submit" type="submit">Envoyer ma demande →</button>
+        <p class="signup-error" id="signupError">Une erreur est survenue. Merci de réessayer.</p>
+      </form>
+      <p class="signup-note">En continuant, vous acceptez d'être recontacté par KADOSK au sujet de votre essai gratuit.</p>
+    </div>
+    <div class="signup-success" id="signupSuccess">
+      <span class="badge">✓ Demande envoyée</span>
+      <h1>Merci !</h1>
+      <p>Votre demande a bien été reçue. Notre équipe revient vers vous très rapidement pour activer votre compte et vos 10 cartes cadeaux gratuites.</p>
+      <a class="btn" href="index.html">Retour à l'accueil</a>
+    </div>
+  </div>
+</main>
+
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/cache.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/signup.js"></script>
+</body></html>

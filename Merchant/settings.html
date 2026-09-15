@@ -54,6 +54,26 @@
         <div class="kadosk-message-erreur" id="obMessage"></div>
       </section>
 
+      <section class="kadosk-panneau-large" id="blocAbonnement" style="margin-bottom:20px;">
+        <div class="kadosk-panneau-entete"><div><h2>Abonnement</h2><p class="kadosk-sous-titre">Votre formule, votre consommation du mois et la gestion de votre abonnement.</p></div><a class="kadosk-bouton kadosk-bouton-secondaire" id="abonnementGererLien" href="#" target="_blank" rel="noopener" hidden>Gérer ma formule</a></div>
+        <p id="abonnementStatut" role="status">Chargement de votre abonnement…</p>
+        <div class="kadosk-resume-offre-meta" id="abonnementMeta" hidden>
+          <div><span>Formule</span><strong id="abonnementFormule">—</strong></div>
+          <div><span>Prix</span><strong id="abonnementPrix">—</strong></div>
+          <div><span>Renouvellement</span><strong id="abonnementRenouvellement">—</strong></div>
+        </div>
+        <div id="abonnementAlertePaiement" class="kadosk-message-erreur" style="margin-top:14px;" hidden>Le dernier prélèvement de votre abonnement a échoué. Régularisez votre moyen de paiement pour continuer à profiter de votre formule.</div>
+        <div class="kadosk-champ" id="blocAbonnementCartes" style="margin-top:18px;" hidden>
+          <label id="abonnementCartesLabel">Cartes cadeaux émises</label>
+          <p id="abonnementCartesTexte" style="margin:4px 0 8px;font-size:13px;color:var(--kadosk-texte-clair);">—</p>
+          <progress id="abonnementCartesProgress" hidden style="width:100%;accent-color:#1f3a34"></progress>
+        </div>
+        <div class="kadosk-champ" id="blocAbonnementCaissiers" style="margin-top:12px;" hidden>
+          <label>Caissiers actifs</label>
+          <p id="abonnementCaissiersTexte" style="margin:4px 0 0;font-size:13px;color:var(--kadosk-texte-clair);">—</p>
+        </div>
+      </section>
+
       <section class="kadosk-panneau-large kadosk-resume-offre">
         <div class="kadosk-panneau-entete"><div><h2>Détails de la carte cadeau</h2><p class="kadosk-sous-titre">Ce sont les informations que les clients verront.</p></div><button type="button" class="kadosk-bouton" id="boutonModifierCarte">Modifier la carte cadeau</button></div>
         <div class="kadosk-resume-offre-corps"><div class="kadosk-resume-offre-image" id="resumeImageCarte">Carte cadeau</div><div><strong id="resumeNomCarte">Carte cadeau</strong><p id="resumeDescriptionCarte">Configurez votre offre.</p></div></div>
@@ -278,6 +298,7 @@
   <script src="assets/spa.js"></script>
   <script src="assets/carte-visuelle.js"></script>
   <script src="assets/settings.js"></script>
+  <script src="assets/subscription-settings.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>

@@ -97,6 +97,7 @@ const KADOSK_API = (function () {
   }
 
   return {
+    getDashboardInitial: () => appeler("dashboardInitial", "GET"),
     getDashboardStats: () => appeler("dashboardStats", "GET"),
     // Habillage de page (nom/logo/palier/rôle) uniquement, sans aucune donnée
     // financière - c'est celui-ci que nav.js doit utiliser (accessible à OWNER
@@ -152,6 +153,11 @@ const KADOSK_API = (function () {
     saveMerchantProfile: (profile, submitForReview) => appeler("merchantProfile", "POST", { profile, submitForReview }),
     getOnboardingChecklist: () => appeler("onboardingChecklist", "GET"),
     getSubscriptionInfo: () => appeler("subscriptionInfo", "GET"),
+    // Nouveau moteur SaaS (essai/quota de cartes + caissiers) : requestCardPlanChange
+    // n'applique rien immédiatement côté serveur, voir le commentaire au-dessus de
+    // demanderChangementFormuleCarteCadeau (backend) pour le détail upgrade/downgrade.
+    requestCardPlanChange: (cardPlanId, cashierAddonPlanId) =>
+      appeler("cardPlanChangeRequest", "POST", { cardPlanId, cashierAddonPlanId }),
     refuseOrder: (giftCardId, reason) => appeler("refuseOrder", "POST", { giftCardId, reason }),
 
     // Mot de passe (connecté) : demande de code puis confirmation.
@@ -212,6 +218,12 @@ const KADOSK_API = (function () {
     // Login "Mes commandes" par code reçu par email (remplace l'ancien modèle où
     // l'email transitait tel quel dans l'URL) - voir assets/mes-commandes.js pour la
     // gestion du jeton (stocké côté appareil uniquement, jamais de session serveur).
+    // Landing marchand (signup.html) : capture de demande d'essai gratuit -
+    // ne crée pas encore de compte marchand automatiquement, voir le
+    // commentaire au-dessus de soumettreDemandeEssaiMarchand côté backend.
+    submitTrialRequest: (businessName, category, email, phone) =>
+      appelerPublic("trialRequest", "POST", { businessName, category, email, phone }),
+
     demanderCodeCommandes: (buyerEmail) => appelerPublic("loginCodeRequest", "POST", { buyerEmail }),
     // deviceId : identifiant d'appareil (voir mes-commandes.js :: obtenirOuCreerDeviceId)
     // utilisé côté serveur pour appliquer "une seule session active par appareil"

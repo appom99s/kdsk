@@ -1,20 +1,160 @@
 <!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KADOSK Marchand</title>
-<link rel="stylesheet" href="assets/style.css" />
-<link rel="stylesheet" href="../shared/assets/ui-system.css" />
-</head>
-<body>
-  <script src="assets/config.js"></script>
-  <script src="assets/auth.js"></script>
-  <script>
-    window.location.href = KADOSK_AUTH.estConnecte() ? "dashboard.html" : "login.html";
-  </script>
-<script src="../shared/assets/ui-system.js"></script>
-</body>
-</html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KADOSK Marchand — Vendez vos propres cartes cadeaux simplement</title><meta name="description" content="Créez, personnalisez et gérez vos cartes cadeaux depuis une seule plateforme. Sans application pour vos clients. Sans commission sur vos ventes directes. 10 cartes offertes, sans carte bancaire."><meta name="theme-color" content="#F7FAF9"><link rel="canonical" href="https://merchant.kadosk.com/"><meta property="og:title" content="KADOSK Marchand — Vendez vos propres cartes cadeaux simplement"><meta property="og:description" content="Créez, personnalisez et gérez vos cartes cadeaux depuis une seule plateforme. Sans commission sur vos ventes directes."><meta property="og:type" content="website"><link rel="icon" href="Merchant/assets/logo.png"><link rel="stylesheet" href="Merchant/assets/landing.css"><script src="Merchant/assets/pricing-config.js" defer></script><script src="Merchant/assets/landing.js" defer></script></head>
+<body><a class="skip" href="#main">Aller au contenu</a>
+<header class="header"><div class="bar">
+  <a class="brand" href="#" aria-label="KADOSK, accueil"><img src="Merchant/assets/logo.png" alt="" width="39" height="39">KADOSK</a>
+  <nav class="nav" id="navigation" aria-label="Navigation principale"><a href="#features">Fonctionnalités</a><a href="#how">Comment ça marche</a><a href="#pricing">Tarifs</a><a href="#faq">FAQ</a></nav>
+  <div style="display:flex;align-items:center;gap:10px"><a class="btn login" href="Merchant/login.html">Se connecter</a><a class="btn gradient login" href="Merchant/signup.html">Devenir partenaire</a></div>
+  <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navigation">☰</button>
+</div></header>
 
+<main id="main">
 
+<section class="hero wrap">
+  <div>
+    <div class="badge">✦ Le partenaire de votre commerce au Maroc 🇲🇦</div>
+    <h1>Vendez vos propres<br>cartes cadeaux<br><span class="underline">simplement.</span></h1>
+    <p>Créez, personnalisez et gérez vos cartes cadeaux depuis une seule plateforme. Sans application pour vos clients. Sans commission sur vos ventes directes.</p>
+    <div class="cta-row"><a class="btn gradient" href="Merchant/signup.html">Tester gratuitement →</a><a class="btn ghost" href="#how">Voir comment ça marche</a></div>
+    <div class="chips"><span class="chip">10 cartes offertes</span><span class="chip">Sans carte bancaire</span><span class="chip">Installation rapide</span></div>
+  </div>
+  <div class="hero-visual" aria-label="Aperçu illustratif de cartes cadeaux KADOSK">
+    <div class="backdrop" aria-hidden="true"></div>
+    <div class="card-fan">
+      <div class="fan-card f3"><div class="fan-top"><span>KADOSK</span><span>🎁</span></div><div class="fan-amount">150 <small>MAD</small></div><div class="fan-merchant">Mode & boutiques</div></div>
+      <div class="fan-card f2"><div class="fan-top"><span>KADOSK</span><span>🎁</span></div><div class="fan-amount">300 <small>MAD</small></div><div class="fan-merchant">Beauté & bien-être</div></div>
+      <div class="fan-card f1"><div class="fan-top"><span>KADOSK</span><span>🎁</span></div><div class="fan-amount">500 <small>MAD</small></div><div class="fan-merchant">Restaurants & cafés</div><div class="fan-qr" aria-hidden="true">▦</div></div>
+    </div>
+    <div class="demo-label">Démonstration · montants illustratifs</div>
+  </div>
+</section>
+
+<section class="section wrap" id="how">
+  <div class="section-intro center"><h2>De la création à l'encaissement,<br>en quatre étapes. 💝</h2><p>KADOSK accompagne chaque étape de votre carte cadeau, sans complexité technique.</p></div>
+  <div class="tools">
+    <article class="tool"><span class="step-num">1</span><div class="tool-icon">🎁</div><h3>Créez votre offre</h3><p>Personnalisez le design, les montants et les conditions de votre carte cadeau.</p></article>
+    <article class="tool"><span class="step-num">2</span><div class="tool-icon">🛍️</div><h3>Vendez partout</h3><p>En ligne depuis votre mini-boutique KADOSK, ou directement en caisse.</p></article>
+    <article class="tool"><span class="step-num">3</span><div class="tool-icon">💌</div><h3>Livraison instantanée</h3><p>Par email, en PDF, ou ajoutée à Google Wallet / Apple Wallet.</p></article>
+    <article class="tool"><span class="step-num">4</span><div class="tool-icon">✅</div><h3>Encaissement sécurisé</h3><p>Un scan QR suffit pour valider un paiement, total ou partiel.</p></article>
+  </div>
+</section>
+
+<section class="section wrap" id="wallet" style="background:var(--warm);border-radius:32px">
+  <div class="section-intro center"><span class="kicker">Sans application pour vos clients</span><h2>Ajoutée en un geste<br>à leur téléphone.</h2><p>Vos clients ajoutent leur carte cadeau à Google Wallet ou Apple Wallet. Le solde reste toujours à jour, automatiquement.</p></div>
+  <div class="wallets">
+    <div class="wallet-card"><div class="wallet-kind">🟢 Google Wallet</div><div class="wallet-face"><small>CARTE CADEAU</small><b>350 MAD</b><small>Valable jusqu'au 12/2027</small></div><p>Ajoutée en un tap depuis l'email ou le SMS de confirmation de commande.</p></div>
+    <div class="wallet-card"><div class="wallet-kind">⚪ Apple Wallet</div><div class="wallet-face"><small>CARTE CADEAU</small><b>350 MAD</b><small>Valable jusqu'au 12/2027</small></div><p>Un pass signé, mis à jour automatiquement à chaque utilisation en caisse.</p></div>
+  </div>
+</section>
+
+<section class="section wrap split" id="features">
+  <div><span class="kicker">Votre activité, en un coup d'œil</span><h2>Votre tableau de bord<br>marchand.</h2><p>Consultez vos ventes, vos encaissements et vos cartes en circulation sans multiplier les fichiers.</p>
+  <ul class="checklist"><li>Cartes émises, vendues et rachetées</li><li>Montant en circulation et encaissé</li><li>Historique complet des transactions</li></ul>
+  <a class="btn" href="Merchant/login.html">Accéder à mon espace →</a></div>
+  <div class="scene"><div class="dashboard"><div class="dash-head">Vue d'ensemble <span>Ce mois-ci</span></div>
+    <div class="metrics"><div class="metric">Ventes de cartes<strong>12 500 MAD</strong></div><div class="metric">Cartes utilisées<strong>38</strong></div></div>
+    <div class="chart" aria-label="Graphique illustratif des ventes"><i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i><i style="height:64%"></i><i style="height:52%"></i><i style="height:79%"></i><i style="height:96%"></i></div>
+    <div class="chart-labels"><span>Lun.</span><span>Mar.</span><span>Mer.</span><span>Jeu.</span><span>Ven.</span><span>Sam.</span><span>Dim.</span></div>
+    <div class="demo-label">Données fictives de démonstration</div>
+  </div></div>
+</section>
+
+<div class="soft"><section class="section wrap split reverse" id="team">
+  <div class="panel"><strong>Votre équipe</strong>
+    <div class="wallet-row" style="border-top:1px solid #eee;margin-top:14px;padding-top:14px"><span class="emoji">👤</span><div><b>Vous</b><small>Propriétaire · tous les accès</small></div></div>
+    <div class="wallet-row"><span class="emoji">🧑‍💼</span><div><b>Sara B.</b><small>Caissière · scan et encaissement</small></div></div>
+    <div class="wallet-row"><span class="emoji">🧑‍💼</span><div><b>Yassine K.</b><small>Caissier · scan et encaissement</small></div></div>
+  </div>
+  <div><span class="kicker">Votre équipe, sous contrôle</span><h2>Chaque caissier,<br>son propre accès.</h2><p>Créez des comptes distincts pour votre équipe. Ils encaissent et consultent les soldes — vous seul gérez l'abonnement et les paramètres sensibles.</p>
+  <ul class="checklist"><li>Comptes individuels, jamais de mot de passe partagé</li><li>Scan QR et encaissement partiel</li><li>Vous gardez la main sur les réglages sensibles</li></ul></div>
+</section></div>
+
+<section class="section wrap" id="essai">
+  <div class="section-intro center"><span class="kicker">Sans risque</span><h2>Testez KADOSK avec<br>10 cartes offertes.</h2></div>
+  <div class="trial-panel">
+    <div><p style="font-size:16px;margin:0 0 20px">Créez votre compte, personnalisez votre offre et émettez vos 10 premières cartes cadeaux gratuitement. Aucune carte bancaire requise.</p>
+    <ul class="checklist"><li>Vos 10 cartes restent actives même après la fin de l'essai</li><li>Un compte caissier inclus</li><li>Modèles KADOSK et designs illimités</li></ul>
+    <a class="btn gradient" href="Merchant/signup.html">Commencer mon essai gratuit →</a></div>
+    <div class="trial-stats">
+      <div class="trial-stat"><strong>10</strong><span>cartes offertes</span></div>
+      <div class="trial-stat"><strong>0 MAD</strong><span>carte bancaire</span></div>
+      <div class="trial-stat"><strong>1</strong><span>caissier inclus</span></div>
+      <div class="trial-stat"><strong>30j</strong><span>ou 10 cartes, au premier atteint</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap" id="pricing">
+  <div class="section-intro center"><span class="badge">✦ Une formule qui suit votre activité</span><h2>Payez pour ce que<br>vous utilisez vraiment.</h2><p>Choisissez le nombre de cartes cadeaux à émettre chaque mois et le nombre de caissiers dont vous avez besoin.</p></div>
+  <div class="config">
+    <div class="config-row"><strong>Nouvelles cartes cadeaux par mois</strong>
+      <div class="config-options">
+        <button type="button" data-card-tier="0" aria-pressed="true">50<small>199 MAD</small></button>
+        <button type="button" data-card-tier="1" aria-pressed="false">100<small>249 MAD</small></button>
+        <button type="button" data-card-tier="2" aria-pressed="false">250<small>349 MAD</small></button>
+        <button type="button" data-card-tier="3" aria-pressed="false">500<small>499 MAD</small></button>
+        <button type="button" data-card-tier="4" aria-pressed="false">1000<small>699 MAD</small></button>
+        <button type="button" data-card-tier="5" aria-pressed="false">2000<small>999 MAD</small></button>
+        <button type="button" data-card-tier="6" aria-pressed="false">2000+<small>Sur devis</small></button>
+      </div>
+    </div>
+    <div class="config-row"><strong>Caissiers actifs</strong>
+      <div class="config-options">
+        <button type="button" data-cashier-tier="0" aria-pressed="true">1<small>Inclus</small></button>
+        <button type="button" data-cashier-tier="1" aria-pressed="false">2<small>+29 MAD</small></button>
+        <button type="button" data-cashier-tier="2" aria-pressed="false">3<small>+69 MAD</small></button>
+        <button type="button" data-cashier-tier="3" aria-pressed="false">5<small>+99 MAD</small></button>
+        <button type="button" data-cashier-tier="4" aria-pressed="false">10+<small>Sur devis</small></button>
+      </div>
+    </div>
+    <div class="config-total">
+      <div><div class="price" id="config-price">199 MAD</div><p class="price-note" id="config-note">50 nouvelles cartes cadeaux par mois · 1 caissier inclus</p></div>
+      <a class="btn gradient" id="config-cta" href="Merchant/signup.html">Tester gratuitement →</a>
+    </div>
+    <p class="fine-print">0 % de commission sur vos ventes directes. Une augmentation de formule prend effet immédiatement (au prorata) ; une diminution s'applique au prochain cycle de facturation. Vos cartes déjà émises restent toujours valables.</p>
+  </div>
+</section>
+
+<section class="section wrap" id="commission">
+  <div class="commission-banner"><div class="big">0%</div><div><h3 style="color:#fff;margin-bottom:8px">De commission sur vos ventes directes</h3><p>Vous gardez l'intégralité du prix de vos cartes cadeaux vendues via votre boutique KADOSK. KADOSK se finance uniquement par votre abonnement mensuel — jamais sur ce que vous vendez vous-même.</p></div></div>
+</section>
+
+<section class="section wrap" id="securite">
+  <div class="section-intro center"><span class="kicker">Sécurité</span><h2>Vos cartes cadeaux,<br>bien protégées.</h2></div>
+  <div class="security-grid">
+    <div class="security-item"><span>🔒</span><h3>Données isolées par marchand</h3><p>Chaque commerce n'a accès qu'à ses propres cartes, commandes et clients.</p></div>
+    <div class="security-item"><span>📷</span><h3>QR à usage contrôlé</h3><p>Chaque carte est vérifiée avant d'être validée en caisse, pour éviter toute utilisation frauduleuse.</p></div>
+    <div class="security-item"><span>🧾</span><h3>Historique complet</h3><p>Chaque encaissement est enregistré et consultable à tout moment.</p></div>
+  </div>
+</section>
+
+<section class="section wrap center" id="commerces">
+  <span class="kicker">À chaque commerce, ses attentions</span><h2>Vos clients ont mille raisons d'offrir.</h2><p>Faites de votre commerce leur prochaine idée cadeau.</p>
+  <div class="audiences">
+    <div class="audience"><span>🍽️</span>Restaurants & cafés</div>
+    <div class="audience"><span>✨</span>Beauté & bien-être</div>
+    <div class="audience"><span>🛍️</span>Mode & boutiques</div>
+    <div class="audience"><span>🎮</span>Loisirs & expériences</div>
+    <div class="audience"><span>🏡</span>Maison & décoration</div>
+  </div>
+</section>
+
+<section class="section wrap" id="faq">
+  <div class="section-intro center"><span class="kicker">Questions fréquentes</span><h2>Vous vous posez des questions ?</h2></div>
+  <div class="faq">
+    <div class="faq-item"><button class="faq-q" aria-expanded="false">Dois-je entrer une carte bancaire pour essayer KADOSK ?<span class="chevron">▾</span></button><div class="faq-a">Non. Vous pouvez émettre vos 10 premières cartes cadeaux gratuitement, sans aucune carte bancaire.</div></div>
+    <div class="faq-item"><button class="faq-q" aria-expanded="false">KADOSK prend-il une commission sur mes ventes ?<span class="chevron">▾</span></button><div class="faq-a">Non, 0 % de commission sur les cartes cadeaux vendues directement via votre boutique KADOSK.</div></div>
+    <div class="faq-item"><button class="faq-q" aria-expanded="false">Puis-je changer de formule à tout moment ?<span class="chevron">▾</span></button><div class="faq-a">Oui. Une augmentation prend effet immédiatement au prorata de la période restante ; une diminution s'applique au prochain cycle de facturation.</div></div>
+    <div class="faq-item"><button class="faq-q" aria-expanded="false">Mes clients doivent-ils installer une application ?<span class="chevron">▾</span></button><div class="faq-a">Non. Leurs cartes cadeaux s'ajoutent à Google Wallet ou Apple Wallet, ou restent accessibles par email et en PDF.</div></div>
+    <div class="faq-item"><button class="faq-q" aria-expanded="false">Que se passe-t-il si j'atteins la limite de mon essai ou de mon abonnement ?<span class="chevron">▾</span></button><div class="faq-a">Vos cartes déjà émises restent valables et utilisables. Seule l'émission de nouvelles cartes est mise en pause, jusqu'à votre mise à niveau.</div></div>
+  </div>
+</section>
+
+<section class="section wrap"><div class="final-cta"><span class="badge">Votre prochaine belle histoire commence ici 🇲🇦</span><h2>Et si le prochain cadeau,<br>c'était votre commerce ?</h2><p>Créez votre compte et émettez vos 10 premières cartes cadeaux, gratuitement.</p><a class="btn gradient" href="Merchant/signup.html">Tester gratuitement →</a></div></section>
+
+</main>
+<footer class="footer"><div class="wrap"><div class="footer-top">
+  <div><a class="brand" href="#"><img src="Merchant/assets/logo.png" alt="" width="39" height="39">KADOSK</a><p>Des cadeaux à partager. Des commerces à découvrir.</p></div>
+  <div class="footer-links"><a href="#features">Fonctionnalités</a><a href="#how">Comment ça marche</a><a href="#pricing">Tarifs</a><a href="#faq">FAQ</a><a href="Merchant/login.html">Connexion</a><a href="mailto:contact@kadosk.com">Contact</a></div>
+</div><div class="copyright">© <span id="year">2026</span> KADOSK. Tous droits réservés.</div></div></footer>
+</body></html>

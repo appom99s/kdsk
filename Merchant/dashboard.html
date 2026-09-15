@@ -13,11 +13,18 @@
 
     <main class="kadosk-main">
       <div class="kadosk-entete">
-        <h1>Dashboard</h1>
+        <h1>Tableau de bord</h1>
         <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
       </div>
 
-      <div class="kadosk-grille-kpi">
+      <section class="kadosk-carte" style="padding:24px;margin-bottom:24px" aria-labelledby="quotaTitle">
+          <h2 id="quotaTitle">Votre abonnement</h2>
+          <p id="quotaStatus" role="status">Chargement de votre consommation…</p>
+          <progress id="quotaProgress" hidden style="width:100%;accent-color:#1f3a34"></progress>
+          <p id="quotaCashiers"></p>
+          <a id="quotaManage" hidden>Gérer ma formule</a>
+        </section>
+        <div class="kadosk-grille-kpi">
         <div class="kadosk-carte-kpi">
           <div class="kadosk-kpi-icone violet" id="iconeCA"></div>
           <div class="kadosk-kpi-label">CA aujourd'hui</div>
@@ -138,6 +145,7 @@
   <script src="assets/spa.js"></script>
   <script src="assets/dashboard.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
+<script src="assets/subscription-summary.js"></script>
 </body>
 </html>
 

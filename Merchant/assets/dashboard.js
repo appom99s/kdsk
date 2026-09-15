@@ -1,4 +1,7 @@
 (function () {
+  // One request per page load; no persisted financial snapshot.
+  const initial = KADOSK_API.getDashboardInitial();
+
   // AUDIT SÉCURITÉ : échappeur HTML local garanti - ne dépend plus de
   // window.KADOSK_ECHAPPER_HTML (défini par nav.js) avec repli silencieux sur "pas
   // d'échappement du tout" si ce script n'était pas chargé ou pas encore exécuté.
@@ -89,11 +92,11 @@
   // page, avant d'être rafraîchis en arrière-plan si besoin.
   function chargerStatistiques() {
     if (window.KADOSK_CACHE) {
-      KADOSK_CACHE.chargerAvecCache("dashboardStats", KADOSK_API.getDashboardStats, appliquerStatistiques).catch((erreur) => {
+      KADOSK_CACHE.chargerAvecCache("dashboardStats", () => initial.then(data => data.stats), appliquerStatistiques).catch((erreur) => {
         console.error("Erreur chargement statistiques :", erreur);
       });
     } else {
-      KADOSK_API.getDashboardStats().then(appliquerStatistiques).catch((erreur) => {
+      initial.then(data => data.stats).then(appliquerStatistiques).catch((erreur) => {
         console.error("Erreur chargement statistiques :", erreur);
       });
     }
@@ -143,7 +146,7 @@
   async function chargerCommandes() {
     const conteneur = document.getElementById("listeCommandes");
     try {
-      const resultat = await KADOSK_API.getDraftOrders();
+      const resultat = await initial.then(data => data.orders);
       const commandes = (resultat.items || []).slice(0, 5);
 
       if (commandes.length === 0) {
@@ -180,7 +183,7 @@
   async function chargerTransactions() {
     const conteneur = document.getElementById("listeTransactions");
     try {
-      const resultat = await KADOSK_API.getRecentTransactions(null, 5);
+      const resultat = await initial.then(data => data.transactions);
       const transactions = resultat.items || [];
 
       if (transactions.length === 0) {
@@ -267,7 +270,7 @@
   async function chargerGraphique() {
     const conteneur = document.getElementById("conteneurGraphique");
     try {
-      const resultat = await KADOSK_API.getRevenueChart();
+      const resultat = await initial.then(data => data.chart);
       const points = resultat.items || [];
       conteneur.innerHTML = construireGraphiqueSVG(points);
 
