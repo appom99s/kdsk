@@ -271,6 +271,7 @@
       const messages = {
         MERCHANT_FINAL_APPROVAL_REQUIRED: "La validation finale du dossier est requise avant de créer une carte.",
         MERCHANT_PLAN_NOT_ACTIVE: "Votre abonnement marchand n’est pas actif.",
+        QUOTA_CARTES_ATTEINT: "Vous avez atteint la limite de cartes de votre essai gratuit (10 cartes ou 30 jours). Passez à un abonnement payant pour continuer.",
         TWO_FACTOR_REQUIRED: "Validez la double authentification avant de créer la carte.",
         "2FA_ENROLLMENT_REQUIRED": "Activez la double authentification avant de créer la carte.",
         INVALID_AMOUNT_FOR_OFFER: "Ce montant n’est pas autorisé dans votre offre.",
