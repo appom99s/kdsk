@@ -151,7 +151,24 @@
       canal.onmessage = () => invaliderDonnees();
     }
   } catch (_) { /* Cross-tab messaging is optional. */ }
-  window.addEventListener("focus", invaliderDonnees);
+  // Revalider au retour sur l'onglet, mais seulement après une VRAIE absence - un
+  // simple aller-retour de quelques secondes (survol d'un autre onglet, clic sur la
+  // barre d'adresse, ouverture des outils de développement) ne doit pas redéclencher
+  // un rechargement complet à chaque fois : c'était le comportement précédent
+  // (invalidation sur CHAQUE `focus`), une des causes de lenteur ressentie signalées
+  // par l'utilisateur pour un marchand qui jongle entre plusieurs onglets/applis.
+  // Page Visibility (onglet masqué/affiché) plutôt que window focus/blur : ne se
+  // déclenche que pour un vrai changement d'onglet/minimisation, pas pour chaque
+  // perte de focus interne à la fenêtre.
+  const SEUIL_ABSENCE_MS = 60000;
+  let masqueDepuis = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      masqueDepuis = Date.now();
+    } else if (masqueDepuis && Date.now() - masqueDepuis > SEUIL_ABSENCE_MS) {
+      invaliderDonnees();
+    }
+  });
 
   document.addEventListener("click", (event) => {
     const lien = event.target.closest("a[href]");
