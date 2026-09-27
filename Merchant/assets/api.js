@@ -28,6 +28,9 @@ const KADOSK_API = (function () {
       if (!reponseSession.ok) {
         const code = donneesSession.error || "ERREUR_SERVEUR";
         if (reponseSession.status === 401 || code === "SESSION_EXPIREE") KADOSK_AUTH.deconnecter();
+        if (["TWO_FACTOR_REQUIRED", "2FA_ENROLLMENT_REQUIRED"].includes(code) && !window.location.pathname.endsWith("two-factor.html")) {
+          window.location.href = "two-factor.html?retour=" + encodeURIComponent(window.location.pathname.split("/").pop());
+        }
         const erreur = new Error(code);
         erreur.status = reponseSession.status;
         throw erreur;
@@ -85,8 +88,24 @@ const KADOSK_API = (function () {
     return donnees;
   }
 
-  async function appeler(nom, methode, corps, dejaReessaye) {
-    return executerAppel(nom, methode, corps, "", dejaReessaye, false);
+  // Share concurrent reads only. Authorization and balance checks are never
+  // served from a resolved response, and mutations are never retried here.
+  const lecturesEnCours = new Map();
+  function appeler(nom, methode, corps, dejaReessaye) {
+    const session = KADOSK_AUTH.lireSessionBridge();
+    const cle = JSON.stringify([session, nom]);
+    if (methode === "GET" && lecturesEnCours.has(cle)) return lecturesEnCours.get(cle);
+    const requete = executerAppel(nom, methode, corps, "", dejaReessaye, false)
+      .then((resultat) => {
+        if (session !== KADOSK_AUTH.lireSessionBridge()) throw new Error("SESSION_EXPIREE");
+        return resultat;
+      });
+    if (methode !== "GET") return requete;
+    const partagee = requete.finally(() => {
+      if (lecturesEnCours.get(cle) === partagee) lecturesEnCours.delete(cle);
+    });
+    lecturesEnCours.set(cle, partagee);
+    return partagee;
   }
 
   // Pour les appels avant connexion (mot de passe oublié, limite de connexion) :
@@ -98,7 +117,9 @@ const KADOSK_API = (function () {
 
   return {
     getDashboardInitial: () => appeler("dashboardInitial", "GET"),
-    getDashboardStats: () => appeler("dashboardStats", "GET"),
+    getDashboardStats: () => /\/dashboard\.html$/.test(window.location.pathname)
+      ? appeler("dashboardInitial", "GET").then((data) => data.stats)
+      : appeler("dashboardStats", "GET"),
     // Habillage de page (nom/logo/palier/rôle) uniquement, sans aucune donnée
     // financière - c'est celui-ci que nav.js doit utiliser (accessible à OWNER
     // et CASHIER), pas getDashboardStats (verrouillé propriétaire).
@@ -113,8 +134,8 @@ const KADOSK_API = (function () {
     getDraftOrders: () => appeler("draftOrders", "GET"),
     activateOrder: (giftCardId, buyerEmail, buyerName, message, deliveryMode) =>
       appeler("activateOrder", "POST", { giftCardId, buyerEmail, buyerName, message, deliveryMode }),
-    createMerchantGiftCardDraft: (amount, recipientEmail, recipientName, message) =>
-      appeler("merchantGiftCardDraft", "POST", { amount, recipientEmail, recipientName, message }),
+    createMerchantGiftCardDraft: (amount, recipientEmail, recipientName, message, deliveryMode, requestId) =>
+      appeler("merchantGiftCardDraft", "POST", { amount, recipientEmail, recipientName, message, deliveryMode, requestId }),
     getOfferSettings: () => appeler("offerSettings", "GET"),
     saveOfferSettings: (parametres) => appeler("offerSettings", "POST", parametres),
     getInvoiceTemplate: () => appeler("invoiceTemplate", "GET"),
@@ -152,12 +173,14 @@ const KADOSK_API = (function () {
     getMerchantProfile: () => appeler("merchantProfile", "GET"),
     saveMerchantProfile: (profile, submitForReview) => appeler("merchantProfile", "POST", { profile, submitForReview }),
     getOnboardingChecklist: () => appeler("onboardingChecklist", "GET"),
-    getSubscriptionInfo: () => appeler("subscriptionInfo", "GET"),
+    getSubscriptionInfo: () => /\/dashboard\.html$/.test(window.location.pathname)
+      ? appeler("dashboardInitial", "GET").then(data => data.subscription)
+      : appeler("subscriptionInfo", "GET"),
     // Nouveau moteur SaaS (essai/quota de cartes + caissiers) : requestCardPlanChange
     // n'applique rien immédiatement côté serveur, voir le commentaire au-dessus de
     // demanderChangementFormuleCarteCadeau (backend) pour le détail upgrade/downgrade.
-    requestCardPlanChange: (cardPlanId, cashierAddonPlanId) =>
-      appeler("cardPlanChangeRequest", "POST", { cardPlanId, cashierAddonPlanId }),
+    requestCardPlanChange: (planId) =>
+      appeler("cardPlanChangeRequest", "POST", { planId }),
     refuseOrder: (giftCardId, reason) => appeler("refuseOrder", "POST", { giftCardId, reason }),
 
     // Mot de passe (connecté) : demande de code puis confirmation.
@@ -221,8 +244,10 @@ const KADOSK_API = (function () {
     // Landing marchand (signup.html) : capture de demande d'essai gratuit -
     // ne crée pas encore de compte marchand automatiquement, voir le
     // commentaire au-dessus de soumettreDemandeEssaiMarchand côté backend.
-    submitTrialRequest: (businessName, category, email, phone) =>
-      appelerPublic("trialRequest", "POST", { businessName, category, email, phone }),
+    createSubscriptionCheckout: (planId) => appeler("subscriptionCheckout", "POST", { planId }),
+    resendTeamInvitation: (merchantUserId) => appeler("teamInvitationResend", "POST", { merchantUserId }),
+    submitTrialRequest: (businessName, category, email, phone, details) =>
+      appelerPublic("trialRequest", "POST", { businessName, category, email, phone, details }),
 
     demanderCodeCommandes: (buyerEmail) => appelerPublic("loginCodeRequest", "POST", { buyerEmail }),
     // deviceId : identifiant d'appareil (voir mes-commandes.js :: obtenirOuCreerDeviceId)

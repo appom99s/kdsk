@@ -13,6 +13,40 @@
   const blocCaissiers = document.getElementById('blocAbonnementCaissiers');
   const caissiersTexte = document.getElementById('abonnementCaissiersTexte');
   const gererLien = document.getElementById('abonnementGererLien');
+  const checkoutStatut = document.getElementById('checkoutAbonnementStatut');
+  function rendreCatalogue(containerId, tiers, activePlanId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.replaceChildren();
+    tiers.filter(tier => tier.planId).forEach(tier => {
+      const card = document.createElement('article');
+      card.className = 'kadosk-plan';
+      const titre = document.createElement('h3');
+      titre.textContent = tier.label + ' — ' + tier.cashiers + ' caissiers';
+      const prix = document.createElement('p');
+      prix.textContent = tier.price + ' MAD / mois · ' + (tier.commission > 0 ? tier.commission + ' % de commission' : '0 % de commission') + ' · cartes illimitées';
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'kadosk-bouton';
+      button.textContent = tier.planId === activePlanId ? 'Formule active' : 'Choisir cette formule';
+      button.disabled = tier.planId === activePlanId;
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        checkoutStatut.textContent = 'Préparation du paiement sécurisé…';
+        try {
+          const result = await KADOSK_API.createSubscriptionCheckout(tier.planId);
+          const url = new URL(result.url);
+          if (url.protocol !== 'https:') throw Error('INVALID_URL');
+          window.location.assign(url.href);
+        } catch (error) {
+          const messages = { ABONNEMENT_DEJA_ACTIF: 'Cette formule est déjà active.',
+            MERCHANT_NOT_AUTHORIZED: 'Votre dossier doit être validé avant de souscrire.' };
+          checkoutStatut.textContent = messages[error.message] || 'Le paiement est momentanément indisponible. Réessayez.';
+          button.disabled = false;
+        }
+      });
+      card.append(titre, prix, button); container.appendChild(card);
+    });
+  }
 
   function formaterDate(valeur) {
     if (!valeur) return null;
@@ -23,6 +57,9 @@
   try {
     const info = await KADOSK_API.getSubscriptionInfo();
     const q = info.cardQuota || {};
+    // Prix et formules vendables : Wix Pricing Plans en direct (repli local si injoignable).
+    await window.KADOSK_PRICING_CONFIG.loadLivePlans();
+    rendreCatalogue('catalogueAbonnements', window.KADOSK_PRICING_CONFIG.planTiers, q.cardPlanId);
 
     if (q.source === 'TRIAL' || q.source === 'TRIAL_EXPIRED') {
       formule.textContent = q.source === 'TRIAL_EXPIRED' ? 'Essai gratuit expiré' : 'Essai gratuit';

@@ -80,7 +80,7 @@
   // périodique retire en plus immédiatement l'interface et les données affichées.
   setInterval(async () => {
     try {
-      await KADOSK_API.getMerchantChromeInfo();
+      await KADOSK_NAV.chargerChromeInfo(true);
     } catch (erreur) {
       if (erreur && ERREURS_ACCES_REVOQUE.includes(erreur.message)) {
         KADOSK_AUTH.deconnecter();

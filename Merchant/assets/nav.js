@@ -323,7 +323,8 @@
   // un appelant arrivant après guard.js mais avant que le réseau ait répondu
   // recevrait un instantané prématuré (role/permissions encore null) au lieu
   // d'attendre la même résolution.
-  function chargerChromeInfo() {
+  function chargerChromeInfo(actualiser) {
+    if (actualiser) promesseChromeInfo = null;
     function etatActuel() {
       return { role: roleCourant, permissions: permissionsCourantes };
     }
@@ -370,21 +371,6 @@
     // retiré de conserver temporairement son menu et empêchait la révocation
     // immédiate de prendre effet dans un onglet déjà ouvert.
     const promesse = KADOSK_API.getMerchantChromeInfo()
-      .catch(async (erreurChrome) => {
-        // Secours strictement Owner : getDashboardStats est protégé côté serveur
-        // par exigerProprietaire. Un caissier ne peut donc jamais utiliser ce
-        // fallback pour obtenir le menu complet.
-        try {
-          const statsOwner = await KADOSK_API.getDashboardStats();
-          return {
-            ...statsOwner,
-            role: "OWNER",
-            permissions: { validateOrders: true, viewGiftCards: true }
-          };
-        } catch (erreurOwner) {
-          throw erreurChrome;
-        }
-      })
       .then((infos) => {
         appliquer(infos);
         return infos;

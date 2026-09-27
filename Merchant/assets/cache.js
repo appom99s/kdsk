@@ -1,18 +1,7 @@
-// Cache client léger, partagé entre les pages MARCHAND (nav.js/guard.js) et les
-// pages ACHETEUR public (accueil.js/catalogue) - deux "types d'utilisateur"
-// distincts, chacun avec ses propres clés de cache (préfixées, jamais mélangées).
-//
-// But (voir cahier des charges) : au premier chargement, chaque type de page
-// récupère ses informations comme avant ; ensuite, en NAVIGUANT d'une page à
-// l'autre du même type (ex. dashboard.html -> orders.html, ou accueil.html ->
-// boutique.html), la donnée déjà connue est affichée INSTANTANÉMENT depuis ce
-// cache (sessionStorage - vidé à la fermeture de l'onglet, jamais de donnée
-// périmée indéfiniment affichée entre deux sessions), pendant qu'une requête
-// réseau part en arrière-plan pour vérifier s'il y a du nouveau. Si la réponse
-// diffère de ce qui était affiché, le rappel onDonnees est appelé une seconde
-// fois avec la version fraîche.
+// Merchant display cache, in memory only. Never used for authorization.
 const KADOSK_CACHE = (function () {
   const memoire = new Map();
+  let generation = 0;
 
   function lire(cle) {
     try {
@@ -43,7 +32,7 @@ const KADOSK_CACHE = (function () {
   // dashboard.js demandent tous les deux "dashboardStats" au chargement de
   // dashboard.html, une seule requête réseau part réellement - les deux
   // appelants reçoivent chacun leur callback (cache puis fraîche) normalement.
-  const requetesEnCours = {};
+  const requetesEnCours = Object.create(null);
 
   // chargeur() doit renvoyer une Promise (typiquement un appel KADOSK_API.xxx()).
   // onDonnees(valeur, depuisLeCache) est appelé :
@@ -55,6 +44,7 @@ const KADOSK_CACHE = (function () {
   // Renvoie la Promise du chargeur (donnée fraîche, ou donnée en cache si le
   // réseau échoue et qu'un affichage a déjà pu être fait).
   function chargerAvecCache(cle, chargeur, onDonnees) {
+    const version = generation;
     const enCache = lire(cle);
     const avaitDejaUneValeur = enCache !== null;
 
@@ -67,13 +57,15 @@ const KADOSK_CACHE = (function () {
     }
 
     if (!requetesEnCours[cle]) {
-      requetesEnCours[cle] = chargeur().finally(() => {
-        delete requetesEnCours[cle];
+      const requete = Promise.resolve().then(chargeur).finally(() => {
+        if (requetesEnCours[cle] === requete) delete requetesEnCours[cle];
       });
+      requetesEnCours[cle] = requete;
     }
 
     return requetesEnCours[cle]
       .then((fraiches) => {
+        if (version !== generation) throw new Error("CACHE_INVALIDATED");
         const identiqueAuCache = avaitDejaUneValeur && JSON.stringify(fraiches) === JSON.stringify(enCache);
         ecrire(cle, fraiches);
         if (!identiqueAuCache) {
@@ -86,7 +78,7 @@ const KADOSK_CACHE = (function () {
         return fraiches;
       })
       .catch((erreur) => {
-        if (!avaitDejaUneValeur) {
+        if (version !== generation || erreur.status === 401 || erreur.status === 403 || !avaitDejaUneValeur) {
           throw erreur;
         }
         // Une valeur en cache a déjà été affichée à l'utilisateur - on avale
@@ -97,7 +89,11 @@ const KADOSK_CACHE = (function () {
       });
   }
 
-  function clear() { memoire.clear(); }
+  function clear() {
+    generation += 1;
+    memoire.clear();
+    Object.keys(requetesEnCours).forEach((cle) => delete requetesEnCours[cle]);
+  }
   return { lire, ecrire, effacer, chargerAvecCache, clear };
 })();
 

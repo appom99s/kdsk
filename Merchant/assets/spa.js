@@ -3,10 +3,17 @@
 
   const PAGES = ["dashboard.html", "cashier.html", "orders.html", "transactions.html", "gift-cards.html", "growth.html", "finance.html", "business.html", "settings.html", "invoice-settings.html", "equipe.html"];
   const COMMUNS = new Set(["config.js", "auth.js", "api.js", "cache.js", "nav.js", "guard.js", "spa.js", "ui-system.js"]);
-  const CONTROLEURS = new Set(["dashboard.js", "cashier.js", "orders.js", "transactions.js", "gift-cards.js", "growth.js", "finance.js", "business.js", "settings.js", "invoice-settings.js", "equipe.js"]);
+  const CONTROLEURS = new Set(["dashboard.js", "cashier.js", "orders.js", "transactions.js", "gift-cards.js", "growth.js", "finance.js", "business.js", "settings.js", "invoice-settings.js", "equipe.js", "subscription-summary.js", "subscription-settings.js", "bulk-print.js"]);
   const documents = new Map();
   const donnees = new Map();
+  let generation = 0;
+  function invaliderDonnees() {
+    generation += 1;
+    donnees.clear();
+    if (window.KADOSK_CACHE) window.KADOSK_CACHE.clear();
+  }
   let navigationEnCours = false;
+  const repertoireMarchand = new URL(".", location.href).pathname;
 
   function nomFichier(url) {
     return String(url || "").split("?")[0].split("/").pop();
@@ -15,7 +22,7 @@
   function estPageInterne(href) {
     try {
       const url = new URL(href, location.href);
-      return url.origin === location.origin && PAGES.includes(nomFichier(url.pathname));
+      return url.origin === location.origin && new URL(".", url).pathname === repertoireMarchand && PAGES.includes(nomFichier(url.pathname));
     } catch (_) { return false; }
   }
 
@@ -42,7 +49,10 @@
       await new Promise((resolve, reject) => {
         const script = document.createElement("script");
         script.src = src;
-        script.onload = resolve;
+        script.onload = () => {
+          if (CONTROLEURS.has(nomFichier(src))) script.remove();
+          resolve();
+        };
         script.onerror = reject;
         document.body.appendChild(script);
       });
@@ -88,6 +98,7 @@
       if (ajouterHistorique) history.pushState({ kadoskSpa: true }, "", url.href);
       actualiserNavigation(nomFichier(url.pathname));
       window.scrollTo(0, 0);
+      if (window.KADOSK_NAV) KADOSK_NAV.rendreEnteteDroite("kadoskEnteteDroite");
       await executerScripts(doc);
     } catch (erreur) {
       console.error("Navigation interne KADOSK échouée", erreur);
@@ -101,47 +112,62 @@
   // session SPA. Après une mutation, seules les lectures sont invalidées.
   const api = typeof KADOSK_API !== "undefined" ? KADOSK_API : window.KADOSK_API;
   if (api) {
-    const lectures = ["getDashboardStats", "getMerchantChromeInfo", "getDraftOrders", "getRecentTransactions", "getRevenueChart", "getAllGiftCards", "getFinanceSummary", "getCommissionMonthly", "getMyMonthlyInvoices", "getMerchantProfile", "getOnboardingChecklist", "getSubscriptionInfo", "getOfferSettings", "getInvoiceTemplate", "getTeamMembers", "getMerchantGrowth"];
+    // Small display resources only; permissions, subscriptions, balances,
+    // financial history and large lists always use fresh server reads.
+    const lectures = ["getOfferSettings", "getInvoiceTemplate", "getMerchantProfile"];
     lectures.forEach((nom) => {
       if (typeof api[nom] !== "function") return;
       const original = api[nom].bind(api);
-      api[nom] = function () {
-        const cle = nom + ":" + JSON.stringify(Array.from(arguments));
-        if (!donnees.has(cle)) donnees.set(cle, original.apply(null, arguments).catch((e) => { donnees.delete(cle); throw e; }));
-        return donnees.get(cle);
+      api[nom] = function (...args) {
+        const cle = nom + ":" + JSON.stringify(args);
+        const entree = donnees.get(cle);
+        if (entree && Date.now() - entree.date < 30000) return Promise.resolve(entree.valeur);
+        const version = generation;
+        return original(...args).then((valeur) => {
+          if (version === generation) donnees.set(cle, { valeur, date: Date.now() });
+          return valeur;
+        });
       };
     });
-    const mutations = ["redeemGiftCard", "redeemQrTemporaire", "activateOrder", "createMerchantGiftCardDraft", "changeGiftCardStatus", "refuseOrder", "saveOfferSettings", "saveInvoiceTemplate", "saveMerchantProfile", "saveNetworkPreferences", "inviteTeamMember", "removeTeamMember"];
+    const mutations = ["redeemGiftCard", "redeemQrTemporaire", "activateOrder", "createMerchantGiftCardDraft", "changeGiftCardStatus", "refuseOrder", "saveOfferSettings", "saveInvoiceTemplate", "saveMerchantProfile", "saveNetworkPreferences", "inviteTeamMember", "removeTeamMember", "saveMerchantGrowth", "requestCardPlanChange"];
     mutations.forEach((nom) => {
       if (typeof api[nom] !== "function") return;
       const original = api[nom].bind(api);
       api[nom] = async function () {
         const resultat = await original.apply(null, arguments);
-        donnees.clear();
+        invaliderDonnees();
+        if (canal) canal.postMessage({ type: "invalidate" });
         return resultat;
       };
     });
 
-    // Préchargement borné et adapté au rôle. Les erreurs individuelles (par ex.
-    // finance interdite au caissier) n'empêchent jamais l'ouverture de la page.
-    setTimeout(() => Promise.allSettled([
-      api.getMerchantChromeInfo(), api.getDashboardStats(), api.getDraftOrders(),
-      api.getRecentTransactions("", 50), api.getRevenueChart(), api.getAllGiftCards(),
-      api.getFinanceSummary(), api.getCommissionMonthly(), api.getMyMonthlyInvoices(),
-      api.getMerchantProfile(), api.getOnboardingChecklist(), api.getSubscriptionInfo(),
-      api.getOfferSettings(), api.getInvoiceTemplate(), api.getTeamMembers()
-    ]), 0);
   }
+
+  // Only invalidation signals cross tabs; never transfer merchant data or tokens.
+  let canal = null;
+  try {
+    if (window.BroadcastChannel) {
+      canal = new BroadcastChannel("kadosk-merchant-refresh");
+      canal.onmessage = () => invaliderDonnees();
+    }
+  } catch (_) { /* Cross-tab messaging is optional. */ }
+  window.addEventListener("focus", invaliderDonnees);
 
   document.addEventListener("click", (event) => {
     const lien = event.target.closest("a[href]");
-    if (!lien || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || lien.target || lien.hasAttribute("download") || lien.hasAttribute("data-acces-verrouille")) return;
+    if (!lien || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || lien.target || lien.hasAttribute("download") || lien.hasAttribute("data-acces-verrouille")) return;
     if (!estPageInterne(lien.href)) return;
     event.preventDefault();
     naviguer(lien.href, true);
   });
   window.addEventListener("popstate", () => naviguer(location.href, false));
-  PAGES.forEach((page) => { if (page !== nomFichier(location.pathname)) chargerDocument(page).catch(() => {}); });
+  // Prefetch page markup on intent instead of downloading every page at login.
+  document.addEventListener("pointerover", (event) => {
+    const lien = event.target.closest("a[href]");
+    if (lien && !lien.hasAttribute("data-acces-verrouille") && estPageInterne(lien.href)) {
+      chargerDocument(lien.href).catch(() => {});
+    }
+  });
 
-  window.KADOSK_SPA = { naviguer, invaliderDonnees: () => donnees.clear() };
+  window.KADOSK_SPA = { naviguer, invaliderDonnees };
 })();

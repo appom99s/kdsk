@@ -86,6 +86,7 @@ const KADOSK_AUTH = (function () {
   }
 
   async function ecrireTokens(tokens) {
+    ecrireCookieTemporaire(VERIF_2FA_STORAGE_KEY, "", 0);
     tokensTemporaires = tokens;
     const reponse = await fetch(config().siteBaseUrl + "/_functions/sessionStart", {
       method: "POST",
@@ -116,6 +117,7 @@ const KADOSK_AUTH = (function () {
   // effacement de jetons (déconnexion, session invalide...).
   function effacerCacheKadosk() {
     try {
+      if (window.KADOSK_SPA) window.KADOSK_SPA.invaliderDonnees();
       if (window.KADOSK_CACHE && window.KADOSK_CACHE.clear) window.KADOSK_CACHE.clear();
     } catch (erreur) {
       // Stockage indisponible (navigation privée, quota...) : rien à nettoyer.

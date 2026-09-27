@@ -19,63 +19,57 @@
   document.addEventListener('click', event => { if (!event.target.closest('.header')) closeMenu(); });
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Configurateur d'abonnement (2 dimensions : cartes émises/mois + caissiers)
-  // Source unique des chiffres : Merchant/assets/pricing-config.js (window.KADOSK_PRICING_CONFIG).
+  // Grille tarifaire (1 dimension : nombre de caissiers + commission - cartes
+  // cadeaux illimitées sur tout palier payant). Paliers et prix : catalogue
+  // Wix Pricing Plans chargé en direct (KADOSK_PRICING_CONFIG.loadLivePlans),
+  // repli sur pricing-config.js si Wix est injoignable. Le serveur reste seul
+  // juge de la limite de caissiers et du prix facturé.
   const config = window.KADOSK_PRICING_CONFIG;
   // Cette même page (index.html) est servie à la fois depuis la racine du site
   // (qui réutilise Merchant/assets/*) et depuis Merchant/index.html : le lien
   // relatif vers signup.html doit donc s'adapter à l'emplacement réel.
   const inMerchantFolder = /\/Merchant(\/|$)/i.test(location.pathname);
   const signupHref = inMerchantFolder ? 'signup.html' : 'Merchant/signup.html';
-  if (config) {
-    const cardButtons = document.querySelectorAll('[data-card-tier]');
-    const cashierButtons = document.querySelectorAll('[data-cashier-tier]');
-    cardButtons.forEach((button, i) => {
-      const tier = config.cardTiers[i];
-      if (tier) button.textContent = tier.custom ? tier.label : tier.cards.toLocaleString('fr-FR');
-    });
-    cashierButtons.forEach((button, i) => {
-      const tier = config.cashierTiers[i];
-      if (tier) button.textContent = tier.custom ? tier.label : String(tier.cashiers);
-    });
-    let selectedCardIndex = 0;
-    let selectedCashierIndex = 0;
-
-    function render() {
-      const cardTier = config.cardTiers[selectedCardIndex];
-      const cashierTier = config.cashierTiers[selectedCashierIndex];
-      const priceEl = document.getElementById('config-price');
-      const noteEl = document.getElementById('config-note');
-      const ctaEl = document.getElementById('config-cta');
-
-      if (cardTier.custom || cashierTier.custom) {
-        priceEl.textContent = 'Sur devis';
-        noteEl.textContent = 'Volume important : parlons de votre projet pour une formule adaptée.';
-        ctaEl.href = 'mailto:contact@kadosk.com?subject=' + encodeURIComponent('Formule KADOSK sur devis');
-        ctaEl.textContent = 'Demander un devis →';
-        return;
+  const planGrid = document.getElementById('plan-grid');
+  if (config && planGrid) {
+    function planCard(tier) {
+      const card = document.createElement('article');
+      card.className = 'plan-card' + (tier.key === 'GOLD' ? ' plan-card-highlight' : '');
+      const title = document.createElement('h3');
+      title.textContent = tier.label;
+      const price = document.createElement('div');
+      price.className = 'plan-price';
+      price.textContent = tier.free ? 'Gratuit' : config.formatMad(tier.price) + '/mois';
+      const meta = document.createElement('ul');
+      meta.className = 'plan-meta';
+      const cashierItem = document.createElement('li');
+      cashierItem.textContent = tier.cashiers + ' caissier' + (tier.cashiers > 1 ? 's' : '');
+      const cardsItem = document.createElement('li');
+      cardsItem.textContent = tier.free ? config.trial.maxCards + ' cartes offertes (' + config.trial.maxDays + ' jours)' : 'Cartes cadeaux illimitées';
+      const commissionItem = document.createElement('li');
+      commissionItem.textContent = tier.free ? 'Sans engagement' : (tier.commission > 0 ? tier.commission + ' % de commission' : '0 % de commission');
+      meta.append(cashierItem, cardsItem, commissionItem);
+      if (tier.promotion) {
+        const promo = document.createElement('p');
+        promo.className = 'plan-promo';
+        promo.textContent = tier.promotion;
+        meta.after(promo);
       }
-
-      const total = cardTier.price + cashierTier.price;
-      priceEl.textContent = config.formatMad(total);
-      noteEl.textContent = cardTier.cards + ' nouvelles cartes cadeaux par mois · ' + cashierTier.cashiers + ' caissier' + (cashierTier.cashiers > 1 ? 's' : '') + (cashierTier.included ? ' inclus' : ' inclus dans cette option');
-      ctaEl.href = signupHref;
-      ctaEl.textContent = 'Tester gratuitement →';
+      const cta = document.createElement('a');
+      cta.className = 'btn' + (tier.key === 'GOLD' ? ' gradient' : '');
+      cta.href = signupHref + (tier.planId ? '?plan=' + encodeURIComponent(tier.planId) : '');
+      cta.textContent = tier.free ? 'Tester gratuitement →' : 'Choisir ' + tier.label + ' →';
+      card.append(title, price, meta, cta);
+      return card;
     }
 
-    cardButtons.forEach((button, index) => button.addEventListener('click', () => {
-      selectedCardIndex = index;
-      cardButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      render();
-    }));
-    cashierButtons.forEach((button, index) => button.addEventListener('click', () => {
-      selectedCashierIndex = index;
-      cashierButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      render();
-    }));
-
-    document.getElementById('config-price').setAttribute('aria-live', 'polite');
+    function render() {
+      planGrid.replaceChildren(...config.planTiers.map(planCard));
+    }
     render();
+
+    // Les prix/paliers affichés sont remplacés par ceux de Wix dès leur arrivée.
+    config.loadLivePlans().then(applied => { if (applied) render(); });
   }
 
   // FAQ accordéon

@@ -1,31 +1,24 @@
-// KADOSK — configuration tarifaire (source unique côté frontend)
+// KADOSK — configuration tarifaire (affichage public)
 //
-// IMPORTANT : ceci est la SEULE source de vérité pour l'AFFICHAGE des prix sur le
-// site public (landing + configurateur d'abonnement). Elle ne doit jamais être
-// recopiée ailleurs dans le frontend. Elle reste toutefois indicative : la
-// validation et l'application réelles du quota/prix payé se font côté backend
-// (moteur d'abonnement KADOSK, pas encore branché sur cette page) — voir
-// docs/abonnements-equipe-kadosk.md pour l'ancien modèle (par nombre de
-// caissiers) que ce nouveau modèle (par quota de cartes émises) remplace.
+// Modèle (2026-09-27) : cartes cadeaux illimitées sur tout abonnement payant,
+// différenciation uniquement par le nombre de caissiers et la commission
+// KADOSK. Les prix, cycles et promotions viennent EN DIRECT de Wix Pricing
+// Plans via la route publique /_functions/publicPlans (voir getPublicPlans
+// dans backend/giftCardSecurity.web.js), qui ne renvoie que les paliers
+// vendables et déclarés côté KADOSK (caissiers/commission). Le tableau
+// ci-dessous ne sert que de REPLI d'affichage si Wix est injoignable : la
+// facturation réelle et les limites appliquées sont toujours décidées côté
+// serveur.
 (function (global) {
   'use strict';
 
-  var CARD_TIERS = [
-    { cards: 50, price: 199 },
-    { cards: 100, price: 249 },
-    { cards: 250, price: 349 },
-    { cards: 500, price: 499 },
-    { cards: 1000, price: 699 },
-    { cards: 2000, price: 999 },
-    { cards: null, price: null, custom: true, label: '2000+' }
-  ];
+  var GRATUIT = { key: 'GRATUIT', label: 'Gratuit', price: 0, free: true, cashiers: 1, commission: null };
 
-  var CASHIER_TIERS = [
-    { cashiers: 1, price: 0, included: true },
-    { cashiers: 2, price: 29 },
-    { cashiers: 3, price: 69 },
-    { cashiers: 5, price: 99 },
-    { cashiers: null, price: null, custom: true, label: '10+' }
+  var PLAN_TIERS = [
+    GRATUIT,
+    { key: 'NORMAL', label: 'Normal', price: 99, cashiers: 2, commission: 9, planId: '5cd676ec-3081-4ae8-8042-c0f42cdc5bac' },
+    { key: 'SILVER', label: 'Silver', price: 249, cashiers: 5, commission: 5, planId: '7e885de1-fa5a-4aeb-890b-52d34e606632' },
+    { key: 'GOLD', label: 'Gold', price: 449, cashiers: 10, commission: 0, planId: '33e79ea4-64ea-47c9-8aa4-1004f07641cb' }
   ];
 
   var TRIAL = {
@@ -35,17 +28,41 @@
     requiresCard: false
   };
 
-  var COMMISSION_DIRECT_SALES_PERCENT = 0;
-
   function formatMad(amount) {
     return amount.toLocaleString('fr-MA') + ' MAD';
   }
 
-  global.KADOSK_PRICING_CONFIG = {
-    cardTiers: CARD_TIERS,
-    cashierTiers: CASHIER_TIERS,
+  var config = {
+    planTiers: PLAN_TIERS,
     trial: TRIAL,
-    directSalesCommissionPercent: COMMISSION_DIRECT_SALES_PERCENT,
-    formatMad: formatMad
+    formatMad: formatMad,
+    live: false
   };
+
+  // Reconstruit les paliers payants depuis le catalogue Wix (Gratuit reste
+  // local, aucun plan Wix ne le représente) : un palier ajouté côté serveur
+  // apparaît sans modifier ce fichier.
+  function applyLivePlans(plans) {
+    var paid = plans.filter(function (p) { return p.kind === 'CASHIER_TIER' && p.cashierLimit > 0; })
+      .sort(function (a, b) { return a.cashierLimit - b.cashierLimit; })
+      .map(function (p) {
+        return { key: p.tier, label: p.name, price: p.price, cashiers: p.cashierLimit, commission: p.commissionRate, planId: p.planId, promotion: p.promotion, perks: p.perks, freeTrialDays: p.freeTrialDays, live: true };
+      });
+    if (!paid.length) return false;
+    config.planTiers = [GRATUIT].concat(paid);
+    config.live = true;
+    return true;
+  }
+
+  // Résout true si le catalogue Wix a été appliqué, false si le repli local reste en place.
+  config.loadLivePlans = function () {
+    var base = global.KADOSK_CONFIG && global.KADOSK_CONFIG.siteBaseUrl;
+    if (!base || typeof fetch !== 'function') return Promise.resolve(false);
+    return fetch(base + '/_functions/publicPlans', { headers: { Accept: 'application/json' } })
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (data) { return !!(data && data.available && Array.isArray(data.plans) && applyLivePlans(data.plans)); })
+      .catch(function () { return false; });
+  };
+
+  global.KADOSK_PRICING_CONFIG = config;
 })(window);

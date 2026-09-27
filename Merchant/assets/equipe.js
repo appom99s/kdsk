@@ -64,11 +64,21 @@
         <td>${echapperHtml(LIBELLES_ROLE[u.role] || u.role)}</td>
         <td>${echapperHtml(libellesAcces(u))}</td>
         <td>${formaterDate(u.invitedAt)}</td>
-        <td><span class="kadosk-lien-action" data-retirer="${echapperHtml(u.id)}">Retirer</span></td>
+        <td><button type="button" class="kadosk-lien-action" data-renvoyer="${echapperHtml(u.id)}">Renvoyer l’e-mail</button> <button type="button" class="kadosk-lien-action" data-retirer="${echapperHtml(u.id)}">Retirer</button></td>
       </tr>`
       )
       .join("");
 
+    corpsTable.querySelectorAll("[data-renvoyer]").forEach(button => {
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try {
+          const result = await KADOSK_API.resendTeamInvitation(button.dataset.renvoyer);
+          messageStatut.textContent = result.emailSent ? "E-mail d’accès envoyé au caissier." : "L’envoi a échoué. Réessayez dans une minute.";
+        } catch (_) { messageStatut.textContent = "Envoi indisponible. Patientez une minute avant de réessayer."; }
+        finally { button.disabled = false; }
+      });
+    });
     corpsTable.querySelectorAll("[data-retirer]").forEach((lien) => {
       lien.addEventListener("click", () => {
         idEnCoursDeRetrait = lien.dataset.retirer;
@@ -139,7 +149,7 @@
       messageStatut.style.color = "#1faa6c";
       messageStatut.textContent = resultat && resultat.emailSent
         ? "Caissier ajouté. L’e-mail pour créer son mot de passe a été envoyé."
-        : "Caissier ajouté, mais l’e-mail n’a pas pu être envoyé : " + ((resultat && resultat.emailError) || "erreur inconnue") + ".";
+        : "Caissier ajouté. L’e-mail n’a pas pu être envoyé : utilisez Renvoyer l’e-mail dans une minute.";
       chargerEquipe();
       chargerQuota();
     } catch (erreur) {

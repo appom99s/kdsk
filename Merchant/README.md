@@ -5,6 +5,75 @@ Périmètre marchand : tableau de bord, caisse, commandes, finance, paramètres,
 `dashboard.html`, `cashier.html`, `orders.html`, `finance.html`, `settings.html`,
 `business.html` et leurs modules `assets/*.js` associés.
 
+## Modèle d'abonnement : retour au différenciateur "caissiers" (2026-09-27)
+
+Le modèle par quota de cartes/mois (2026-09-15) est remplacé : **cartes
+cadeaux illimitées sur tout abonnement payant**, différenciation uniquement
+par le nombre de caissiers et la commission KADOSK, conformément au nouveau
+cahier des charges transmis par l'utilisateur. Décision prise en conversation
+(l'utilisateur a explicitement choisi ce sens plutôt que l'inverse) après
+vérification qu'aucun marchand n'était abonné aux 9 plans quota-cartes créés
+la veille - migration sans perte, aucune donnée marchand affectée.
+
+**Plans Wix :**
+- Les 9 plans quota-cartes/additifs caissiers (2026-09-15) sont désormais
+  `visibility: PRIVATE` + `buyable: false` (non achetables, conservés en base
+  pour l'historique - Wix Pricing Plans V3 n'a pas de champ "archived"
+  réellement modifiable par API, confirmé en lisant le schéma avant d'agir).
+- 3 nouveaux plans créés : **KADOSK Normal** (99 MAD/mois, 2 caissiers, 9 %
+  commission, `5cd676ec-3081-4ae8-8042-c0f42cdc5bac`), **KADOSK Silver**
+  (249 MAD/mois, 5 caissiers, 5 %, `7e885de1-fa5a-4aeb-890b-52d34e606632`),
+  **KADOSK Gold** (449 MAD/mois, 10 caissiers, 0 %,
+  `33e79ea4-64ea-47c9-8aa4-1004f07641cb`). La formule Gratuite n'a pas de plan
+  Wix : c'est l'essai existant (10 cartes/30 jours/1 caissier), inchangé.
+- Les 6 plans encore plus anciens (`OFFRES_KADOSK_PAR_ID`, Starter à Réseau)
+  restent INCHANGÉS et non touchés : 2 marchands réels y sont abonnés
+  (KADOSK Enterprise, "1 caissier + owner" - vérifié via l'API Orders avant
+  toute action). Ils continuent d'être couverts sans régression via
+  `resoudreLimiteCaissiersMarchand`/`LEGACY_UNLIMITED`, exactement comme pour
+  le modèle précédent.
+
+**Backend (`backend/giftCardSecurity.web.js`) :** `CARD_QUOTA_PLANS_PAR_ID`/
+`CASHIER_ADDON_PLANS_PAR_ID` remplacés par `CASHIER_TIER_PLANS_PAR_ID` (un
+plan Wix = un palier autonome, plus de distinction base/additif).
+`resoudreQuotaCartesMarchand` renvoie `cardQuota: Infinity` (illimité) pour
+tout abonnement payant (nouveau palier OU ancien modèle), `commissionRate`
+et `tier` en plus ; seul l'essai gratuit garde un vrai compteur.
+`verifierEtReserverQuotaCarte`/`relacherReservationQuotaCarte` ne réservent
+plus rien pour un abonnement payant (plus de compteur de période à décrémenter
+- code mort supprimé). `getPublicPlans` (route publique `/_functions/
+publicPlans`) renvoie `kind: "CASHIER_TIER"` avec `cashierLimit`/
+`commissionRate` au lieu de `cardQuota`/`extraCashiers`. `createSubscriptionCheckout`
+et `demanderChangementFormuleCarteCadeau` n'acceptent plus qu'un seul
+`planId` (plus de second paramètre additif caissiers).
+
+**Frontend :** `Merchant/assets/pricing-config.js` expose désormais
+`planTiers` (4 paliers Gratuit/Normal/Silver/Gold) au lieu de
+`cardTiers`/`cashierTiers` à 2 dimensions ; `loadLivePlans()` reconstruit ces
+4 paliers depuis Wix (Gratuit reste toujours local, aucun plan Wix ne le
+représente). `landing.js`/`index.html`/`Merchant/index.html` : la section
+tarifs devient une grille de 4 cartes (`#plan-grid`) au lieu du configurateur
+2 dimensions à boutons - CSS dans `landing.css` (`.plan-grid`/`.plan-card`).
+Le bandeau "0 % de commission" (faux pour Normal/Silver) est corrigé en
+"9→0 % selon la formule". `signup.html`/`signup.js` : la formule "Gratuit"
+est un choix explicite (valeur vide), plus un champ `required` forçant un
+plan payant. `Merchant/settings.html` : la section "Choisir une formule"
+n'a plus de sous-catalogue "additif caissiers" séparé (un seul catalogue,
+un palier = tout compris) ; le sélecteur "Abonnement de départ" de l'écran
+d'onboarding référence désormais les 3 nouveaux plans Wix (il référençait
+encore par erreur les IDs quota-cartes archivés de la veille - corrigé au
+passage). `assets/api.js` : `requestCardPlanChange` prend un seul `planId`.
+
+Tests : `tests/public-plans.test.mjs`, `tests/mvp-flows.test.mjs`,
+`tests/partner-form.test.mjs` mis à jour pour le nouveau modèle - 44/44
+passent (Node du runtime Codex utilisé, `node` absent du PATH de cet
+environnement). `APP/` et `docs/backend/` régénérés via
+`scripts/build-production.mjs`. Non fait : comparaison de plans/downgrade
+in-app (le bouton "Gérer ma formule" renvoie toujours vers Wix), IA
+Cloudflare, moteur d'entitlements centralisé, cache/sync multi-onglets -
+voir le cahier des charges "KADOSK V1" transmis par l'utilisateur pour le
+reste, non traité dans cette passe.
+
 ## Identité visuelle propre à KADOSK (2026-09-13, suite)
 
 Le gabarit visuel initial (`Merchant/assets/landing.css`) était explicitement

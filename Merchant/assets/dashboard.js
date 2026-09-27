@@ -90,15 +90,13 @@
   // (voir assets/cache.js, requetesEnCours) - une seule requête part réellement,
   // et les KPI s'affichent instantanément depuis le cache en revenant sur cette
   // page, avant d'être rafraîchis en arrière-plan si besoin.
-  function chargerStatistiques() {
-    if (window.KADOSK_CACHE) {
-      KADOSK_CACHE.chargerAvecCache("dashboardStats", () => initial.then(data => data.stats), appliquerStatistiques).catch((erreur) => {
-        console.error("Erreur chargement statistiques :", erreur);
-      });
-    } else {
-      initial.then(data => data.stats).then(appliquerStatistiques).catch((erreur) => {
-        console.error("Erreur chargement statistiques :", erreur);
-      });
+  async function chargerStatistiques() {
+    try {
+      const stats = (await initial).stats;
+      if (window.KADOSK_CACHE) KADOSK_CACHE.ecrire("dashboardStats", stats);
+      appliquerStatistiques(stats);
+    } catch (_) {
+      document.getElementById("listeAlertes").textContent = "Tableau de bord indisponible. Réessayez dans quelques instants.";
     }
   }
 
@@ -282,8 +280,14 @@
     }
   }
 
-  chargerStatistiques();
-  chargerCommandes();
-  chargerTransactions();
-  chargerGraphique();
+  const content = document.getElementById("dashboardContent");
+  if (content) { content.classList.add("kadosk-dashboard-loading"); content.setAttribute("aria-busy", "true"); }
+  Promise.allSettled([chargerStatistiques(), chargerCommandes(), chargerTransactions(), chargerGraphique()]).then(() => {
+    requestAnimationFrame(() => {
+      if (content && content.isConnected) {
+        content.classList.remove("kadosk-dashboard-loading");
+        content.setAttribute("aria-busy", "false");
+      }
+    });
+  });
 })();

@@ -1,4 +1,7 @@
 (function () {
+  let studioReady = false, studioRestoring = false;
+  let studioHistory = [], studioIndex = -1, studioSaved = '';
+  let studioToolbar, studioState;
   // L'authentification, la barre latérale, l'en-tête et la déconnexion sont
   // gérées par guard.js (chargé avant ce script).
 
@@ -30,7 +33,7 @@
       document.getElementById("obCertified").checked = !!profile.certifiedAccurate;
       document.getElementById("obTerms").checked = !!profile.acceptedPartnershipTerms;
       rendreChecklist(etat);
-      const verrouille = etat.onboardingStatus === "Submitted" || etat.merchantStatus === "Approved" || etat.merchantStatus === "Active";
+      const verrouille = ["Submitted", "FinalSubmitted"].includes(etat.onboardingStatus) || etat.merchantStatus === "Approved" || etat.merchantStatus === "Active";
       document.querySelectorAll("#onboardingForm input,#onboardingForm select,#blocOnboarding input[type=checkbox],#obSave,#obSubmit").forEach((el) => { el.disabled = verrouille; });
     } catch (e) { obMessage.textContent = "Impossible de charger le dossier : " + (e.message || "erreur"); }
   }
@@ -459,6 +462,7 @@
         gradientAngle: champGradientAngle ? Number(champGradientAngle.value) : 135
       });
     }
+    if (studioReady && !studioRestoring) queueMicrotask(enregistrerEtatStudio);
   }
 
   async function chargerParametres() {
@@ -521,6 +525,10 @@
       actualiserApercu();
       mettreAJourApercuLogoActuel();
       actualiserResumeOffre();
+      studioReady = true;
+      studioHistory = []; studioIndex = -1;
+      studioSaved = JSON.stringify(lireEtatStudio());
+      enregistrerEtatStudio();
     } catch (erreur) {
       console.error("Erreur chargement paramètres offre :", erreur);
       const detail = erreur && erreur.message ? " (" + erreur.message + ")" : "";
@@ -565,6 +573,8 @@
 
       messageStatutParametres.style.color = "#1faa6c";
       messageStatutParametres.textContent = "Paramètres enregistrés.";
+      studioSaved = JSON.stringify(lireEtatStudio());
+      actualiserEtatStudio();
       actualiserResumeOffre();
 
       // Diagnostic visible directement ici (pas besoin d'aller chercher les logs
@@ -643,6 +653,80 @@
     });
   }
 
+  function lireEtatStudio() {
+    const fields = {};
+    document.querySelectorAll('#editeurCarteCadeau input:not([type=file]),#editeurCarteCadeau textarea,#editeurCarteCadeau select').forEach(el => {
+      if (el.id) fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return { fields, accent: accentColorSelectionnee, motif: motifSelectionne, police: policeSelectionnee, icone: iconeSelectionnee, fond: typeFondSelectionne };
+  }
+  function actualiserEtatStudio() {
+    if (!studioToolbar) return;
+    studioToolbar.querySelector('[data-studio=undo]').disabled = studioIndex <= 0;
+    studioToolbar.querySelector('[data-studio=redo]').disabled = studioIndex >= studioHistory.length - 1;
+    studioState.textContent = JSON.stringify(lireEtatStudio()) === studioSaved ? 'Version enregistrée' : 'Modifications non enregistrées';
+  }
+  function enregistrerEtatStudio() {
+    if (!studioReady || studioRestoring || !document.getElementById('editeurCarteCadeau')) return;
+    const snapshot = JSON.stringify(lireEtatStudio());
+    if (studioHistory[studioIndex] !== snapshot) {
+      studioHistory = studioHistory.slice(0, studioIndex + 1);
+      studioHistory.push(snapshot);
+      if (studioHistory.length > 60) studioHistory.shift();
+      studioIndex = studioHistory.length - 1;
+    }
+    actualiserEtatStudio();
+  }
+  function restaurerEtatStudio(index) {
+    if (!studioHistory[index]) return;
+    studioRestoring = true; studioIndex = index;
+    const state = JSON.parse(studioHistory[index]);
+    Object.entries(state.fields).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) { if (el.type === 'checkbox') el.checked = value; else el.value = value; }
+    });
+    policeSelectionnee = state.police;
+    selectionnerCouleurAccent(state.accent); selectionnerMotif(state.motif);
+    selectionnerIcone(state.icone); selectionnerTypeFond(state.fond);
+    if (VISUELLE) VISUELLE.chargerPolice(state.police);
+    if (texteAngleDegrade && champGradientAngle) texteAngleDegrade.textContent = champGradientAngle.value + '°';
+    actualiserVisibilite(); actualiserApercu(); actualiserResumeOffre();
+    mettreAJourApercuLogoActuel(); mettreAJourApercuFondActuel();
+    studioRestoring = false; actualiserEtatStudio();
+  }
+  function ouvrirApercuStudio() {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'kadosk-studio-dialog';
+    dialog.setAttribute('aria-label', 'Aperçu de la carte cadeau');
+    const title = document.createElement('h2'); title.textContent = 'Votre carte, signée KADOSK';
+    const copy = carteApercu.cloneNode(true);
+    copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    const note = document.createElement('p'); note.textContent = 'APERÇU — ce visuel ne constitue pas une carte activée et ne permet aucun encaissement.';
+    const actions = document.createElement('div'); actions.className = 'kadosk-studio-toolbar';
+    const print = document.createElement('button'); print.type = 'button'; print.textContent = 'Imprimer / enregistrer en PDF';
+    print.addEventListener('click', () => {
+      document.body.classList.add('kadosk-print-preview');
+      window.addEventListener('afterprint', () => document.body.classList.remove('kadosk-print-preview'), { once: true });
+      window.print();
+    });
+    const close = document.createElement('button'); close.type = 'button'; close.textContent = 'Fermer';
+    close.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => { document.body.classList.remove('kadosk-print-preview'); dialog.remove(); });
+    actions.append(print, close); dialog.append(title, copy, note, actions);
+    document.body.appendChild(dialog); dialog.showModal(); close.focus();
+  }
+  if (carteApercu) {
+    studioToolbar = document.createElement('div'); studioToolbar.className = 'kadosk-studio-toolbar';
+    for (const [action, label] of [['undo','Annuler'],['redo','Rétablir'],['preview','Aperçu grand format']]) {
+      const button = document.createElement('button'); button.type = 'button'; button.dataset.studio = action; button.textContent = label;
+      button.disabled = action !== 'preview';
+      button.addEventListener('click', () => action === 'preview' ? ouvrirApercuStudio() : restaurerEtatStudio(studioIndex + (action === 'undo' ? -1 : 1)));
+      studioToolbar.appendChild(button);
+    }
+    studioState = document.createElement('p'); studioState.className = 'kadosk-studio-state'; studioState.setAttribute('role', 'status');
+    carteApercu.after(studioToolbar, studioState);
+    document.getElementById('editeurCarteCadeau').addEventListener('change', () => { if (studioReady) enregistrerEtatStudio(); });
+  }
   chargerParametres();
 
   // Modèle de facture client (RC/IF/adresse) - formulaire indépendant de l'offre

@@ -48,6 +48,17 @@
         </div>
       </div>
 
+      <section class="kadosk-panneau-large" aria-labelledby="bulkTitle">
+        <h2 id="bulkTitle">Cartes sans bénéficiaire · impression en vrac</h2>
+        <p>Émission réservée au propriétaire. Chaque carte est débitée du quota de votre formule. Le QR permanent est utilisable par son porteur : conservez les fichiers dans un endroit privé.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+          <label>Montant par carte (DH)<input id="bulkAmount" type="number" min="1" max="1000" step="0.01"></label>
+          <label>Nombre de cartes<input id="bulkCount" type="number" min="1" max="10" value="1"></label>
+          <button type="button" class="kadosk-bouton" id="bulkCreate">Créer le lot</button>
+          <button type="button" class="kadosk-bouton" id="bulkDownload" hidden>Télécharger les cartes imprimables</button>
+        </div>
+        <p id="bulkStatus" role="status" aria-live="polite"></p>
+      </section>
       <div class="kadosk-barre-outils">
         <div class="kadosk-filtre-dates"><span>Date d’émission</span><input id="filtreDateDebut" type="date" aria-label="Date de début"><input id="filtreDateFin" type="date" aria-label="Date de fin"></div>
         <div class="kadosk-filtres">
@@ -87,6 +98,7 @@
   <script src="assets/spa.js"></script>
   <script src="assets/carte-visuelle.js"></script>
   <script src="assets/gift-cards.js"></script>
+  <script src="assets/bulk-print.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>
