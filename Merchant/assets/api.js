@@ -132,8 +132,8 @@ const KADOSK_API = (function () {
     checkQrTemporaire: (payload) => appeler("qrTemporaireCheck", "POST", { payload }),
     redeemQrTemporaire: (payload, amount) => appeler("qrTemporaireRedeem", "POST", { payload, amount }),
     getDraftOrders: () => appeler("draftOrders", "GET"),
-    activateOrder: (giftCardId, buyerEmail, buyerName, message, deliveryMode) =>
-      appeler("activateOrder", "POST", { giftCardId, buyerEmail, buyerName, message, deliveryMode }),
+    activateOrder: (giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone) =>
+      appeler("activateOrder", "POST", { giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone }),
     createMerchantGiftCardDraft: (amount, recipientEmail, recipientName, message, deliveryMode, requestId) =>
       appeler("merchantGiftCardDraft", "POST", { amount, recipientEmail, recipientName, message, deliveryMode, requestId }),
     getOfferSettings: () => appeler("offerSettings", "GET"),

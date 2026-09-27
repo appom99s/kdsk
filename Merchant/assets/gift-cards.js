@@ -8,7 +8,6 @@
   const creationMontant = document.getElementById("creationMontant");
   const creationMessage = document.getElementById("creationMessage");
   const creationStatut = document.getElementById("creationStatut");
-  const creationEnvoyerEmail = document.getElementById("creationEnvoyerEmail");
   const modalEmission = document.getElementById("modalEmissionCarte");
   const ouvrirEmission = document.getElementById("ouvrirEmissionCarte");
   const fermerEmission = document.getElementById("fermerEmissionCarte");
@@ -19,6 +18,12 @@
   const detailReference = document.getElementById("detailCarteReference");
   const clientsMarchandNoms = document.getElementById("clientsMarchandNoms");
   const clientsMarchandEmails = document.getElementById("clientsMarchandEmails");
+  const clientsMarchandTelephones = document.getElementById("clientsMarchandTelephones");
+  const creationTelephone = document.getElementById("creationTelephone");
+  const blocCreationEmail = document.getElementById("blocCreationEmail");
+  const blocCreationTelephone = document.getElementById("blocCreationTelephone");
+  const canalEmail = document.getElementById("canalEmail");
+  const canalWhatsApp = document.getElementById("canalWhatsApp");
 
   let toutesLesCartes = [];
   let clientsMarchand = [];
@@ -29,9 +34,10 @@
   async function chargerClientsMarchand() {
     try {
       const resultat = await KADOSK_API.getMerchantGrowth();
-      clientsMarchand = (resultat.clients || []).filter((client) => client.email);
-      clientsMarchandNoms.innerHTML = clientsMarchand.map((client) => '<option value="' + echapperHtml(client.name || client.email) + '">' + echapperHtml(client.email) + '</option>').join("");
-      clientsMarchandEmails.innerHTML = clientsMarchand.map((client) => '<option value="' + echapperHtml(client.email) + '">' + echapperHtml(client.name || "") + '</option>').join("");
+      clientsMarchand = (resultat.clients || []).filter((client) => client.email || client.phone);
+      clientsMarchandNoms.innerHTML = clientsMarchand.map((client) => '<option value="' + echapperHtml(client.name || client.email || client.phone) + '">' + echapperHtml(client.email || client.phone || "") + '</option>').join("");
+      clientsMarchandEmails.innerHTML = clientsMarchand.filter((client) => client.email).map((client) => '<option value="' + echapperHtml(client.email) + '">' + echapperHtml(client.name || "") + '</option>').join("");
+      clientsMarchandTelephones.innerHTML = clientsMarchand.filter((client) => client.phone).map((client) => '<option value="' + echapperHtml(client.phone) + '">' + echapperHtml(client.name || "") + '</option>').join("");
     } catch (erreur) {
       console.error("Chargement des clients privés du marchand impossible :", erreur);
       clientsMarchand = [];
@@ -40,11 +46,27 @@
 
   function completerClient(source) {
     const valeur = source.value.trim().toLocaleLowerCase("fr");
-    const client = clientsMarchand.find((item) => String(item.email || "").toLocaleLowerCase("fr") === valeur || String(item.name || "").toLocaleLowerCase("fr") === valeur);
+    const client = clientsMarchand.find((item) => String(item.email || "").toLocaleLowerCase("fr") === valeur || String(item.phone || "").toLocaleLowerCase("fr") === valeur || String(item.name || "").toLocaleLowerCase("fr") === valeur);
     if (!client) return;
     creationNom.value = client.name || creationNom.value;
-    creationEmail.value = client.email || creationEmail.value;
+    if (client.email) creationEmail.value = client.email;
+    if (client.phone) creationTelephone.value = client.phone;
   }
+
+  // Bascule "Envoyer par" : un seul champ pertinent affiché à la fois (e-mail OU
+  // numéro WhatsApp), jamais les deux ensemble - le canal choisi détermine aussi
+  // le champ réellement requis/validé (voir creerCarte).
+  function definirCanal(canal) {
+    const estWhatsApp = canal === "WHATSAPP";
+    canalEmail.setAttribute("aria-pressed", String(!estWhatsApp));
+    canalWhatsApp.setAttribute("aria-pressed", String(estWhatsApp));
+    canalEmail.className = "kadosk-bouton" + (estWhatsApp ? " kadosk-bouton-secondaire" : "");
+    canalWhatsApp.className = "kadosk-bouton" + (estWhatsApp ? "" : " kadosk-bouton-secondaire");
+    blocCreationEmail.hidden = estWhatsApp;
+    blocCreationTelephone.hidden = !estWhatsApp;
+  }
+  canalEmail.addEventListener("click", () => definirCanal("EMAIL"));
+  canalWhatsApp.addEventListener("click", () => definirCanal("WHATSAPP"));
 
   function formaterDate(valeur) {
     if (!valeur) return "—";
@@ -191,41 +213,58 @@
     }
   }
 
-  const creationWhatsApp = document.getElementById('creationEnvoyerWhatsApp');
   const partageWhatsApp = document.getElementById('creationPartagerWhatsApp');
-  async function creerCarte(deliveryMode, partager = false) {
+  const creationEnvoyer = document.getElementById('creationEnvoyer');
+  async function creerCarte() {
+    const estWhatsApp = canalWhatsApp.getAttribute("aria-pressed") === "true";
+    const deliveryMode = estWhatsApp ? "WHATSAPP" : "EMAIL";
     const amount = Number(creationMontant.value);
     const recipientEmail = creationEmail.value.trim();
+    const recipientPhone = creationTelephone.value.trim();
     const recipientName = creationNom.value.trim();
-    if (!recipientName || !recipientEmail || !amount || amount <= 0) {
-      creationStatut.textContent = "Nom, e-mail et montant valide sont obligatoires.";
+    if (!recipientName || !amount || amount <= 0) {
+      creationStatut.textContent = "Nom et montant valide sont obligatoires.";
       return;
     }
-    creationEnvoyerEmail.disabled = creationWhatsApp.disabled = true;
+    if (estWhatsApp && !recipientPhone) {
+      creationStatut.textContent = "Le numéro WhatsApp du client est obligatoire.";
+      return;
+    }
+    if (!estWhatsApp && !recipientEmail) {
+      creationStatut.textContent = "L’e-mail du client est obligatoire.";
+      return;
+    }
+    creationEnvoyer.disabled = true;
     partageWhatsApp.hidden = true;
     creationStatut.style.color = "";
     creationStatut.textContent = "Création en cours…";
     try {
-      const draft = await KADOSK_API.createMerchantGiftCardDraft(amount, recipientEmail, recipientName, creationMessage.value.trim());
-      const activated = await KADOSK_API.activateOrder(draft.orderItemId, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode);
-      if (activated.emailSent === false) {
+      const draft = await KADOSK_API.createMerchantGiftCardDraft(amount, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode);
+      const activated = await KADOSK_API.activateOrder(draft.orderItemId, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode, recipientPhone);
+      if (estWhatsApp) {
+        const carte = activated.whatsappCard || {};
+        const url = new URL('../Client/mes-commandes.html', location.href);
+        const message = 'Bonjour ' + recipientName + ', vous avez reçu une carte cadeau de ' + (carte.amount != null ? carte.amount + ' DH' : '') +
+          '. Code : ' + (carte.code || '') + '. Suivez votre carte ici : ' + url.href;
+        partageWhatsApp.href = 'https://wa.me/' + encodeURIComponent(carte.phone || recipientPhone) + '?text=' + encodeURIComponent(message);
+        partageWhatsApp.hidden = false;
+        creationStatut.style.color = "#1faa6c";
+        creationStatut.textContent = 'Carte créée. Cliquez sur « Envoyer la carte sur WhatsApp » pour l’ouvrir avec le message pré-rempli.';
+      } else {
+        if (activated.emailSent === false) {
           creationStatut.style.color = "#b02a37";
           creationStatut.textContent = "Carte créée, mais l’e-mail n’a pas été envoyé : " + (activated.emailError || "erreur Wix") + ".";
-      } else {
+        } else {
+          creationStatut.style.color = "#1faa6c";
           creationStatut.textContent = "Carte créée et envoyée au client par e-mail.";
+        }
+        if (modalEmission) modalEmission.style.display = "none";
       }
-      if (activated.emailSent !== false) creationStatut.style.color = "#1faa6c";
       creationNom.value = "";
       creationEmail.value = "";
+      creationTelephone.value = "";
       creationMontant.value = "";
       creationMessage.value = "";
-      if (partager) {
-        const url = new URL('../Client/mes-commandes.html', location.href);
-        const message = 'Bonjour ' + recipientName + ', votre carte cadeau est prête. Retrouvez-la ici : ' + url.href + ' — Connectez-vous avec l’adresse e-mail communiquée au commerce.';
-        partageWhatsApp.href = 'https://wa.me/?text=' + encodeURIComponent(message);
-        partageWhatsApp.hidden = false;
-        creationStatut.textContent = 'Carte créée. Cliquez sur « Envoyer la carte sur WhatsApp » et choisissez le destinataire.' + (activated.emailSent === false ? ' L’e-mail n’a pas pu être envoyé.' : ' Un e-mail a également été envoyé.');
-      } else if (modalEmission) modalEmission.style.display = "none";
       await chargerCartes();
     } catch (erreur) {
       console.error("Erreur création carte marchand :", erreur);
@@ -237,19 +276,20 @@
         INVALID_AMOUNT_FOR_OFFER: "Ce montant n’est pas autorisé dans votre offre.",
         INVALID_INITIAL_BALANCE: "Le montant doit être compris entre 1 et 1 000 DH.",
         FORBIDDEN_ROLE: "Seul le propriétaire du compte peut créer une carte.",
-        MERCHANT_ACCOUNT_BLOCKED: "Le compte marchand est bloqué."
+        MERCHANT_ACCOUNT_BLOCKED: "Le compte marchand est bloqué.",
+        MISSING_PARAMETERS: estWhatsApp ? "Numéro WhatsApp invalide." : "E-mail invalide."
       };
       creationStatut.textContent = messages[erreur.message] || "Création impossible : " + (erreur.message || "erreur inconnue");
     } finally {
-      creationEnvoyerEmail.disabled = creationWhatsApp.disabled = false;
+      creationEnvoyer.disabled = false;
     }
   }
 
-  creationWhatsApp.addEventListener('click', () => creerCarte('EMAIL', true));
-  creationEnvoyerEmail.addEventListener("click", () => creerCarte("EMAIL"));
+  creationEnvoyer.addEventListener('click', creerCarte);
   creationNom.addEventListener("change", () => completerClient(creationNom));
+  creationTelephone.addEventListener("change", () => completerClient(creationTelephone));
   creationEmail.addEventListener("change", () => completerClient(creationEmail));
-  if (ouvrirEmission) ouvrirEmission.addEventListener("click", () => { modalEmission.style.display = "flex"; chargerClientsMarchand(); creationNom.focus(); });
+  if (ouvrirEmission) ouvrirEmission.addEventListener("click", () => { modalEmission.style.display = "flex"; definirCanal("EMAIL"); chargerClientsMarchand(); creationNom.focus(); });
   if (fermerEmission) fermerEmission.addEventListener("click", () => { modalEmission.style.display = "none"; });
   if (modalEmission) modalEmission.addEventListener("click", (e) => { if (e.target === modalEmission) modalEmission.style.display = "none"; });
   const fermerDetail = document.getElementById("fermerDetailCarte");

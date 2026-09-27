@@ -238,8 +238,20 @@
     return mots.map((mot) => mot[0].toUpperCase()).join("") || "M";
   }
 
-  const LIBELLES_PALIER = { BRONZE: "Bronze", SILVER: "Silver", GOLD: "Gold" };
-  const COULEURS_PALIER = { BRONZE: "#a5652d", SILVER: "#8a95a5", GOLD: "#e0b23c" };
+  // Palier KADOSK actuel (voir CASHIER_TIER_PLANS_PAR_ID/resoudreQuotaCartesMarchand,
+  // backend) + BRONZE/SILVER/GOLD conservés pour un marchand resté sur l'ancien
+  // modèle par commission (detecterPalierAbonnement) - les deux vocabulaires
+  // peuvent apparaître selon le marchand, jamais mélangés pour un même compte.
+  const LIBELLES_PALIER = {
+    GRATUIT: "Essai gratuit", STARTER: "Starter", ESSENTIEL: "Essentiel", BUSINESS: "Business",
+    PREMIUM: "Premium", ENTERPRISE: "Enterprise", RESEAU: "Réseau",
+    BRONZE: "Bronze", SILVER: "Silver", GOLD: "Gold"
+  };
+  const COULEURS_PALIER = {
+    GRATUIT: "#58736c", STARTER: "#7fb5ab", ESSENTIEL: "#2f80ed", BUSINESS: "#6c4ce0",
+    PREMIUM: "#e0b23c", ENTERPRISE: "#b06b00", RESEAU: "#b02a37",
+    BRONZE: "#a5652d", SILVER: "#8a95a5", GOLD: "#e0b23c"
+  };
 
   function rendreInfosMarchand(stats) {
     const nom = (stats && stats.merchantName) || "Compte marchand";
@@ -281,9 +293,14 @@
     const abonnementActif = !!(stats && stats.subscriptionActive);
     const nomOffre = (stats && stats.subscriptionPlanName) || (palier && LIBELLES_PALIER[palier]) || "";
     document.querySelectorAll("[data-marchand-abonnement]").forEach((badge) => {
-      badge.textContent = abonnementActif
-        ? "Abonnement actif" + (nomOffre ? " · " + nomOffre : "")
-        : "Abonnement inactif";
+      // GRATUIT couvre à la fois l'essai en cours ET l'essai expiré (voir
+      // resoudreQuotaCartesMarchand, backend) - seul subscriptionActive distingue
+      // les deux, jamais le palier seul.
+      badge.textContent = palier === "GRATUIT"
+        ? (abonnementActif ? "Essai gratuit" : "Essai expiré")
+        : abonnementActif
+          ? "Abonnement actif" + (nomOffre ? " · " + nomOffre : "")
+          : "Abonnement inactif";
       badge.style.color = abonnementActif ? "#14805e" : "#b02a37";
     });
   }

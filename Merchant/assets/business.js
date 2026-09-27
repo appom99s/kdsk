@@ -42,22 +42,62 @@
     }
   }
 
-  const boutonDossier = document.getElementById("dossierSubmit");
-  if (boutonDossier) boutonDossier.addEventListener("click", async () => {
+  function lireDossierFinal() {
     const payload = {};
     document.querySelectorAll("[data-dossier-key]").forEach((el) => { payload[el.dataset.dossierKey] = el.value.trim(); });
     payload.certifiedAccurate = document.getElementById("dossierCertified").checked;
     payload.acceptedPartnershipTerms = document.getElementById("dossierTerms").checked;
     payload.privacyConsent = document.getElementById("dossierPrivacy").checked;
+    return payload;
+  }
+
+  const boutonDossierSave = document.getElementById("dossierSave");
+  const boutonDossier = document.getElementById("dossierSubmit");
+
+  // Enregistrer le brouillon (submitForReview=false) : jamais bloqué par le
+  // contrôle "dossier complet", contrairement à "Envoyer" - un marchand qui
+  // remplit son dossier progressivement (document manquant, etc.) entre la 1re
+  // et la 2e approbation doit toujours pouvoir sauvegarder ce qu'il a déjà
+  // saisi (voir le correctif backend équivalent dans
+  // saveMerchantOnboardingProfile : le brouillon est désormais TOUJOURS
+  // enregistré, y compris via "Envoyer" si le dossier s'avère incomplet).
+  if (boutonDossierSave) boutonDossierSave.addEventListener("click", async () => {
+    const message = document.getElementById("dossierMessage");
+    boutonDossierSave.disabled = true;
+    try {
+      await KADOSK_API.saveMerchantProfile(lireDossierFinal(), false);
+      message.style.color = "#14805e";
+      message.textContent = "Brouillon enregistré.";
+    } catch (erreur) {
+      message.style.color = "";
+      message.textContent = "Enregistrement impossible : " + (erreur.message || "erreur inconnue");
+    } finally {
+      boutonDossierSave.disabled = false;
+    }
+  });
+
+  if (boutonDossier) boutonDossier.addEventListener("click", async () => {
     const message = document.getElementById("dossierMessage");
     boutonDossier.disabled = true;
     try {
-      await KADOSK_API.saveMerchantProfile(payload, true);
-      message.style.color = "#14805e";
-      message.textContent = "Dossier envoyé pour la deuxième approbation.";
-      document.getElementById("dossierFinalSection").querySelectorAll("input,select,button").forEach((el) => { el.disabled = true; });
+      const resultat = await KADOSK_API.saveMerchantProfile(lireDossierFinal(), true);
+      if (resultat.submitted) {
+        message.style.color = "#14805e";
+        message.textContent = "Dossier envoyé pour la deuxième approbation.";
+        document.getElementById("dossierFinalSection").querySelectorAll("input,select,button").forEach((el) => { el.disabled = true; });
+      } else {
+        // Enregistré (voir plus haut) mais pas encore complet pour l'envoi -
+        // la saisie n'est PAS perdue, contrairement à avant ce correctif.
+        message.style.color = "";
+        const manquants = (resultat.checklist && resultat.checklist.tasks || []).filter(t => !t.complete).map(t => t.label);
+        message.textContent = manquants.length
+          ? "Brouillon enregistré. Éléments manquants avant l’envoi : " + manquants.join(", ") + "."
+          : "Brouillon enregistré. Cochez les cases requises avant d’envoyer.";
+        boutonDossier.disabled = false;
+      }
     } catch (erreur) {
-      message.textContent = "Dossier incomplet ou invalide : " + (erreur.message || "erreur inconnue");
+      message.style.color = "";
+      message.textContent = "Enregistrement impossible : " + (erreur.message || "erreur inconnue");
       boutonDossier.disabled = false;
     }
   });

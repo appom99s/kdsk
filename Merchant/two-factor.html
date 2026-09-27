@@ -18,7 +18,9 @@
       </p>
 
       <div id="zoneEnrolement2FA" style="display:none; margin-bottom:18px;">
-        <p style="font-size:13px;">La double authentification est obligatoire pour les propriétaires et les caissiers. Ajoutez cette clé dans votre application d’authentification :</p>
+        <p style="font-size:13px;">La double authentification est obligatoire pour les propriétaires et les caissiers. Scannez ce QR code avec votre application d’authentification (Google Authenticator ou équivalent) :</p>
+        <div id="qrEnrolement2FA" style="margin:12px 0; display:flex; justify-content:center;"></div>
+        <label style="font-size:12px;display:block;margin-bottom:4px;">Ou ajoutez cette clé manuellement (si vous ne pouvez pas scanner le QR code) :</label>
         <input id="secretEnrolement2FA" type="text" readonly style="width:100%;font-family:monospace;letter-spacing:1px;" />
       </div>
 
@@ -45,6 +47,7 @@
   <script src="assets/auth.js"></script>
   <script src="assets/api.js"></script>
   <script src="assets/webauthn.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     if (!KADOSK_AUTH.estConnecte()) {
       window.location.href = "login.html";
@@ -57,6 +60,7 @@
     const lienDeconnexion2FA = document.getElementById("lienDeconnexion2FA");
     const zoneEnrolement2FA = document.getElementById("zoneEnrolement2FA");
     const secretEnrolement2FA = document.getElementById("secretEnrolement2FA");
+    const qrEnrolement2FA = document.getElementById("qrEnrolement2FA");
     let modeEnrolement = false;
 
     function pageDeRetour() {
@@ -79,6 +83,9 @@
           modeEnrolement = true;
           const depart = await KADOSK_API.start2FA();
           secretEnrolement2FA.value = depart.secretBase32 || "";
+          if (window.QRCode && depart.otpauthUrl) {
+            new QRCode(qrEnrolement2FA, { text: depart.otpauthUrl, width: 180, height: 180 });
+          }
           zoneEnrolement2FA.style.display = "block";
           boutonVerifier2FA.textContent = "Activer et continuer";
           return;

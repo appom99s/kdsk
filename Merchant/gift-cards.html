@@ -28,16 +28,23 @@
       <div class="kadosk-modal-carte kadosk-modal-emission">
         <div class="kadosk-modal-entete"><div><h2>Émettre une nouvelle carte cadeau</h2><p>Une fois créée, elle est envoyée de façon sécurisée au destinataire.</p></div><button type="button" class="kadosk-modal-fermer" id="fermerEmissionCarte" aria-label="Fermer">×</button></div>
         <div class="kadosk-modal-corps">
+        <div class="kadosk-champ">
+          <label>Envoyer par</label>
+          <div class="kadosk-ligne-boutons">
+            <button type="button" class="kadosk-bouton" id="canalEmail" aria-pressed="true">E-mail</button>
+            <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="canalWhatsApp" aria-pressed="false">WhatsApp</button>
+          </div>
+        </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
           <div class="kadosk-champ"><label for="creationNom">Nom du client</label><input id="creationNom" maxlength="100" list="clientsMarchandNoms" autocomplete="off"><datalist id="clientsMarchandNoms"></datalist></div>
-          <div class="kadosk-champ"><label for="creationEmail">E-mail du client</label><input id="creationEmail" type="email" list="clientsMarchandEmails" autocomplete="off"><datalist id="clientsMarchandEmails"></datalist></div>
+          <div class="kadosk-champ" id="blocCreationEmail"><label for="creationEmail">E-mail du client</label><input id="creationEmail" type="email" list="clientsMarchandEmails" autocomplete="off"><datalist id="clientsMarchandEmails"></datalist></div>
+          <div class="kadosk-champ" id="blocCreationTelephone" hidden><label for="creationTelephone">Numéro WhatsApp du client</label><input id="creationTelephone" type="tel" placeholder="06 12 34 56 78" list="clientsMarchandTelephones" autocomplete="off"><datalist id="clientsMarchandTelephones"></datalist></div>
           <div class="kadosk-champ"><label for="creationMontant">Montant (DH)</label><input id="creationMontant" type="number" min="1" max="1000" step="0.01"></div>
         </div>
         <div class="kadosk-champ"><label for="creationMessage">Message</label><textarea id="creationMessage" maxlength="250" rows="2"></textarea></div>
         <div class="kadosk-ligne-boutons">
-          <button class="kadosk-bouton" id="creationEnvoyerEmail">Créer et envoyer par e-mail</button>
-            <button class="kadosk-bouton kadosk-bouton-secondaire" id="creationEnvoyerWhatsApp">Créer et partager sur WhatsApp</button>
-            <a id="creationPartagerWhatsApp" class="kadosk-bouton" target="_blank" rel="noopener noreferrer" hidden>Envoyer la carte sur WhatsApp</a>
+          <button class="kadosk-bouton" id="creationEnvoyer">Créer et envoyer</button>
+          <a id="creationPartagerWhatsApp" class="kadosk-bouton" target="_blank" rel="noopener noreferrer" hidden>Envoyer la carte sur WhatsApp</a>
         </div>
         <div id="creationStatut" class="kadosk-message-erreur" aria-live="polite"></div>
       </div>
