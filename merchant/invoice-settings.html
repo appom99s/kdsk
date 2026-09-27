@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Personnalisation de la facture</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="assets/invoice-settings.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+    <main class="kadosk-main kadosk-facture-page">
+      <div class="kadosk-entete kadosk-facture-entete">
+        <div><h1>Personnalisation de la facture</h1><p class="kadosk-sous-titre">Configurez la facture client émise par votre commerce.</p></div>
+        <div class="kadosk-ligne-boutons"><a class="kadosk-bouton kadosk-bouton-secondaire" href="settings.html">Annuler</a><button class="kadosk-bouton" id="factureEnregistrer">Enregistrer</button></div>
+      </div>
+      <p class="kadosk-facture-info">L’aperçu est indicatif. Les références, dates, coordonnées client, lignes et paiements réels sont injectés au moment de l’émission.</p>
+      <div class="kadosk-facture-editeur">
+        <div class="kadosk-facture-options">
+          <details class="kadosk-facture-section" open><summary>En-tête</summary><div class="kadosk-facture-section-corps">
+            <label>Titre de la facture<input id="factureTitre" maxlength="40" value="Facture"></label>
+            <label>Jours avant l’échéance<select id="factureEcheance"><option value="0">À réception</option><option value="15">15 jours</option><option value="30">30 jours</option><option value="45">45 jours</option><option value="60">60 jours</option></select></label>
+            <div class="kadosk-facture-couleurs"><label>Couleur principale<input type="color" id="factureCouleurPrincipale" value="#172033"></label><label>Accent<input type="color" id="factureCouleurAccent" value="#6c4ce0"></label></div>
+          </div></details>
+          <details class="kadosk-facture-section"><summary>Informations de l’entreprise</summary><div class="kadosk-facture-section-corps">
+            <label>Registre du Commerce<input id="factureRc" maxlength="50"></label><label>Identifiant Fiscal<input id="factureIf" maxlength="50"></label><label>Adresse<textarea id="factureAdresse" maxlength="250" rows="3"></textarea></label>
+          </div></details>
+          <details class="kadosk-facture-section"><summary>Détails du client</summary><div class="kadosk-facture-section-corps"><p>Le nom et l’e-mail du client proviennent automatiquement de la commande vérifiée.</p></div></details>
+          <details class="kadosk-facture-section"><summary>Paiement et taxe</summary><div class="kadosk-facture-section-corps"><label>Texte de paiement<input id="facturePaiement" maxlength="300"></label><label class="kadosk-facture-checkbox"><input type="checkbox" id="factureRecu" checked> Afficher le reçu de paiement</label><p>La valeur faciale d’une carte cadeau n’est pas ventilée en TVA lors de son émission.</p></div></details>
+          <details class="kadosk-facture-section"><summary>Notes de pied de page</summary><div class="kadosk-facture-section-corps"><label>Note<textarea id="facturePied" maxlength="500" rows="4"></textarea></label></div></details>
+          <div class="kadosk-message-erreur" id="factureMessage" aria-live="polite"></div>
+        </div>
+        <section class="kadosk-facture-apercu-zone"><div class="kadosk-facture-apercu-titre"><strong>Aperçu de la facture</strong><span>Mis à jour en direct</span></div>
+          <article class="kadosk-facture-feuille" id="factureApercu">
+            <header><div class="kadosk-facture-logo"><img id="factureLogo" alt=""><strong id="factureEntreprise">Votre entreprise</strong><small id="factureCoordonnees">RC · IF · Adresse</small></div><div><h2 id="apercuFactureTitre">Facture</h2><small>N° XXX-FAC000001<br>Date d’émission : aujourd’hui<br><span id="apercuEcheance">Échéance : 30 jours</span></small></div></header>
+            <div class="kadosk-facture-separateur"></div>
+            <section class="kadosk-facture-destinataires"><div><b>Facturé à</b><strong>Nom du client</strong><span>client@exemple.com</span></div><div><b>Informations client supplémentaires</b><span>Commande XXX-CMD000001</span></div></section>
+            <h3>Facture</h3><table><thead><tr><th>Article</th><th>Quantité</th><th>Prix</th><th>Total</th></tr></thead><tbody><tr><td><strong>Carte cadeau</strong><small>Carte utilisable dans votre commerce</small></td><td>1</td><td>500,00 MAD</td><td>500,00 MAD</td></tr></tbody></table>
+            <div class="kadosk-facture-total"><span>Total</span><strong>500,00 MAD</strong></div>
+            <div class="kadosk-facture-paiement-apercu" id="apercuPaiement"><b>Paiement reçu</b><span id="apercuPaiementTexte">Paiement par virement bancaire</span></div>
+            <footer id="apercuPied">Merci pour votre confiance.</footer>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="assets/config.js"></script><script src="assets/auth.js"></script><script src="assets/api.js"></script><script src="assets/cache.js"></script><script src="assets/nav.js"></script><script src="assets/guard.js"></script><script src="assets/spa.js"></script><script src="assets/invoice-settings.js"></script><script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>

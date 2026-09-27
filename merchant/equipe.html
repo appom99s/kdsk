@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Équipe</title>
+<link rel="stylesheet" href="assets/style.css" />
+<style>
+  .kadosk-modal-fond {
+    position: fixed; inset: 0; background: rgba(20, 18, 30, 0.45);
+    display: flex; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .kadosk-modal {
+    background: #fff; border-radius: 12px; padding: 24px; width: 90%; max-width: 380px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  }
+  .kadosk-modal h3 { margin: 0 0 8px; }
+  .kadosk-lien-action { color: var(--kadosk-violet); cursor: pointer; font-size: 13px; font-weight: 600; }
+</style>
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <h1>Équipe</h1>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="margin-bottom:20px;">
+        <h2>Ajouter un caissier</h2>
+        <div class="kadosk-quota-equipe" id="quotaEquipe"><span>Votre formule</span><strong id="quotaEquipeValeur">Chargement…</strong><small id="quotaEquipeDetail"></small></div>
+        <p style="font-size:12px; color:var(--kadosk-texte-clair); margin:0 0 16px;">
+          Le caissier voit uniquement l’encaissement et les rubriques que vous lui autorisez ci-dessous. Les autres onglets sont totalement masqués et restent également protégés côté serveur. Après l’ajout, il reçoit un e-mail personnel pour créer son mot de passe.
+        </p>
+        <div class="kadosk-champ">
+          <label for="champNomEquipe">Nom</label>
+          <input type="text" id="champNomEquipe" placeholder="Nom complet" />
+        </div>
+        <div class="kadosk-champ">
+          <label for="champEmailEquipe">E-mail</label>
+          <input type="email" id="champEmailEquipe" placeholder="exemple@email.com" />
+        </div>
+        <input type="hidden" id="champRoleEquipe" value="CASHIER" />
+        <div class="kadosk-champ">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+            <input type="checkbox" id="champPeutValiderCommandes" />
+            Peut valider/refuser les commandes en attente
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer; margin-top:8px;">
+            <input type="checkbox" id="champPeutVoirCartes" />
+            Peut voir les cartes cadeaux du magasin
+          </label>
+        </div>
+        <div class="kadosk-ligne-boutons">
+          <button class="kadosk-bouton" id="boutonAjouterEquipe">Ajouter</button>
+        </div>
+        <div class="kadosk-message-erreur" id="messageStatutEquipe"></div>
+      </div>
+
+      <div class="kadosk-panneau-large">
+        <h2>Membres de l'équipe</h2>
+        <table class="kadosk-table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>E-mail</th>
+              <th>Rôle</th>
+              <th>Accès</th>
+              <th>Ajouté le</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableEquipe"></tbody>
+        </table>
+        <div class="kadosk-liste-vide" id="etatVideEquipe" style="display:none;">Aucun membre d'équipe pour le moment.</div>
+      </div>
+    </main>
+  </div>
+
+  <div id="modalConfirmerRetrait" class="kadosk-modal-fond" style="display:none;">
+    <div class="kadosk-modal">
+      <h3>Retirer ce membre ?</h3>
+      <p style="font-size:13px; color:var(--kadosk-texte-clair);">Son accès (badge) à votre espace marchand sera immédiatement révoqué.</p>
+      <div class="kadosk-ligne-boutons" style="justify-content:flex-end; gap:10px;">
+        <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonAnnulerRetrait">Annuler</button>
+        <button class="kadosk-bouton" id="boutonConfirmerRetrait" style="background:#c0392b;">Retirer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/equipe.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

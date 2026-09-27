@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Finances</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <h1>Finances</h1>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-grille-kpi" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone violet" id="iconeCA"></div>
+          <div class="kadosk-kpi-label">Chiffre d'affaires encaissé</div>
+          <div class="kadosk-kpi-valeur"><span id="valCA">—</span><span class="unite">DH</span></div>
+          <div class="kadosk-kpi-detail" id="valTransactions"></div>
+        </div>
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone bleu" id="iconeEncours"></div>
+          <div class="kadosk-kpi-label">Encours cartes actives</div>
+          <div class="kadosk-kpi-valeur"><span id="valEncours">—</span><span class="unite">DH</span></div>
+          <div class="kadosk-kpi-detail" id="valCartesActives"></div>
+        </div>
+        <div class="kadosk-carte-kpi">
+          <div class="kadosk-kpi-icone orange" id="iconeAttente"></div>
+          <div class="kadosk-kpi-label">Solde attendu des clients</div>
+          <div class="kadosk-kpi-valeur"><span id="valAttente">—</span><span class="unite">DH</span></div>
+          <div class="kadosk-kpi-detail" id="valCommandesAttente"></div>
+        </div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="max-width:560px;">
+        <h2>Commissions &amp; versements KADOSK</h2>
+        <div id="blocCommissionConfiguree">
+          <div class="kadosk-finance-ligne"><span class="label">Taux de commission (abonnement)</span><span class="valeur" id="valTauxCommission">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Commission prélevée</span><span class="valeur" id="valCommission">—</span></div>
+          <div class="kadosk-finance-ligne"><span class="label">Net qui vous revient</span><span class="valeur vert" id="valNet">—</span></div>
+        </div>
+        <div class="kadosk-placeholder" id="blocCommissionNonConfiguree" style="display:none;">
+          <strong>Pas encore configuré</strong>
+          Le taux de commission KADOSK n'a pas encore pu être déterminé (aucun abonnement actif détecté). Une fois votre abonnement actif, cette section affichera automatiquement la commission prélevée et le net qui vous revient.
+        </div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="margin-top:16px;">
+        <h2>Suivi de paiement KADOSK</h2>
+        <p style="font-size:12px; color:var(--kadosk-texte-clair); margin:-8px 0 14px;">
+          Commission KADOSK due par mois, calculée sur vos encaissements. Cliquez sur un mois pour voir le détail des cartes cadeaux concernées.
+        </p>
+        <table class="kadosk-table">
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Encaissements</th>
+              <th>Transactions</th>
+              <th>Commission KADOSK</th>
+              <th>Facture</th>
+              <th>Statut paiement</th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableCommissionMensuelle"></tbody>
+        </table>
+        <div class="kadosk-liste-vide" id="etatVideCommission" style="display:none;">Aucun encaissement pour le moment.</div>
+
+        <div id="blocDetailCommissionMois" style="display:none; margin-top:18px; padding-top:16px; border-top:1px solid var(--kadosk-bordure);">
+          <div class="kadosk-panneau-entete">
+            <h2 id="titreDetailCommissionMois" style="margin:0; font-size:14px;">Détail</h2>
+            <span class="kadosk-lien-voir-tout" id="boutonFermerDetailCommission">Fermer</span>
+          </div>
+          <div id="banniereStatutMoisDetail" style="margin-bottom:10px; font-size:12px;"></div>
+          <table class="kadosk-table">
+            <thead>
+              <tr>
+                <th>Carte</th>
+                <th>Date</th>
+                <th>Montant encaissé</th>
+                <th>Commission</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="corpsTableDetailCommission"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="kadosk-panneau-large" id="blocDetailParCommande" style="display:none;" hidden>
+        <h2>Détail par commande (REF CMD)</h2>
+        <p style="font-size:12px; color:var(--kadosk-texte-clair); margin:-8px 0 14px;">
+          Détail ligne par ligne des commandes acceptées : montant TTC encaissé, commission KADOSK prélevée, net qui vous revient et statut du versement KADOSK.
+        </p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+          <label style="font-size:12px; color:var(--kadosk-texte-clair);">Du
+            <input class="kadosk-input" id="champDateDebutFinanceDetail" type="date" style="max-width:160px;" />
+          </label>
+          <label style="font-size:12px; color:var(--kadosk-texte-clair);">Au
+            <input class="kadosk-input" id="champDateFinFinanceDetail" type="date" style="max-width:160px;" />
+          </label>
+          <button class="kadosk-bouton" id="boutonFiltrerFinanceDetail">Filtrer</button>
+          <button class="kadosk-bouton-secondaire" id="boutonReinitialiserFinanceDetail">Réinitialiser</button>
+          <button class="kadosk-bouton-secondaire" id="boutonExporterFinanceDetail">Extraire en Excel</button>
+        </div>
+        <div id="resumeCAPeriode" style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:14px; font-size:13px;"></div>
+        <table class="kadosk-table">
+          <thead>
+            <tr>
+              <th>REF CMD</th>
+              <th>Montant TTC</th>
+              <th>Commission KADOSK</th>
+              <th>Net</th>
+              <th>Statut versement</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableFinanceDetail"></tbody>
+        </table>
+        <div class="kadosk-liste-vide" id="etatVideFinanceDetail" style="display:none;">Aucune commande acceptée pour le moment.</div>
+      </div>
+
+      <div class="kadosk-panneau-large" style="margin-top:16px;">
+        <h2>Ma facture mensuelle KADOSK</h2>
+        <p style="font-size:12px; color:var(--kadosk-texte-clair); margin:-8px 0 14px;">
+          Facture mensuelle KADOSK (régime auto-entrepreneur, exonérée de TVA) : commissions du mois + abonnement. Téléchargez le PDF pour votre comptabilité.
+        </p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+          <select class="kadosk-input" id="champMoisFacture" style="max-width:180px;"></select>
+          <input class="kadosk-input" id="champAnneeFacture" type="number" style="max-width:110px;" />
+          <button class="kadosk-bouton" id="boutonAfficherFacture">Afficher</button>
+        </div>
+        <div id="conteneurFactureMensuelle"><div class="kadosk-liste-vide">Choisissez un mois.</div></div>
+
+        <h3 style="margin-top:22px; font-size:14px;">Factures déjà générées</h3>
+        <table class="kadosk-table">
+          <thead>
+            <tr>
+              <th>N° Facture</th>
+              <th>Mois</th>
+              <th>Commissions</th>
+              <th>Abonnement</th>
+              <th>Total</th>
+              <th>Générée le</th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableFactures"></tbody>
+        </table>
+        <div class="kadosk-liste-vide" id="etatVideFactures" style="display:none;">Aucune facture pour le moment.</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="assets/kadosk-ae-logo.js"></script>
+  <script src="assets/invoice-pdf.js"></script>
+  <script src="assets/finance.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+

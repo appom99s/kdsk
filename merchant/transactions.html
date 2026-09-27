@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Transactions</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+</head>
+<body>
+  <div class="kadosk-app">
+    <aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+
+    <main class="kadosk-main">
+      <div class="kadosk-entete">
+        <h1>Transactions</h1>
+        <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <div class="kadosk-barre-recherche">
+        <input type="text" id="champRecherche" placeholder="Rechercher par code de carte (ex : KDSK-XXXX-XXXX-XXXX-XXXX)" />
+      </div>
+
+      <div class="kadosk-filtres">
+        <span class="kadosk-filtre actif" data-filtre="ALL">Toutes</span>
+        <span class="kadosk-filtre" data-filtre="SUCCESS">Réussies</span>
+        <span class="kadosk-filtre" data-filtre="FAILED">Refusées</span>
+      </div>
+
+      <div class="kadosk-panneau-large">
+        <table class="kadosk-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Carte</th>
+              <th>Action</th>
+              <th>Montant</th>
+              <th>Fait par</th>
+              <th>Résultat</th>
+              <th>Raison</th>
+            </tr>
+          </thead>
+          <tbody id="corpsTableTransactions"></tbody>
+        </table>
+        <div class="kadosk-liste-vide" id="etatVideTransactions" style="display:none;">Aucune transaction trouvée.</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/cache.js"></script>
+  <script src="assets/nav.js"></script>
+  <script src="assets/guard.js"></script>
+  <script src="assets/spa.js"></script>
+  <script src="assets/transactions.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+</body>
+</html>
+
+
