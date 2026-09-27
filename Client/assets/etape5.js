@@ -137,6 +137,26 @@
       });
     });
 
+    const numeroWhatsApp = String(infosPaiement.whatsappNumber || "");
+    if (/^[1-9][0-9]{7,14}$/.test(numeroWhatsApp) && Number.isFinite(infosPaiement.orderAmount)) {
+      const message = "Bonjour, je souhaite confirmer mon achat KADOSK auprès de " +
+        (infosPaiement.businessName || "votre commerce") + ".\nRéférence : " + infosPaiement.orderNumber +
+        "\nMontant : " + formaterMontant(infosPaiement.orderAmount) +
+        "\nMerci de me transmettre votre RIB et le nom du bénéficiaire pour effectuer le virement.";
+      const lien = document.createElement("a");
+      lien.className = "k2-btn k2-btn-secondaire";
+      lien.style.cssText = "display:block;margin-top:12px;text-align:center";
+      lien.href = "https://wa.me/" + numeroWhatsApp + "?text=" + encodeURIComponent(message);
+      lien.target = "_blank";
+      lien.rel = "noopener noreferrer";
+      lien.textContent = "Confirmer mon achat et demander le RIB sur WhatsApp";
+      div.appendChild(lien);
+      const note = document.createElement("p");
+      note.className = "k2-statut-attente";
+      note.textContent = "Vous choisissez d’envoyer le message dans WhatsApp. Le paiement sera confirmé après vérification du marchand.";
+      div.appendChild(note);
+    }
+
     const zoneConfirmation = div.querySelector("[data-zone-confirmation]");
 
     function rendreEtatConfirmation(confirme) {
@@ -144,7 +164,6 @@
         zoneConfirmation.innerHTML = `
           <p class="k2-btn-virement-confirme">${window.KADOSK_ICONE("check-circle")} Virement signalé</p>
           <p class="k2-statut-attente">En attente de validation du marchand</p>
-          <a class="k2-btn k2-btn-secondaire" style="width:100%;margin-top:10px;text-align:center" target="_blank" rel="noopener" href="https://wa.me/212601100292?text=${encodeURIComponent("Bonjour, j’ai effectué le virement pour la commande " + orderNumber + " auprès de " + (infosPaiement.businessName || merchantLine.businessName || "votre établissement") + ", montant " + formaterMontant(merchantLine.subtotal) + ". Merci de confirmer sa réception.")}">Prévenir le marchand sur WhatsApp</a>
         `;
         return;
       }

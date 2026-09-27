@@ -28,7 +28,7 @@
   // gérée entièrement par "Mon compte" (assets/mon-compte.js) - point de connexion
   // unique du site, réutilisé aussi lors de la confirmation de commande (étape 5).
   // Cette page ne fait que LIRE la session déjà établie ailleurs (même clé
-  // mémoire uniquement) : si elle est absente, on invite simplement à
+  // sessionStorage de cet onglet) : si elle est absente, on invite simplement à
   // se connecter depuis Mon compte plutôt que de dupliquer ici tout un formulaire
   // email/code.
   // ---------------------------------------------------------------------------
@@ -342,43 +342,9 @@
     `;
     const boutonFacture = div.querySelector("[data-facture-commande]");
     const etatFacture = div.querySelector("[data-etat-facture]");
-    boutonFacture.addEventListener("click", async () => {
-      boutonFacture.disabled = true;
-      try {
-        const detail = await KADOSK_API.getOrderByNumber(commande.orderNumber, token);
-        let facturesGenerees = 0;
-        for (const marchand of detail.merchants || []) {
-          if (!marchand.invoice || !window.KADOSK_FACTURE_ACHAT_PDF) continue;
-          await window.KADOSK_FACTURE_ACHAT_PDF.telecharger({
-            ...marchand.invoice,
-            orderNumber: detail.orderNumber,
-            buyerEmail: detail.recipientEmail,
-            buyerName: detail.recipientName,
-            cardName: marchand.cardName,
-            quantity: marchand.quantity,
-            subtotal: marchand.subtotal,
-            totalAmount: detail.totalAmount,
-            createdAt: detail.createdAt,
-            paymentStatus: detail.paymentStatus,
-            items: (marchand.cards || []).map((carte) => ({ amount: marchand.amount, status: carte.redeemed ? "Utilisée" : "Active" }))
-          });
-          facturesGenerees++;
-        }
-        if (!facturesGenerees) throw new Error("INVOICE_NOT_AVAILABLE");
-        etatFacture.textContent = facturesGenerees > 1 ? facturesGenerees + " factures téléchargées." : "Facture téléchargée.";
-      } catch (erreur) {
-        console.error("Facture client indisponible :", erreur);
-        if (erreur && (erreur.message === "SESSION_REVOQUEE" || erreur.message === "JETON_EXPIRE" || erreur.message === "JETON_INVALIDE")) {
-          effacerSessionAcheteur();
-          afficherNonConnecte();
-          messageErreur.textContent = "Votre session a été renouvelée ou a expiré. Reconnectez-vous depuis Mon compte, puis relancez le téléchargement.";
-          messageErreur.style.display = "block";
-        } else {
-          etatFacture.textContent = erreur && erreur.message === "INVOICE_NOT_AVAILABLE" ? "La facture de cette commande n’est pas encore disponible." : "Téléchargement impossible. Réessayez.";
-        }
-      } finally {
-        boutonFacture.disabled = false;
-      }
+    boutonFacture.textContent = 'Consulter la facture';
+    boutonFacture.addEventListener('click', () => {
+      window.location.assign('invoice.html?commande=' + encodeURIComponent(commande.orderNumber));
     });
     return div;
   }

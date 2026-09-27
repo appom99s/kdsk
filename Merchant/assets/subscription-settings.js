@@ -22,9 +22,13 @@
       const card = document.createElement('article');
       card.className = 'kadosk-plan';
       const titre = document.createElement('h3');
-      titre.textContent = tier.label + ' — ' + tier.cashiers + ' caissiers';
+      titre.textContent = tier.label;
       const prix = document.createElement('p');
-      prix.textContent = tier.price + ' MAD / mois · ' + (tier.commission > 0 ? tier.commission + ' % de commission' : '0 % de commission') + ' · cartes illimitées';
+      prix.className = 'plan-price';
+      prix.textContent = tier.price + ' MAD / mois';
+      const avantages = document.createElement('p');
+      avantages.className = 'plan-benefits';
+      avantages.textContent = tier.cashiers + ' caissier' + (tier.cashiers > 1 ? 's' : '') + '\nCartes cadeaux illimitées\n0 % de commission';
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'kadosk-bouton';
       button.textContent = tier.planId === activePlanId ? 'Formule active' : 'Choisir cette formule';
@@ -44,7 +48,7 @@
           button.disabled = false;
         }
       });
-      card.append(titre, prix, button); container.appendChild(card);
+      card.append(titre, prix, avantages, button); container.appendChild(card);
     });
   }
 
@@ -77,7 +81,7 @@
     }
     meta.hidden = false;
 
-    statut.textContent = q.quotaReached
+    statut.textContent = q.source === 'TRIAL_EXPIRED' ? 'Votre essai de 30 jours est terminé. Choisissez une formule pour continuer.' : q.quotaReached
       ? 'Quota de cartes atteint pour cette période. Changez de formule pour continuer à émettre des cartes.'
       : q.warningThresholdReached
         ? 'Vous approchez de votre quota de cartes pour cette période.'
@@ -96,7 +100,7 @@
       cartesProgress.hidden = false;
     } else {
       cartesLabel.textContent = 'Cartes cadeaux émises';
-      cartesTexte.textContent = q.used + ' cartes émises · quota illimité';
+      cartesTexte.textContent = 'Cartes cadeaux illimitées';
       cartesProgress.hidden = true;
     }
     blocCartes.hidden = false;

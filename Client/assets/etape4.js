@@ -225,7 +225,8 @@
         pourMoiMeme,
         buyerName,
         buyerPhone,
-        inputConservationDonnees.checked
+        inputConservationDonnees.checked,
+        inputConsentement.checked
       );
       resultat.recipientEmail = recipientEmail;
       resultat.recipientName = recipientName;

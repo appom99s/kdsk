@@ -48,7 +48,7 @@
       create.disabled = !!batch && batch.cards.length === batch.ids.length;
     }
   });
-  download.addEventListener('click', () => {
+  download.addEventListener('click', async () => {
     if (!batch || !batch.cards.length) return;
     const cards = batch.cards.map(card => {
       const node = document.createElement('div');
@@ -56,9 +56,21 @@
       const canvas = node.querySelector('canvas');
       if (!canvas) throw new Error('QR_RENDER_FAILED');
       const qr = canvas.toDataURL('image/png');
-      return '<article><h1>' + escape(card.merchantName) + '</h1><h2>Carte cadeau · ' + escape(card.amount) + ' DH</h2><img alt="QR de la carte" src="' + qr + '"><p>' + escape(card.code) + '</p><p>Référence : ' + escape(card.orderNumber) + '</p><p>' + (card.expirationDate ? 'Valable jusqu’au ' + escape(new Date(card.expirationDate).toLocaleDateString('fr-FR')) : 'Sans date d’expiration') + '</p></article>';
-    }).join('');
-    const html = '<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Cartes cadeaux à imprimer</title><style>body{font-family:Arial;background:#f7faf9;color:#1f3a34}article{padding:24px;margin:20px auto;border:2px solid #1f3a34;max-width:600px;text-align:center;break-inside:avoid}img{width:220px;height:220px}@media print{body{background:white}article{break-after:page}}</style><body>' + cards + '</body></html>';
+      return { ...card, qr };
+    });
+    download.disabled = true;
+    let logo;
+    try {
+      const response = await fetch('assets/logo.png');
+      if (!response.ok) throw Error('LOGO_UNAVAILABLE');
+      const blob = await response.blob();
+      logo = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); });
+    } catch (_) {
+      status.textContent = 'Le logo ne peut pas être chargé. Réessayez le téléchargement.';
+      download.disabled = false; return;
+    }
+    const html = KADOSK_PRINT.document(cards, logo);
+    download.disabled = false;
     const url = URL.createObjectURL(new Blob([html], {type:'text/html;charset=utf-8'}));
     const link = document.createElement('a');
     link.href = url; link.download = 'kadosk-cartes-imprimables.html'; link.click();

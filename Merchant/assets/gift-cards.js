@@ -191,7 +191,9 @@
     }
   }
 
-  async function creerCarte(deliveryMode) {
+  const creationWhatsApp = document.getElementById('creationEnvoyerWhatsApp');
+  const partageWhatsApp = document.getElementById('creationPartagerWhatsApp');
+  async function creerCarte(deliveryMode, partager = false) {
     const amount = Number(creationMontant.value);
     const recipientEmail = creationEmail.value.trim();
     const recipientName = creationNom.value.trim();
@@ -199,7 +201,8 @@
       creationStatut.textContent = "Nom, e-mail et montant valide sont obligatoires.";
       return;
     }
-    creationEnvoyerEmail.disabled = true;
+    creationEnvoyerEmail.disabled = creationWhatsApp.disabled = true;
+    partageWhatsApp.hidden = true;
     creationStatut.style.color = "";
     creationStatut.textContent = "Création en cours…";
     try {
@@ -216,7 +219,13 @@
       creationEmail.value = "";
       creationMontant.value = "";
       creationMessage.value = "";
-      if (modalEmission) modalEmission.style.display = "none";
+      if (partager) {
+        const url = new URL('../Client/mes-commandes.html', location.href);
+        const message = 'Bonjour ' + recipientName + ', votre carte cadeau est prête. Retrouvez-la ici : ' + url.href + ' — Connectez-vous avec l’adresse e-mail communiquée au commerce.';
+        partageWhatsApp.href = 'https://wa.me/?text=' + encodeURIComponent(message);
+        partageWhatsApp.hidden = false;
+        creationStatut.textContent = 'Carte créée. Cliquez sur « Envoyer la carte sur WhatsApp » et choisissez le destinataire.' + (activated.emailSent === false ? ' L’e-mail n’a pas pu être envoyé.' : ' Un e-mail a également été envoyé.');
+      } else if (modalEmission) modalEmission.style.display = "none";
       await chargerCartes();
     } catch (erreur) {
       console.error("Erreur création carte marchand :", erreur);
@@ -232,10 +241,11 @@
       };
       creationStatut.textContent = messages[erreur.message] || "Création impossible : " + (erreur.message || "erreur inconnue");
     } finally {
-      creationEnvoyerEmail.disabled = false;
+      creationEnvoyerEmail.disabled = creationWhatsApp.disabled = false;
     }
   }
 
+  creationWhatsApp.addEventListener('click', () => creerCarte('EMAIL', true));
   creationEnvoyerEmail.addEventListener("click", () => creerCarte("EMAIL"));
   creationNom.addEventListener("change", () => completerClient(creationNom));
   creationEmail.addEventListener("change", () => completerClient(creationEmail));

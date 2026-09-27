@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KADOSK — Tester gratuitement</title><meta name="description" content="Créez votre compte marchand KADOSK et émettez vos 10 premières cartes cadeaux gratuitement, sans carte bancaire."><meta name="robots" content="noindex"><meta name="theme-color" content="#F7FAF9"><link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/landing.css">
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KADOSK — Tester gratuitement</title><meta name="description" content="Créez votre compte marchand KADOSK et émettez vos cartes cadeaux pendant 30 jours gratuitement, sans carte bancaire."><meta name="robots" content="noindex"><meta name="theme-color" content="#F7FAF9"><link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/landing.css">
 <style>
   .signup-wrap{min-height:calc(100vh - 84px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
   .signup-card{max-width:480px;width:100%;background:#fff;border:1px solid var(--line);border-radius:28px;padding:40px}
@@ -27,9 +27,9 @@
 <main class="signup-wrap">
   <div class="signup-card">
     <div class="signup-form" id="signupForm">
-      <span class="badge">10 cartes offertes · Sans carte bancaire</span>
+      <span class="badge">30 jours d’essai · Sans carte bancaire</span>
       <h1>Devenir partenaire KADOSK</h1>
-      <p>Laissez-nous vos coordonnées : notre équipe étudiera votre demande. L’essai de 10 cartes est accessible après validation du dossier.</p>
+      <p>Laissez-nous vos coordonnées : notre équipe étudiera votre demande. L’essai de 30 jours est accessible après validation du dossier.</p>
       <form id="trialForm" novalidate>
         <div class="field"><label for="businessName">Nom de votre commerce</label><input id="businessName" name="businessName" type="text" required maxlength="120" autocomplete="organization"></div>
         <div class="field"><label for="category">Catégorie</label><select id="category" name="category">
@@ -44,7 +44,7 @@
         <div class="field"><label for="phone">Téléphone professionnel / WhatsApp</label><input id="phone" name="phone" type="tel" required maxlength="40" autocomplete="tel"></div>
         <div class="field"><label for="representativeName">Nom et prénom du responsable</label><input id="representativeName" required maxlength="100" autocomplete="name"></div>
         <div class="field"><label for="city">Ville</label><input id="city" required maxlength="100" autocomplete="address-level2"></div>
-        <div class="field"><label for="planId">Formule souhaitée</label><select id="planId"><option value="">Gratuit — 10 cartes offertes</option></select></div>
+        <div class="field"><label for="planId">Formule souhaitée</label><input type="hidden" id="planId" value=""><p>Vous choisirez votre formule dans Mon entreprise après validation du dossier.</p></div>
         <p class="signup-note">La demande ne déclenche aucun paiement. Après approbation, vous recevrez un e-mail pour créer votre accès et compléter votre dossier.</p>
         <p><label><input type="checkbox" id="acceptedTerms" required> J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</a>.</label></p>
         <p><label><input type="checkbox" id="privacyConsent" required> J’ai lu la <a href="../confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a> et j’accepte le traitement de ma demande.</label></p>

@@ -117,7 +117,7 @@ p{color:var(--muted)}
 .trial-stat span{font-size:12px;color:var(--muted)}
 
 /* Grille tarifaire (Gratuit / Normal / Silver / Gold) */
-.plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1080px;margin:auto}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:1080px;margin:auto}
 .plan-card{display:flex;flex-direction:column;gap:14px;background:white;border:1px solid var(--line);border-radius:22px;padding:28px 24px;text-align:center}
 .plan-card-highlight{border:2px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.08)}
 .plan-card h3{font-size:18px;margin:0}

@@ -3,7 +3,7 @@
     businessName: "Nom commercial", legalName: "Raison sociale", legalForm: "Forme juridique", ice: "ICE", rc: "Registre du commerce", ifNumber: "Identifiant fiscal",
     representativeName: "Nom du représentant", representativePhone: "Téléphone", representativeEmail: "E-mail",
     activityCategory: "Domaine d’activité", productsServices: "Produits / services", address: "Adresse", city: "Ville", region: "Région",
-    bankName: "Banque", ribHolderName: "Titulaire du RIB", rib: "RIB", selectedPlanId: "Identifiant de l’abonnement",
+    bankName: "Banque", ribHolderName: "Titulaire du RIB", rib: "RIB", selectedPlanId: "Formule KADOSK",
     documentRcUrl: "Lien document RC", documentIdentityUrl: "Lien pièce d’identité", documentRibUrl: "Lien attestation RIB"
   };
 
@@ -19,6 +19,12 @@
       form.innerHTML = Object.entries(CHAMPS_DOSSIER_FINAL).map(([key, label]) =>
         '<div class="kadosk-champ"><label for="dossier-' + key + '">' + label + '</label><input id="dossier-' + key + '" data-dossier-key="' + key + '"></div>'
       ).join("");
+      const planInput = form.querySelector('[data-dossier-key="selectedPlanId"]');
+      const planSelect = document.createElement('select');
+      planSelect.id = planInput.id; planSelect.dataset.dossierKey = 'selectedPlanId';
+      planSelect.appendChild(new Option('Choisir une formule', ''));
+      (window.KADOSK_PRICING_CONFIG.planTiers || []).filter(p => p.planId).forEach(p => planSelect.appendChild(new Option(p.label + ' · ' + p.cashiers + ' caissiers', p.planId)));
+      planInput.replaceWith(planSelect);
       Object.keys(CHAMPS_DOSSIER_FINAL).forEach((key) => {
         const el = form.querySelector('[data-dossier-key="' + key + '"]');
         el.value = profil[key] || "";
@@ -27,7 +33,7 @@
       document.getElementById("dossierTerms").checked = !!profil.acceptedPartnershipTerms;
       document.getElementById("dossierFinalResume").textContent = (etat.completed || 0) + "/" + (etat.total || 0) + " éléments complétés.";
       if (etat.onboardingStatus === "FinalSubmitted") {
-        section.querySelectorAll("input,button").forEach((el) => { el.disabled = true; });
+        section.querySelectorAll("input,select,button").forEach((el) => { el.disabled = true; });
         message.style.color = "#14805e";
         message.textContent = "Dossier envoyé, en attente de la deuxième approbation KADOSK.";
       }
@@ -49,7 +55,7 @@
       await KADOSK_API.saveMerchantProfile(payload, true);
       message.style.color = "#14805e";
       message.textContent = "Dossier envoyé pour la deuxième approbation.";
-      document.getElementById("dossierFinalSection").querySelectorAll("input,button").forEach((el) => { el.disabled = true; });
+      document.getElementById("dossierFinalSection").querySelectorAll("input,select,button").forEach((el) => { el.disabled = true; });
     } catch (erreur) {
       message.textContent = "Dossier incomplet ou invalide : " + (erreur.message || "erreur inconnue");
       boutonDossier.disabled = false;

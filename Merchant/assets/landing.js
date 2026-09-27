@@ -34,7 +34,7 @@
   if (config && planGrid) {
     function planCard(tier) {
       const card = document.createElement('article');
-      card.className = 'plan-card' + (tier.key === 'GOLD' ? ' plan-card-highlight' : '');
+      card.className = 'plan-card' + (tier.key === 'BUSINESS' ? ' plan-card-highlight' : '');
       const title = document.createElement('h3');
       title.textContent = tier.label;
       const price = document.createElement('div');
@@ -45,7 +45,7 @@
       const cashierItem = document.createElement('li');
       cashierItem.textContent = tier.cashiers + ' caissier' + (tier.cashiers > 1 ? 's' : '');
       const cardsItem = document.createElement('li');
-      cardsItem.textContent = tier.free ? config.trial.maxCards + ' cartes offertes (' + config.trial.maxDays + ' jours)' : 'Cartes cadeaux illimitées';
+      cardsItem.textContent = tier.free ? 'Cartes illimitées pendant ' + config.trial.maxDays + ' jours' : 'Cartes cadeaux illimitées';
       const commissionItem = document.createElement('li');
       commissionItem.textContent = tier.free ? 'Sans engagement' : (tier.commission > 0 ? tier.commission + ' % de commission' : '0 % de commission');
       meta.append(cashierItem, cardsItem, commissionItem);
@@ -56,7 +56,7 @@
         meta.after(promo);
       }
       const cta = document.createElement('a');
-      cta.className = 'btn' + (tier.key === 'GOLD' ? ' gradient' : '');
+      cta.className = 'btn' + (tier.key === 'BUSINESS' ? ' gradient' : '');
       cta.href = signupHref + (tier.planId ? '?plan=' + encodeURIComponent(tier.planId) : '');
       cta.textContent = tier.free ? 'Tester gratuitement →' : 'Choisir ' + tier.label + ' →';
       card.append(title, price, meta, cta);

@@ -40,17 +40,12 @@
         <div class="kadosk-panneau-large">
           <h2>Activité</h2>
           <div class="kadosk-finance-ligne"><span class="label">Catégorie</span><span class="valeur" id="pCategory">—</span></div>
-          <div class="kadosk-finance-ligne"><span class="label">Sous-catégorie</span><span class="valeur" id="pSubCategory">—</span></div>
-          <div class="kadosk-finance-ligne"><span class="label">Description</span><span class="valeur" id="pDescription" style="text-align:right; max-width:60%;">—</span></div>
-          <div class="kadosk-finance-ligne"><span class="label">Produits / services</span><span class="valeur" id="pProducts" style="text-align:right; max-width:60%;">—</span></div>
         </div>
 
         <div class="kadosk-panneau-large">
-          <h2>Adresse &amp; présence en ligne</h2>
+          <h2>Adresse professionnelle</h2>
           <div class="kadosk-finance-ligne"><span class="label">Adresse</span><span class="valeur" id="pAddress" style="text-align:right; max-width:60%;">—</span></div>
           <div class="kadosk-finance-ligne"><span class="label">Ville</span><span class="valeur" id="pCity">—</span></div>
-          <div class="kadosk-finance-ligne"><span class="label">Localisation</span><a class="valeur" id="pMapsLink" href="#" target="_blank" rel="noopener">Ouvrir Google Maps</a></div>
-          <div class="kadosk-finance-ligne"><span class="label">Site web</span><span class="valeur" id="pWebsite">—</span></div>
         </div>
       </div>
 
@@ -80,7 +75,7 @@
 
       <div class="kadosk-placeholder" style="margin-bottom:20px;">
         <strong>Informations figées</strong>
-        Ces informations ont été saisies lors de votre inscription et ne sont pas modifiables ici. Pour toute correction, contactez le support KADOSK. Votre mot de passe, vos préférences réseau et votre sécurité peuvent être modifiés ci-dessous.
+        Ces informations ont été saisies lors de votre inscription et ne sont pas modifiables ici. Pour toute correction, contactez le support KADOSK. Votre mot de passe et votre abonnement peuvent être gérés ci-dessous.
       </div>
 
       <section class="kadosk-panneau-large" id="dossierFinalSection" style="display:none;margin-bottom:20px;">
@@ -218,6 +213,27 @@
 
         <div class="kadosk-message-erreur" id="messageStatutMdp"></div>
       </div>
+      <section class="kadosk-panneau-large" id="blocAbonnement" style="margin-bottom:20px;">
+        <div class="kadosk-panneau-entete"><div><h2>Abonnement</h2><p class="kadosk-sous-titre">Votre formule, votre consommation du mois et la gestion de votre abonnement.</p></div><a class="kadosk-bouton kadosk-bouton-secondaire" id="abonnementGererLien" href="#" target="_blank" rel="noopener" hidden>Gérer ma formule</a></div>
+        <p id="abonnementStatut" role="status">Chargement de votre abonnement…</p>
+        <div class="kadosk-resume-offre-meta" id="abonnementMeta" hidden>
+          <div><span>Formule</span><strong id="abonnementFormule">—</strong></div>
+          <div><span>Prix</span><strong id="abonnementPrix">—</strong></div>
+          <div><span>Renouvellement</span><strong id="abonnementRenouvellement">—</strong></div>
+        </div>
+        <div id="abonnementAlertePaiement" class="kadosk-message-erreur" style="margin-top:14px;" hidden>Le dernier prélèvement de votre abonnement a échoué. Régularisez votre moyen de paiement pour continuer à profiter de votre formule.</div>
+        <div class="kadosk-champ" id="blocAbonnementCartes" style="margin-top:18px;" hidden>
+          <label id="abonnementCartesLabel">Cartes cadeaux émises</label>
+          <p id="abonnementCartesTexte" style="margin:4px 0 8px;font-size:13px;color:var(--kadosk-texte-clair);">—</p>
+          <progress id="abonnementCartesProgress" hidden style="width:100%;accent-color:#1f3a34"></progress>
+        </div>
+        <div class="kadosk-champ" id="blocAbonnementCaissiers" style="margin-top:12px;" hidden>
+          <label>Caissiers actifs</label>
+          <p id="abonnementCaissiersTexte" style="margin:4px 0 0;font-size:13px;color:var(--kadosk-texte-clair);">—</p>
+        </div>
+      </section>
+
+      <section class="kadosk-panneau-large" id="abonnement"><h2>Choisir une formule KADOSK</h2><p>Cartes cadeaux illimitées sur toute formule payante. Seul le plafond de caissiers dépend de la formule. La commission KADOSK est actuellement de 0 % pour toutes les formules. La nouvelle formule est activée après confirmation du paiement par Wix ; un nouvel achat ne résilie pas automatiquement l'abonnement existant.</p><div id="catalogueAbonnements" class="kadosk-plan-grid"></div><p id="checkoutAbonnementStatut" role="status"></p></section>
     </main>
   </div>
 
@@ -230,7 +246,9 @@
   <script src="assets/guard.js"></script>
   <script src="assets/spa.js"></script>
   <script src="assets/webauthn.js"></script>
-  <script src="assets/business.js"></script>
+  <script src="assets/pricing-config.js"></script>
+<script src="assets/business.js"></script>
+<script src="assets/subscription-settings.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>

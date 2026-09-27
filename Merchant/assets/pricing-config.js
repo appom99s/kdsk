@@ -1,8 +1,7 @@
 // KADOSK — configuration tarifaire (affichage public)
 //
 // Modèle (2026-09-27) : cartes cadeaux illimitées sur tout abonnement payant,
-// différenciation uniquement par le nombre de caissiers et la commission
-// KADOSK. Les prix, cycles et promotions viennent EN DIRECT de Wix Pricing
+// différenciation uniquement par le nombre de caissiers. Commission : 0 %. Les prix, cycles et promotions viennent EN DIRECT de Wix Pricing
 // Plans via la route publique /_functions/publicPlans (voir getPublicPlans
 // dans backend/giftCardSecurity.web.js), qui ne renvoie que les paliers
 // vendables et déclarés côté KADOSK (caissiers/commission). Le tableau
@@ -12,17 +11,20 @@
 (function (global) {
   'use strict';
 
-  var GRATUIT = { key: 'GRATUIT', label: 'Gratuit', price: 0, free: true, cashiers: 1, commission: null };
+  var GRATUIT = { key: 'GRATUIT', label: 'Gratuit', price: 0, free: true, cashiers: 1, commission: 0 };
 
   var PLAN_TIERS = [
     GRATUIT,
-    { key: 'NORMAL', label: 'Normal', price: 99, cashiers: 2, commission: 9, planId: '5cd676ec-3081-4ae8-8042-c0f42cdc5bac' },
-    { key: 'SILVER', label: 'Silver', price: 249, cashiers: 5, commission: 5, planId: '7e885de1-fa5a-4aeb-890b-52d34e606632' },
-    { key: 'GOLD', label: 'Gold', price: 449, cashiers: 10, commission: 0, planId: '33e79ea4-64ea-47c9-8aa4-1004f07641cb' }
+    { key: 'STARTER', label: 'Starter', price: 299, cashiers: 1, commission: 0, planId: '04c91516-7a6c-46ef-b047-5cfcd8560e4c' },
+    { key: 'ESSENTIEL', label: 'Essentiel', price: 599, cashiers: 3, commission: 0, planId: 'eb963ebe-0868-4bbe-be67-7a60a00b4e0b' },
+    { key: 'BUSINESS', label: 'Business', price: 999, cashiers: 6, commission: 0, planId: '0ad4eb1b-b6ee-4c5a-bb9e-24a1751bb057' },
+    { key: 'PREMIUM', label: 'Premium', price: 1549, cashiers: 10, commission: 0, planId: '4835a00f-340c-42e1-8417-6d00293749e3' },
+    { key: 'ENTERPRISE', label: 'Enterprise', price: 2299, cashiers: 15, commission: 0, planId: '161469e8-6d86-44d9-bc20-06e70b1bbf9d' },
+    { key: 'RESEAU', label: 'Réseau', price: 3899, cashiers: 25, commission: 0, planId: '834e74fd-1346-4ff7-9fc5-df5af470faeb' }
   ];
 
   var TRIAL = {
-    maxCards: 10,
+    maxCards: null,
     maxDays: 30,
     maxCashiers: 1,
     requiresCard: false

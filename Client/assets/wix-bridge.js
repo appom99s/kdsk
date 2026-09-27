@@ -83,7 +83,7 @@
   window.addEventListener("message", (evenement) => {
     // Rejette tout message qui ne vient pas EXACTEMENT du site Wix attendu - c'est
     // la seule vraie protection ici, ne jamais l'assouplir.
-    if (!ORIGINES_WIX_AUTORISEES.has(evenement.origin)) return;
+    if (evenement.source !== window.parent || !ORIGINES_WIX_AUTORISEES.has(evenement.origin)) return;
     const donnees = evenement.data;
     if (!donnees || donnees.type !== "KADOSK_BUYER_TOKEN" || !donnees.token || !donnees.email) return;
 
@@ -95,9 +95,7 @@
     // échouer quelques secondes plus tard avec SESSION_REVOQUEE.
     const existant = window.KADOSK_BUYER_SESSION.lire();
     if (existant && existant.token === donnees.token) return;
-    if (enregistrerSessionAcheteur(donnees.token, donnees.email, donnees.expiresInDays)) {
-      document.dispatchEvent(new CustomEvent("kadosk:buyer-logged-in", { detail: { email: donnees.email } }));
-    }
+    enregistrerSessionAcheteur(donnees.token, donnees.email, donnees.expiresInDays);
   });
 
   // Signale au parent que cette page est prête à recevoir le jeton, en transmettant

@@ -1,7 +1,7 @@
 // "Mon compte" est désormais l'UNIQUE point de connexion/déconnexion du site :
 // un acheteur se connecte ici (code à 6 chiffres envoyé par e-mail) OU lors de la
 // confirmation d'une commande (étape 5) - les deux écritures utilisent la même
-// session éphémère partagée en mémoire, régénérée par Wix à chaque page,
+// session partagée dans cet onglet, vérifiée par le serveur,
 // mes-commandes.js/etape5.js/favoris-data.js), donc une connexion faite d'un
 // côté est immédiatement visible de l'autre, sans redemander de code. Une fois
 // connecté, "Mes commandes" (mes-commandes.js) n'affiche plus sa propre étape

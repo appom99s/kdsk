@@ -345,26 +345,49 @@ const KADOSK_AUTH = (function () {
   };
 })();
 
-// Session acheteur strictement éphémère : le jeton n'existe qu'en mémoire dans
-// l'onglet courant. À chaque nouveau document, wix-bridge.js en demande un neuf au
-// parent Wix authentifié. Aucun jeton client n'est écrit dans Web Storage.
+// Tab-scoped checkout session. Navigation must not erase email verification.
+// This is a bearer credential already used by the API, not an authorization
+// decision: every protected backend operation still validates it. Never put it
+// in URLs, localStorage or messages to other windows.
 const KADOSK_BUYER_SESSION = (function () {
+  const CLE_SESSION = "kadosk_buyer_tab_session_v1";
+  const CLE_APPAREIL = "kadosk_buyer_tab_device_v1";
   let session = null;
-  const deviceId = (window.crypto && typeof window.crypto.randomUUID === "function")
+  function lireStockage(cle) {
+    try { return sessionStorage.getItem(cle); } catch (_) { return null; }
+  }
+  function ecrireStockage(cle, valeur) {
+    try { sessionStorage.setItem(cle, valeur); } catch (_) { /* Memory fallback. */ }
+  }
+  const deviceId = lireStockage(CLE_APPAREIL) || ((window.crypto && typeof window.crypto.randomUUID === "function")
     ? window.crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
-
-  function definir(token, email, expiresInDays) {
-    if (!token || !email) return null;
-    session = { token, email, expiresAt: Date.now() + (Number(expiresInDays) || 1) * 86400000 };
-    document.dispatchEvent(new CustomEvent("kadosk:buyer-logged-in", { detail: { email } }));
-    return session;
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`);
+  ecrireStockage(CLE_APPAREIL, deviceId);
+  function effacer() {
+    session = null;
+    try { sessionStorage.removeItem(CLE_SESSION); } catch (_) {}
   }
   function lire() {
-    if (!session || Date.now() >= session.expiresAt) { session = null; return null; }
+    if (!session) {
+      try { session = JSON.parse(lireStockage(CLE_SESSION) || "null"); } catch (_) { effacer(); }
+    }
+    if (!session || typeof session.token !== "string" || !session.token ||
+        typeof session.email !== "string" || !session.email ||
+        !Number.isFinite(session.expiresAt) || Date.now() >= session.expiresAt) {
+      effacer();
+      return null;
+    }
     return session;
   }
-  function effacer() { session = null; }
+  function definir(token, email, expiresInDays) {
+    if (typeof token !== "string" || !token || typeof email !== "string" || !email.trim()) return null;
+    const jours = expiresInDays == null ? 1 : Number(expiresInDays);
+    if (!Number.isFinite(jours) || jours <= 0) { effacer(); return null; }
+    session = { token, email: email.trim().toLowerCase(), expiresAt: Date.now() + jours * 86400000 };
+    ecrireStockage(CLE_SESSION, JSON.stringify(session));
+    document.dispatchEvent(new CustomEvent("kadosk:buyer-logged-in", { detail: { email: session.email } }));
+    return session;
+  }
   function attendre(delaiMs) {
     const actuelle = lire();
     if (actuelle) return Promise.resolve(actuelle);

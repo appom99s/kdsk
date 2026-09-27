@@ -36,6 +36,8 @@
         <div class="kadosk-champ"><label for="creationMessage">Message</label><textarea id="creationMessage" maxlength="250" rows="2"></textarea></div>
         <div class="kadosk-ligne-boutons">
           <button class="kadosk-bouton" id="creationEnvoyerEmail">Créer et envoyer par e-mail</button>
+            <button class="kadosk-bouton kadosk-bouton-secondaire" id="creationEnvoyerWhatsApp">Créer et partager sur WhatsApp</button>
+            <a id="creationPartagerWhatsApp" class="kadosk-bouton" target="_blank" rel="noopener noreferrer" hidden>Envoyer la carte sur WhatsApp</a>
         </div>
         <div id="creationStatut" class="kadosk-message-erreur" aria-live="polite"></div>
       </div>
@@ -98,7 +100,8 @@
   <script src="assets/spa.js"></script>
   <script src="assets/carte-visuelle.js"></script>
   <script src="assets/gift-cards.js"></script>
-  <script src="assets/bulk-print.js"></script>
+  <script src="assets/gift-card-print.js"></script>
+<script src="assets/bulk-print.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>
