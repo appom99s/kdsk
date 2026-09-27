@@ -44,6 +44,13 @@
     "SESSION_EXPIREE"
   ];
 
+  // Un seul appel réseau ici (getMerchantChromeInfo) : il fournit déjà nom/logo/
+  // palier/abonnement, affichés par rendreInfosMarchand pour TOUTES les pages (voir
+  // nav.js). Un second appel, bien plus coûteux (getMerchantDashboardStats -
+  // décrypte jusqu'à 200 soldes de cartes, agrège 2 périodes), était auparavant
+  // déclenché ici sur CHAQUE page rien que pour réafficher ces mêmes champs -
+  // retiré (voir etat.txt) : source de lenteur signalée par l'utilisateur. Seul
+  // dashboard.html a réellement besoin de ces statistiques (dashboardInitial).
   KADOSK_NAV.chargerChromeInfo()
     .then(({ role, permissions }) => {
       if (role === "CASHIER") {
@@ -54,10 +61,6 @@
           window.location.href = PAGE_CASHIER;
           return;
         }
-      } else {
-        // Données financières (chiffre d'affaires, cartes actives...) :
-        // uniquement pour le propriétaire, jamais pour un caissier.
-        KADOSK_NAV.chargerStatsPartagees();
       }
     })
     .catch((erreur) => {
