@@ -288,35 +288,22 @@
     });
   }
 
-  // Applique les stats (badges "commandes en attente" + infos marchand nom/logo/
-  // palier) partout où elles sont utilisées sur la page - sidebar ET entête - en
-  // un seul passage sur le document entier plutôt que deux passages scopés à
-  // chaque conteneur séparément.
-  function appliquerStatsPartagees(stats) {
-    document.querySelectorAll("[data-badge]").forEach((badgeEl) => {
-      const cle = badgeEl.getAttribute("data-badge");
-      const valeur = stats[cle];
-      if (valeur) {
-        badgeEl.textContent = valeur;
-        badgeEl.style.display = badgeEl.classList.contains("kadosk-cloche-badge") ? "flex" : "inline-block";
-      } else {
-        badgeEl.style.display = "none";
-      }
-    });
-    rendreInfosMarchand(stats);
-  }
-
-  let chargementStatsDemarre = false;
   let promesseChromeInfo = null;
   let roleCourant = null;
   let permissionsCourantes = null;
 
   // Habillage de page (nom/logo/palier marchand) + rôle/permissions de
   // l'appelant, via getMerchantChromeInfo (accessible à OWNER ET CASHIER,
-  // contrairement à getDashboardStats qui est verrouillé propriétaire - voir
-  // giftCardSecurity.web.js). Doit être appelé et RÉSOLU avant
-  // chargerStatsPartagees (données financières, propriétaire uniquement) et
-  // avant toute décision de filtrage de nav/redirection (voir guard.js).
+  // contrairement à getMerchantDashboardStats qui est verrouillé propriétaire
+  // et réservé aux KPI du dashboard - voir giftCardSecurity.web.js). Cet appel
+  // suffit à lui seul pour l'identité marchand affichée dans la sidebar/entête
+  // sur TOUTES les pages (nom/logo/palier/abonnement) : un appel séparé et
+  // bien plus coûteux (getMerchantDashboardStats - décrypte jusqu'à 200 soldes
+  // de cartes, agrège 2 périodes) était auparavant déclenché depuis guard.js
+  // sur CHAQUE page rien que pour réafficher ces mêmes champs, déjà présents
+  // ici - source de lenteur signalée par l'utilisateur, retiré (voir
+  // etat.txt). Seul dashboard.html a réellement besoin de ces statistiques,
+  // via dashboardInitial (voir dashboard.js).
   // Renvoie une Promise de {role, permissions} - PARTAGÉE entre tous les
   // appelants (guard.js, et les pages comme orders.js qui ont aussi besoin
   // des permissions pour filtrer leurs propres onglets) : sans ce partage,
@@ -357,9 +344,9 @@
         const autorise = roleCourant !== "CASHIER" || !!acces.validateOrders;
         cloche.style.display = autorise ? "" : "none";
         // Le compteur de commandes en attente (badge cloche + badge sidebar,
-        // voir actualiserCommandesEnAttente) est indépendant de
-        // chargerStatsPartagees (verrouillée propriétaire, jamais appelée pour
-        // un caissier) : sans cet appel ici, un caissier autorisé à valider les
+        // voir actualiserCommandesEnAttente) est indépendant des statistiques
+        // du dashboard (verrouillées propriétaire, jamais appelées pour un
+        // caissier) : sans cet appel ici, un caissier autorisé à valider les
         // commandes ne voyait JAMAIS de badge, même avec des commandes en
         // attente - un des symptômes de "l'icône notification ne marche pas".
         if (autorise) actualiserCommandesEnAttente();
@@ -390,35 +377,10 @@
     return promesseChromeInfo;
   }
 
-  // À appeler UNE SEULE FOIS par page, après que rendreBarreLaterale ET
-  // rendreEnteteDroite ont toutes les deux construit leur DOM (voir guard.js) -
-  // remplace les deux appels réseau indépendants et redondants qu'il y avait
-  // avant (un par fonction, pour exactement la même donnée) par un seul, mis en
-  // cache via KADOSK_CACHE : la sidebar et l'entête s'affichent instantanément
-  // avec la dernière valeur connue en changeant de page marchand, pendant qu'une
-  // requête en arrière-plan vérifie s'il y a du nouveau (commandes en attente,
-  // palier d'abonnement changé, etc.).
-  // Données financières (chiffre d'affaires, cartes actives...) réservées au
-  // propriétaire - voir getMerchantDashboardStats/exigerProprietaire côté
-  // backend. Ne JAMAIS appeler pour un caissier (guard.js s'en assure).
-  function chargerStatsPartagees() {
-    if (chargementStatsDemarre || !window.KADOSK_API) return;
-    if (roleCourant === "CASHIER") return;
-    chargementStatsDemarre = true;
-
-    if (window.KADOSK_CACHE) {
-      KADOSK_CACHE.chargerAvecCache("dashboardStats", KADOSK_API.getDashboardStats, appliquerStatsPartagees).catch(() => {});
-    } else {
-      // Garde défensive : si cache.js n'est pas (encore) chargé sur cette page,
-      // on retombe simplement sur un appel réseau direct, sans caching.
-      KADOSK_API.getDashboardStats().then(appliquerStatsPartagees).catch(() => {});
-    }
-  }
-
   // Compteur + liste "commandes en attente" (badge cloche, badge sidebar "En
   // attente", et contenu du panneau cloche) - source UNIQUE : getDraftOrders
   // (verrouillée à la permission "validateOrders", accessible au propriétaire
-  // ET au caissier autorisé, contrairement à getDashboardStats qui est
+  // ET au caissier autorisé, contrairement à getMerchantDashboardStats qui est
   // verrouillée propriétaire et jamais appelée pour un caissier). Remplace
   // l'ancien chargerNotifications() qui ne s'exécutait qu'UNE SEULE FOIS par
   // chargement de page (variable commandesChargees jamais réinitialisée) : rouvrir
@@ -553,7 +515,6 @@
     rendreBarreLaterale,
     rendreEnteteDroite,
     chargerChromeInfo,
-    chargerStatsPartagees,
     actualiserCommandesEnAttente
   };
 })();
