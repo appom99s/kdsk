@@ -33,6 +33,7 @@
       document.getElementById("obCertified").checked = !!profile.certifiedAccurate;
       document.getElementById("obTerms").checked = !!profile.acceptedPartnershipTerms;
       rendreChecklist(etat);
+      actualiserApercu(); // nom commercial affiché sur la carte de l'éditeur
       const verrouille = ["Submitted", "FinalSubmitted"].includes(etat.onboardingStatus) || etat.merchantStatus === "Approved" || etat.merchantStatus === "Active";
       document.querySelectorAll("#onboardingForm input,#onboardingForm select,#blocOnboarding input[type=checkbox],#obSave,#obSubmit").forEach((el) => { el.disabled = verrouille; });
     } catch (e) { obMessage.textContent = "Impossible de charger le dossier : " + (e.message || "erreur"); }
@@ -70,6 +71,9 @@
   const conteneurIcones = document.getElementById("choixIconeActivite");
   const champPoliceCarte = document.getElementById("champPoliceCarte");
   const texteIconeSuggeree = document.getElementById("texteIconeSuggeree");
+  // Éditeur de design (assets/gift-card-design-editor.js) : monté juste avant le
+  // premier chargement ; il remplace l'ancien bloc "Style visuel" + aperçu.
+  let EDITEUR = null;
   let motifSelectionne = "aucun";
   let policeSelectionnee = "poppins";
   let iconeSelectionnee = "cadeau";
@@ -426,7 +430,22 @@
     }
   }
 
+  function montantsSaisis() {
+    return champMontants.value
+      .split(",")
+      .map((valeur) => Number(valeur.trim()))
+      .filter((nombre) => !isNaN(nombre) && nombre > 0);
+  }
+
   function actualiserApercu() {
+    if (EDITEUR) {
+      const champEnseigne = document.getElementById("obBusinessName");
+      EDITEUR.majDonnees({
+        businessName: (champEnseigne && champEnseigne.value.trim()) || champNom.value.trim(),
+        logoUrl: champLogoUrl.value.trim(),
+        amounts: montantsSaisis()
+      });
+    }
     if (!apercuLogoMarchand) return;
 
     const logoUrl = champLogoUrl.value.trim();
@@ -522,6 +541,7 @@
       logoEntrepriseParDefaut = parametres.businessLogoUrl || "";
 
       actualiserVisibilite();
+      if (EDITEUR) EDITEUR.charger(parametres);
       actualiserApercu();
       mettreAJourApercuLogoActuel();
       actualiserResumeOffre();
@@ -539,12 +559,21 @@
   async function enregistrerParametres() {
     messageStatutParametres.textContent = "";
 
+    messageStatutParametres.style.color = "";
     if (!champNom.value.trim()) {
       messageStatutParametres.textContent = "Le nom de la carte cadeau est obligatoire.";
-      return;
+      messageStatutParametres.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+    if (EDITEUR && EDITEUR.enAttenteUpload()) {
+      messageStatutParametres.textContent = "Patientez jusqu’à la fin de l’envoi de l’image de fond.";
+      return false;
     }
 
     boutonEnregistrer.disabled = true;
+    // Design : l'éditeur fournit les champs existants (accentColor, pattern, font,
+    // fond) + l'objet design ; repli sur l'ancien état si l'éditeur est absent.
+    const design = EDITEUR ? EDITEUR.lireDesign() : null;
 
     try {
       const resultat = await KADOSK_API.saveOfferSettings({
@@ -568,11 +597,13 @@
         // Idem : si l'élément n'existe pas encore côté HTML déployé, on envoie true
         // (visible par défaut, comportement identique à celui du backend quand le
         // paramètre est absent) plutôt que de faire planter tout l'enregistrement.
-        visible: champVisible ? champVisible.checked : true
+        visible: champVisible ? champVisible.checked : true,
+        ...(design || {})
       });
 
       messageStatutParametres.style.color = "#1faa6c";
       messageStatutParametres.textContent = "Paramètres enregistrés.";
+      if (EDITEUR) EDITEUR.marquerEnregistre();
       studioSaved = JSON.stringify(lireEtatStudio());
       actualiserEtatStudio();
       actualiserResumeOffre();
@@ -598,13 +629,16 @@
       messageStatutParametres.style.color = "";
       const detail = erreur && erreur.message ? " (" + erreur.message + ")" : "";
       messageStatutParametres.textContent = "Échec de l'enregistrement. Vérifiez vos champs." + detail;
+      if (EDITEUR) messageStatutParametres.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
     } finally {
       boutonEnregistrer.disabled = false;
     }
+    return true;
   }
 
   champMontantLibreActif.addEventListener("change", actualiserVisibilite);
-  boutonEnregistrer.addEventListener("click", enregistrerParametres);
+  boutonEnregistrer.addEventListener("click", () => { enregistrerParametres(); });
 
   function actualiserResumeOffre() {
     const nom = document.getElementById("resumeNomCarte");
@@ -726,6 +760,12 @@
     studioState = document.createElement('p'); studioState.className = 'kadosk-studio-state'; studioState.setAttribute('role', 'status');
     carteApercu.after(studioToolbar, studioState);
     document.getElementById('editeurCarteCadeau').addEventListener('change', () => { if (studioReady) enregistrerEtatStudio(); });
+  }
+  const montageEditeur = document.getElementById("giftCardDesignEditor");
+  if (montageEditeur && window.KADOSK_GC_EDITOR) {
+    EDITEUR = KADOSK_GC_EDITOR.monter(montageEditeur, { onSave: enregistrerParametres });
+    const champEnseigne = document.getElementById("obBusinessName");
+    if (champEnseigne) champEnseigne.addEventListener("input", actualiserApercu);
   }
   chargerParametres();
 

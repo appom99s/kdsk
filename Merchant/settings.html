@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="assets/style.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="../shared/assets/card-experience.css">
+<link rel="stylesheet" href="assets/gift-card-design-editor.css" />
 </head>
 <body>
   <div class="kadosk-app">
@@ -61,7 +62,7 @@
         <div class="kadosk-resume-offre-meta"><div><span>Montants</span><strong id="resumeMontantsCarte">—</strong></div><div><span>Date d’expiration</span><strong id="resumeExpirationCarte">—</strong></div></div>
       </section>
 
-      <div class="kadosk-grille-tableau-bord" id="editeurCarteCadeau" style="align-items:start;display:none;">
+      <div class="kd-offre-editeur" id="editeurCarteCadeau" style="display:none;">
         <div class="kadosk-panneau-large">
           <div class="kadosk-section-formulaire">
             <div class="kadosk-section-numero">1</div><div><h2>Identité</h2><p>Nom, description et logo de votre enseigne.</p></div>
@@ -94,93 +95,11 @@
             </div>
             <div class="kadosk-message-erreur" id="messageStatutLogo" style="margin-top:6px;"></div>
           </div>
+        </div>
 
-          <div class="kadosk-section-formulaire">
-            <div class="kadosk-section-numero">2</div><div><h2>Style visuel</h2><p>Commencez avec un modèle puis personnalisez chaque détail.</p></div>
-          </div>
-          <div class="kadosk-modeles-carte" id="modelesCarte">
-            <button type="button" class="kadosk-modele-carte" data-modele="emeraude"><i style="background:linear-gradient(135deg,#0f766e,#5eead4)"></i><span>Émeraude</span></button>
-            <button type="button" class="kadosk-modele-carte" data-modele="crepuscule"><i style="background:linear-gradient(135deg,#4338ca,#e879f9)"></i><span>Crépuscule</span></button>
-            <button type="button" class="kadosk-modele-carte" data-modele="sable"><i style="background:linear-gradient(135deg,#f4e4c1,#b7791f)"></i><span>Sable</span></button>
-            <button type="button" class="kadosk-modele-carte" data-modele="nuit"><i style="background:linear-gradient(135deg,#111827,#475569)"></i><span>Nuit</span></button>
-          </div>
+        <section id="giftCardDesignEditor" aria-label="Design de la carte cadeau"></section>
 
-          <div class="kadosk-champ">
-            <label>Couleur d'accent de la carte</label>
-            <div class="kadosk-choix-couleur" id="choixCouleurAccent" style="align-items:center;">
-              <button type="button" class="kadosk-pastille-couleur" data-couleur="teal" style="background:var(--kadosk-teal);"></button>
-              <button type="button" class="kadosk-pastille-couleur" data-couleur="violet" style="background:var(--kadosk-violet);"></button>
-              <button type="button" class="kadosk-pastille-couleur" data-couleur="orange" style="background:var(--kadosk-orange);"></button>
-              <button type="button" class="kadosk-pastille-couleur" data-couleur="bleu" style="background:var(--kadosk-bleu);"></button>
-              <button type="button" class="kadosk-pastille-couleur" data-couleur="rose" style="background:#e0629c;"></button>
-              <input type="color" id="champCouleurLibre" value="#8ab6a9" title="Couleur libre" style="width:34px; height:34px; padding:0; border:2px solid transparent; border-radius:50%; cursor:pointer; background:none;" />
-            </div>
-            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;">
-              Choisissez une des couleurs prédéfinies, ou une couleur libre avec la pastille arc-en-ciel.
-            </div>
-          </div>
-
-          <div class="kadosk-champ">
-            <label>Type de fond de la carte</label>
-            <div id="choixTypeFond" style="display:flex; gap:8px;">
-              <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" data-type-fond="couleur" style="padding:8px 14px; font-size:13px;">Couleur unie</button>
-              <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" data-type-fond="degrade" style="padding:8px 14px; font-size:13px;">Dégradé</button>
-              <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" data-type-fond="image" style="padding:8px 14px; font-size:13px;">Image</button>
-            </div>
-          </div>
-
-          <div class="kadosk-champ" id="blocDegrade" style="display:none;">
-            <label>Couleurs du dégradé</label>
-            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <input type="color" id="champGradientFrom" value="#8ab6a9" style="width:34px; height:34px; padding:0; border:2px solid transparent; border-radius:50%; cursor:pointer; background:none;" />
-                <span style="font-size:12px; color:var(--kadosk-texte-clair);">Début</span>
-              </div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <input type="color" id="champGradientTo" value="#4f7a6c" style="width:34px; height:34px; padding:0; border:2px solid transparent; border-radius:50%; cursor:pointer; background:none;" />
-                <span style="font-size:12px; color:var(--kadosk-texte-clair);">Fin</span>
-              </div>
-              <div style="flex:1; min-width:140px; display:flex; align-items:center; gap:8px;">
-                <input type="range" id="champGradientAngle" min="0" max="360" value="135" style="flex:1;" />
-                <span style="font-size:12px; color:var(--kadosk-texte-clair); width:38px;" id="texteAngleDegrade">135°</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="kadosk-champ" id="blocImageFond" style="display:none;">
-            <label>Image de fond</label>
-            <input type="hidden" id="champBackgroundImageUrl" />
-            <div style="display:flex; align-items:center; gap:12px;">
-              <div id="apercuFondActuel" style="width:70px; height:46px; border-radius:8px; border:1px solid var(--kadosk-bordure); background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                <img id="apercuFondActuelImg" src="" alt="" style="width:100%; height:100%; object-fit:cover; display:none;" />
-              </div>
-              <div>
-                <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonUploaderFond" style="padding:8px 14px; font-size:13px;">Choisir une image…</button>
-                <input type="file" id="champFichierFond" accept="image/png,image/jpeg,image/webp" style="display:none;" />
-              </div>
-            </div>
-            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;">
-              PNG/JPEG/WEBP, 5 Mo max. Un voile clair est appliqué automatiquement pour garder le titre lisible.
-            </div>
-            <div class="kadosk-message-erreur" id="messageStatutFond" style="margin-top:6px;"></div>
-          </div>
-
-          <div class="kadosk-champ">
-            <label>Motif de fond</label>
-            <div class="kadosk-grille-swatches" id="choixMotifCarte"></div>
-          </div>
-
-          <div class="kadosk-champ">
-            <label for="champPoliceCarte">Police</label>
-            <select id="champPoliceCarte"></select>
-          </div>
-
-          <div class="kadosk-champ">
-            <label>Icône d'activité</label>
-            <div class="kadosk-grille-swatches" id="choixIconeActivite"></div>
-            <div style="font-size:11px; color:var(--kadosk-texte-clair); margin-top:6px;" id="texteIconeSuggeree"></div>
-          </div>
-
+        <div class="kadosk-panneau-large">
           <div class="kadosk-section-formulaire">
             <div class="kadosk-section-numero">3</div><div><h2>Règles de vente</h2><p>Montants, validité et visibilité dans la boutique.</p></div>
           </div>
@@ -224,43 +143,6 @@
 
           <div class="kadosk-message-erreur" id="messageStatutParametres"></div>
         </div>
-
-        <div class="kadosk-panneau-large kadosk-apercu-sticky">
-          <h2>Aperçu de la carte</h2>
-          <p class="kadosk-studio-label">STUDIO KADOSK · APERÇU</p><div class="kadosk-carte-apercu" id="carteApercu" data-accent="teal">
-            <div class="kadosk-carte-apercu-logo-marchand">
-              <img id="apercuLogoMarchand" src="" alt="" style="display:none;" />
-            </div>
-            <div class="kadosk-carte-apercu-titre" id="apercuTitreCarte">Nom de la carte cadeau</div>
-
-            <svg class="kadosk-carte-apercu-cadeau" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="35" width="80" height="55" rx="4" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
-              <rect x="10" y="35" width="80" height="18" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
-              <line x1="50" y1="35" x2="50" y2="90" stroke="var(--kadosk-teal)" stroke-width="3"/>
-              <path d="M50 35 C30 35 25 15 40 10 C50 8 50 25 50 35 Z" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
-              <path d="M50 35 C70 35 75 15 60 10 C50 8 50 25 50 35 Z" fill="none" stroke="var(--kadosk-teal)" stroke-width="3"/>
-            </svg>
-
-            <div class="kadosk-carte-apercu-montant-bloc">
-              <div class="kadosk-carte-apercu-montant-label">
-                <span class="trait"></span> MONTANT <span class="trait"></span>
-              </div>
-              <div class="kadosk-carte-apercu-montant-valeur">
-                <span id="apercuMontantCarte">100</span> <span class="devise">MAD</span>
-              </div>
-            </div>
-
-            <div class="kadosk-carte-apercu-vague"></div>
-            <div class="kadosk-carte-apercu-logo-kadosk">
-              <img src="assets/logo.png" alt="KADOSK" />
-              <span>GÉRÉ PAR KADOSK</span>
-            </div>
-          </div>
-          <p style="font-size:12px; color:var(--kadosk-texte-clair); margin-top:10px;">
-            Personnalisez librement le fond, le motif, la police et l’icône. Le badge « Géré par KADOSK » reste affiché sur toutes les cartes.
-            Votre logo et votre couleur d’accent sont également utilisés dans l’e-mail envoyé au bénéficiaire.
-          </p>
-        </div>
       </div>
 
       <div class="kadosk-panneau-large" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
@@ -279,6 +161,8 @@
   <script src="assets/guard.js"></script>
   <script src="assets/spa.js"></script>
   <script src="assets/carte-visuelle.js"></script>
+  <script src="../shared/assets/gift-card-renderer.js"></script>
+  <script src="assets/gift-card-design-editor.js"></script>
   <script src="assets/settings.js"></script>
 <script src="assets/locations.js"></script>
   <script src="assets/pricing-config.js"></script>
