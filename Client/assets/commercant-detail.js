@@ -188,7 +188,8 @@
         backgroundImageUrl: offre.backgroundImageUrl,
         gradientFrom: offre.gradientFrom,
         gradientTo: offre.gradientTo,
-        gradientAngle: offre.gradientAngle
+        gradientAngle: offre.gradientAngle,
+        design: offre.design
       });
       zoneCarteVisuelle.appendChild(elementCarteVisuelle);
 

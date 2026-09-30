@@ -78,6 +78,18 @@ window.KADOSK_CARTE_VISUELLE = (function () {
         <rect x="22" y="4" width="5" height="5" fill="${c}" opacity="${o}" transform="rotate(20 24.5 6.5)"/>
         <path d="M14 26 L18 34 L10 34 Z" fill="${c}" opacity="${o}"/>
         <circle cx="33" cy="24" r="1.6" fill="${c}" opacity="${o}"/>
+      </pattern>`,
+    organique: (c, o) => `
+      <pattern id="p" width="64" height="48" patternUnits="userSpaceOnUse">
+        <path d="M8 30C14 16 28 14 34 22C40 30 30 40 20 38C12 36 6 38 8 30Z" fill="${c}" opacity="${o}"/>
+        <path d="M42 10C50 4 60 8 58 16C56 22 46 22 42 18" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" opacity="${o}"/>
+      </pattern>`,
+    marocain: (c, o) => `
+      <pattern id="p" width="36" height="36" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="${c}" stroke-width="1.4" opacity="${o}">
+          <rect x="10" y="10" width="16" height="16"/>
+          <rect x="10" y="10" width="16" height="16" transform="rotate(45 18 18)"/>
+        </g>
       </pattern>`
   };
   const LIBELLES_MOTIF = {
@@ -88,7 +100,9 @@ window.KADOSK_CARTE_VISUELLE = (function () {
     cercles: "Cercles",
     losanges: "Losanges",
     grille: "Grille",
-    confettis: "Confettis"
+    confettis: "Confettis",
+    organique: "Organique",
+    marocain: "Marocain"
   };
 
   // SVG complet (viewBox 300x200, proportions de la carte) pour un motif donné,
@@ -158,7 +172,9 @@ window.KADOSK_CARTE_VISUELLE = (function () {
     montserrat: { label: "Montserrat (moderne)", famille: "'Montserrat', sans-serif", google: "Montserrat:wght@600;800" },
     pacifico: { label: "Pacifico (manuscrit)", famille: "'Pacifico', cursive", google: "Pacifico" },
     raleway: { label: "Raleway (épuré)", famille: "'Raleway', sans-serif", google: "Raleway:wght@600;800" },
-    spacemono: { label: "Space Mono (technique)", famille: "'Space Mono', monospace", google: "Space+Mono:wght@700" }
+    spacemono: { label: "Space Mono (technique)", famille: "'Space Mono', monospace", google: "Space+Mono:wght@700" },
+    inter: { label: "Inter (minimal)", famille: "'Inter', sans-serif", google: "Inter:wght@500;700" },
+    dmsans: { label: "DM Sans (doux)", famille: "'DM Sans', sans-serif", google: "DM+Sans:wght@500;700" }
   };
 
   const policesChargees = {};
@@ -342,8 +358,19 @@ window.KADOSK_CARTE_VISUELLE = (function () {
     backgroundImageUrl,
     gradientFrom,
     gradientTo,
-    gradientAngle
+    gradientAngle,
+    design
   } = {}) {
+    // Rendu centralisé (shared/assets/gift-card-renderer.js) lorsqu'il est chargé :
+    // même carte que l'aperçu de l'éditeur marchand. La zone QR garde la classe
+    // .kadosk-carte-apercu-qr-zone, donc zoneQr() ci-dessous fonctionne à l'identique.
+    const RENDU = window.KADOSK_GIFT_CARD_RENDERER;
+    if (RENDU) {
+      return RENDU.creer(
+        { businessName: businessName || cardName, logoUrl, amount, currency: currency || "MAD", qr: "placeholder" },
+        { accentColor, pattern, font, backgroundType, backgroundImageUrl, gradientFrom, gradientTo, gradientAngle, design }
+      );
+    }
     const conteneur = document.createElement("div");
     conteneur.className = "kadosk-carte-apercu";
     conteneur.innerHTML = `

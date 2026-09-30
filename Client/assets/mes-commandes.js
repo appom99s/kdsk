@@ -488,7 +488,8 @@
         backgroundImageUrl: carte.backgroundImageUrl,
         gradientFrom: carte.gradientFrom,
         gradientTo: carte.gradientTo,
-        gradientAngle: carte.gradientAngle
+        gradientAngle: carte.gradientAngle,
+        design: carte.design
       });
       // Contour de statut : rouge si déjà rachetée/épuisée (redeemed), or sinon -
       // voir les règles .k2-carte-statut-* dans kadosk2.css.

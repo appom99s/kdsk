@@ -1,4 +1,4 @@
-/* Client2 light-only variant of shared/card-experience.css. Dark media blocks intentionally excluded. */
+/* Client light-only variant of shared/card-experience.css. Dark media blocks intentionally excluded. */
 .discovery-section { max-width:1120px; margin:0 auto; padding:30px 32px; }
 .discovery-section h2 { font-size:clamp(23px,3vw,30px); margin:0 0 20px; }
 .gift-finder,.nearby-tools { display:flex; flex-wrap:wrap; gap:16px; align-items:end; }
