@@ -78,6 +78,8 @@
   const texteTotal = document.getElementById("texteTotal");
   const btnAjouterPanier = document.getElementById("btnAjouterPanier");
   const messageAjout = document.getElementById("messageAjout");
+  const blocCommercantsSimilaires = document.getElementById("blocCommercantsSimilaires");
+  const grilleCommercantsSimilaires = document.getElementById("grilleCommercantsSimilaires");
 
   const QUANTITE_MIN = 1;
   const QUANTITE_MAX = (window.KADOSK_PANIER2 && KADOSK_PANIER2.QUANTITE_MAX) || 1;
@@ -125,6 +127,7 @@
 
     try {
       offre = await KADOSK_API.getGiftCardOffer(merchantId);
+      const help = document.createElement("section"); detailContenu.append(help); KADOSK_CARD_HELP.render(help, offre);
 
       etatChargement.style.display = "none";
       detailContenu.style.display = "grid";
@@ -159,7 +162,9 @@
         texteAdresse.textContent = adresseAffichee;
         blocAdresse.style.display = "block";
         const requeteMap = [offre.address, offre.city, offre.region].filter(Boolean).join(", ");
-        carteMap.innerHTML = `<iframe src="https://www.google.com/maps?q=${encodeURIComponent(requeteMap)}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Localisation de ${echapperHtml(nomAffiche)}"></iframe>`;
+        const voirCarte = document.createElement('button'); voirCarte.type = 'button'; voirCarte.textContent = 'Voir sur la carte';
+        voirCarte.onclick = () => { const frame=document.createElement('iframe');frame.src='https://www.google.com/maps?q='+encodeURIComponent(requeteMap)+'&output=embed';frame.title='Localisation du commerce';frame.referrerPolicy='no-referrer';carteMap.replaceChildren(frame); };
+        carteMap.replaceChildren(voirCarte);
         const lienItineraire = document.createElement("a");
         lienItineraire.href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(requeteMap);
         lienItineraire.target = "_blank";
@@ -199,11 +204,50 @@
       }
 
       majTotaux();
+      if (offre.activityCategory) chargerCommercantsSimilaires(offre.activityCategory);
     } catch (erreur) {
       console.error("Erreur chargement fiche commerçant :", erreur);
       etatChargement.style.display = "none";
       etatErreur.style.display = "block";
       etatErreur.textContent = "Ce commerçant n'accepte pas de commande de carte cadeau pour le moment.";
+    }
+  }
+
+  // "Vous pourriez aussi aimer" (inspiré de giftcards.com/"Products You May
+  // Like") : d'autres commerçants ACTIFS de la même catégorie que celui
+  // affiché, pour encourager la découverte plutôt que de laisser la fiche se
+  // terminer sur le bouton d'achat. Réutilise le même endpoint public que
+  // commercants.js (getActiveMerchants), sans mise en cache partagée ici
+  // (section secondaire, un appel de plus par visite reste raisonnable) -
+  // best-effort : une erreur ici ne doit jamais empêcher l'achat de la carte
+  // en cours de consultation, donc jamais propagée, juste journalisée.
+  async function chargerCommercantsSimilaires(categorie) {
+    try {
+      const resultat = await KADOSK_API.getActiveMerchants();
+      const marchands = (resultat && resultat.items) || resultat || [];
+      const similaires = marchands
+        .filter((m) => m.activityCategory === categorie && m.merchantId !== merchantId)
+        .slice(0, 4);
+      if (similaires.length === 0) return;
+
+      grilleCommercantsSimilaires.innerHTML = similaires
+        .map((m) => {
+          const nomAffiche = echapperHtml(m.businessName || m.name || "");
+          const visuel = m.logoUrl
+            ? `<img src="${echapperHtml(m.logoUrl)}" alt="${nomAffiche}" />`
+            : `<span>${echapperHtml((m.businessName || "?").slice(0, 1).toUpperCase())}</span>`;
+          return (
+            '<a class="k2-related-merchant-card" href="commercant-detail.html?merchantId=' + encodeURIComponent(m.merchantId) + '">' +
+            '<div class="k2-related-merchant-logo">' + visuel + "</div>" +
+            '<span class="k2-related-merchant-name">' + nomAffiche + "</span>" +
+            '<span class="k2-related-merchant-cta">Voir la carte →</span>' +
+            "</a>"
+          );
+        })
+        .join("");
+      blocCommercantsSimilaires.style.display = "block";
+    } catch (erreur) {
+      console.error("Commerçants similaires indisponibles :", erreur);
     }
   }
 

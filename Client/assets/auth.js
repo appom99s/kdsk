@@ -318,11 +318,11 @@ const KADOSK_AUTH = (function () {
   // le callback léger boutique-callback.html au lieu du callback marchand (qui gère
   // 2FA/dashboard, non pertinents ici).
   async function demarrerAutorisationMembrePourBoutique(sessionToken) {
-    return demarrerAutorisationMembre(sessionToken, config().boutiqueCallbackPath || "/Client/boutique-callback.html");
+    return demarrerAutorisationMembre(sessionToken, config().boutiqueCallbackPath || "/Client2/boutique-callback.html");
   }
 
   async function traiterRetourAutorisationPourBoutique() {
-    return traiterRetourAutorisation(config().boutiqueCallbackPath || "/Client/boutique-callback.html");
+    return traiterRetourAutorisation(config().boutiqueCallbackPath || "/Client2/boutique-callback.html");
   }
 
   return {

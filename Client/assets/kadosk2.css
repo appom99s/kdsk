@@ -1554,6 +1554,92 @@
   transform: scale(0.97);
 }
 
+/* En-tête "marketplace" sitewide (recherche mise en avant + catégories en
+   pastilles, 2e ligne sous le logo/les actions existants) - voir
+   assets/shop-header-search.js. Ajoutée sous l'en-tête existant de chaque
+   page (quel que soit son wrapper : .shop-header/.k2-entete-catalogue/
+   .k2-topbar), jamais à sa place - aucun changement à la logique déjà en
+   place (nav desktop, hamburger, icônes favoris/panier/compte). */
+.k2-shop-header-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 4px 20px 14px;
+}
+
+.k2-shop-header-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.k2-shop-header-search .k2-filtre-recherche {
+  flex: 1;
+  min-width: 0;
+  border-radius: 999px;
+  padding: 11px 16px;
+}
+
+.k2-shop-header-search button[type="submit"] {
+  flex-shrink: 0;
+}
+
+.k2-shop-header-categories {
+  display: flex;
+  gap: 8px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 20px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.k2-shop-header-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.k2-categorie-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--k2-bordure);
+  background: var(--k2-blanc);
+  color: var(--k2-texte);
+  font-size: 12.5px;
+  font-weight: 650;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.k2-categorie-pill svg {
+  width: 14px;
+  height: 14px;
+}
+
+.k2-categorie-pill:hover {
+  border-color: var(--k2-primary);
+}
+
+.k2-categorie-pill.actif {
+  background: var(--k2-primary);
+  border-color: var(--k2-primary);
+  color: var(--k2-blanc);
+}
+
+.k2-categorie-pill-toutes {
+  color: var(--k2-primary);
+  font-weight: 700;
+  background: transparent;
+  border-style: dashed;
+}
+
 @media (max-width: 1023px) {
   .k2-nav-desktop {
     display: none;
@@ -2675,6 +2761,23 @@
 }
 .k2-fil-ariane a { color: var(--k2-texte-clair); text-decoration: none; }
 .k2-fil-ariane a:hover { text-decoration: underline; }
+
+/* "Vous pourriez aussi aimer" (commercant-detail.html, voir
+   chargerCommercantsSimilaires) - inspiré du bloc "Products You May Like" de
+   giftcards.com : encourage la découverte d'autres commerçants de la même
+   catégorie plutôt que de terminer la fiche sur le seul bouton d'achat. */
+.k2-related-merchants { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--k2-bordure); }
+.k2-related-merchants h2 { margin: 0 0 18px; font-size: 19px; }
+.k2-related-merchants-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.k2-related-merchant-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 12px; border: 1px solid var(--k2-bordure); border-radius: 16px; background: var(--k2-blanc); text-align: center; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.k2-related-merchant-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(31, 58, 52, 0.1); }
+.k2-related-merchant-logo { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--k2-neutral); font-weight: 800; font-size: 20px; color: var(--k2-primary); }
+.k2-related-merchant-logo img { width: 100%; height: 100%; object-fit: cover; }
+.k2-related-merchant-name { font-size: 13px; font-weight: 700; color: var(--k2-texte); }
+.k2-related-merchant-cta { font-size: 11.5px; font-weight: 650; color: var(--k2-primary); }
+@media (max-width: 700px) {
+  .k2-related-merchants-grid { grid-template-columns: repeat(2, 1fr); }
+}
 .k2-detail-grille {
   display: grid;
   grid-template-columns: 1fr 1fr;

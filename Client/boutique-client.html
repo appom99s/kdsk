@@ -10,26 +10,44 @@
   <link rel="stylesheet" href="assets/boutique-client.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="assets/mobile-reference.css" />
+<link rel="stylesheet" href="assets/card-experience-light.css">
+<link rel="stylesheet" href="assets/reference-layout.css">
+<link rel="stylesheet" href="assets/reading-comfort.css">
+<script defer src="assets/reading-comfort.js"></script>
 </head>
-<body>
+<body class="reference-home"><div class="reference-utility"><a href="mes-commandes.html">Mes cartes et commandes</a><span aria-hidden="true">·</span><a href="aide.html">Besoin d’aide ?</a></div>
   <a class="skip-link" href="#catalogue">Aller au catalogue</a>
   <header class="shop-header">
     <a class="brand" href="boutique-client.html" aria-label="KADOSK, accueil boutique">
       <img src="assets/logo.png" alt="KADOSK" />
     </a>
-    <nav class="desktop-nav" aria-label="Navigation boutique">
-      <a class="is-current" href="boutique-client.html">Découvrir</a>
-      <a href="favoris.html">Mes favoris</a>
-      <a href="mes-commandes.html">Mes cartes</a>
-    </nav>
+    <form class="k2-filtre-recherche k2-shop-header-search-inline" action="commercants.html" method="get" role="search">
+      <span id="iconeRechercheHeaderTop"></span>
+      <input type="search" name="q" placeholder="Rechercher une carte cadeau, un commerçant…" autocomplete="off" />
+    </form>
     <div class="header-actions">
       <a class="icon-link" href="favoris.html" aria-label="Mes favoris"><span aria-hidden="true">♡</span></a>
-      <a class="account-link" href="mes-commandes.html">Mes cartes</a>
+      <a class="icon-link" href="etape-3-recap.html" aria-label="Mon panier">
+        <span id="iconePanierHeader"></span>
+        <span class="k2-icone-badge" data-panier-badge style="display:none;">0</span>
+      </a>
+      <a class="account-link" href="mon-compte.html">
+        <span id="iconeCompteHeader"></span>
+        Mon compte
+      </a>
     </div>
   </header>
 
+  <nav class="k2-shop-nav-row" aria-label="Navigation boutique">
+    <a class="actif" href="boutique-client.html">Accueil</a>
+    <a href="#catalogue">Cartes cadeaux</a>
+    <a href="commercants.html">Commerçants</a>
+    <a href="categories.html">Catégories</a>
+    <a href="#how-title">Comment ça marche</a>
+  </nav>
+
   <main>
-    <section class="hero" aria-labelledby="hero-title">
+    <div class="reference-promotions"><section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow">Le cadeau, simplement</p>
         <h1 id="hero-title">Offrez une attention qui fait vraiment plaisir.</h1>
@@ -44,29 +62,14 @@
         <div class="gift-card card-front"><span class="card-chip"></span><strong>Une belle<br>attention</strong><small>Carte cadeau</small></div>
         <span class="spark spark-one">✦</span><span class="spark spark-two">✦</span>
       </div>
-    </section>
-
-    <section class="how-it-works" aria-labelledby="how-title">
-      <h2 id="how-title">Un cadeau en trois étapes</h2>
-      <ol>
-        <li><span>1</span><div><strong>Choisissez</strong><p>Un commerce qui lui plaît.</p></div></li>
-        <li><span>2</span><div><strong>Personnalisez</strong><p>Le montant et votre message.</p></div></li>
-        <li><span>3</span><div><strong>Offrez</strong><p>La carte est envoyée après validation du paiement par le commerce.</p></div></li>
-      </ol>
-    </section>
-
-    <section class="purchase-promise" aria-label="Comment recevoir votre carte">
-      <div><strong>Un cadeau personnel</strong><p>Le montant de votre choix parmi les offres du commerce, avec votre message.</p></div>
-      <div><strong>Un paiement direct</strong><p>Réglez par virement au commerce. Les instructions sont disponibles après votre commande.</p></div>
-      <div><strong>Une carte suivie</strong><p>Après activation, retrouvez vos cartes et leur solde dans votre espace KADOSK.</p></div>
-    </section>
+    </section><aside class="reference-promo-side"><a href="#catalogue"><span class="eyebrow">À chacun son cadeau</span><h2>Le choix qui fait plaisir.</h2><p>Des cartes cadeaux chez vos commerces préférés.</p><span class="reference-text-link">Découvrir les cartes →</span><span class="reference-mini-card" aria-hidden="true">KADOSK<br><small>Une belle attention</small></span></a><a href="#finder-title"><span class="eyebrow">Une idée, mille sourires</span><h2>Pour toutes les occasions.</h2><span class="reference-text-link">Trouver une idée cadeau →</span></a></aside></div>
     <section class="catalogue-section" id="catalogue" aria-labelledby="catalogue-title">
       <div class="section-heading">
-        <div><p class="eyebrow">Nos partenaires</p><h2 id="catalogue-title">Trouver le cadeau idéal</h2></div>
+        <div><p class="eyebrow">Nos partenaires</p><h2 id="catalogue-title">Les cartes de vos commerces préférés</h2></div>
         <a href="commercants.html" class="text-link">Tous les commerçants <span aria-hidden="true">→</span></a>
       </div>
       <div class="catalogue-tools" role="search">
-        <label class="search-field" for="merchant-search"><span aria-hidden="true">⌕</span><span class="sr-only">Rechercher un commerçant</span><input id="merchant-search" type="search" placeholder="Rechercher un commerce ou une catégorie" autocomplete="off" /></label>
+        <label class="search-field" for="merchant-search"><span aria-hidden="true">⌕</span><span class="sr-only">Rechercher un commerçant</span><input id="merchant-search" type="search" placeholder="Rechercher une boutique, une expérience ou une carte cadeau" autocomplete="off" /></label>
         <div class="category-filter" id="category-filter" aria-label="Filtrer par catégorie"></div>
       </div>
       <p class="catalogue-status" id="catalogue-status" aria-live="polite">Chargement des commerces partenaires…</p>
@@ -78,16 +81,104 @@
         <strong>La boutique est momentanément indisponible.</strong><p>Vérifiez votre connexion puis réessayez.</p><button type="button" class="secondary-button" id="retry-load">Réessayer</button>
       </div>
     </section>
+
+    <section class="discovery-section" aria-labelledby="occasions-title">
+      <p class="eyebrow">Toutes les attentions comptent</p><h2 id="occasions-title">Une occasion de faire plaisir</h2>
+      <div id="occasion-filter" class="category-filter" aria-label="Occasions"></div>
+    </section>
+    <section class="discovery-section" id="popular-section" hidden><h2>Les plus populaires</h2><div class="merchant-grid" id="popular-grid"></div></section>
+    <section class="discovery-section" aria-labelledby="nearby-title"><h2 id="nearby-title">Près de chez vous</h2>
+      <div class="nearby-tools"><label>Ville <input type="search" id="nearby-city" placeholder="Casablanca, Rabat…"></label><button type="button" id="locate-me" class="secondary-button">Utiliser ma position</button></div>
+      <p id="nearby-status" role="status">Choisissez une ville ou partagez votre position pour cette visite.</p><div class="merchant-grid" id="nearby-grid"></div>
+    </section>
+    <section class="discovery-section" id="new-section" hidden><h2>Nouveautés</h2><div class="merchant-grid" id="new-grid"></div></section>
+    <section class="k2-categories-section" aria-labelledby="categories-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">Explorez</p><h2 id="categories-title">Nos catégories</h2></div>
+        <a href="categories.html" class="text-link">Toutes les catégories <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="k2-categories-grid" id="grilleCategoriesAccueil"></div>
+    </section>
+    <section class="discovery-section" aria-labelledby="finder-title"><h2 id="finder-title">Trouvez le cadeau idéal</h2>
+      <form id="gift-finder" class="gift-finder">
+        <label>Pour qui ?<select name="recipient"><option value="">Tout le monde</option><option>Elle</option><option>Lui</option><option>Couple</option><option>Enfant</option><option>Ami</option><option>Collègue</option><option>Famille</option></select></label>
+        <label>Quelle occasion ?<select name="occasion" id="finder-occasion"><option value="">Toutes les occasions</option></select></label>
+        <label>Budget<select name="budget"><option value="">Tous les budgets</option><option value="0:200">Moins de 200 DH</option><option value="200:500">200–499 DH</option><option value="500:1000">500–999 DH</option><option value="1000:1000000">1 000 DH et plus</option></select></label>
+        <button class="primary-button" type="submit">Trouver un cadeau</button>
+      </form><p>Suggestions par catégorie et montants disponibles chez nos partenaires.</p>
+    </section>
+
+
+
+
+    <section class="k2-promo-banner">
+      <div class="k2-promo-banner-visual" aria-hidden="true">
+        <span id="iconePromoBanner"></span>
+      </div>
+      <div class="k2-promo-banner-copy">
+        <p class="eyebrow">Simple, rapide, sécurisé</p>
+        <h2>La meilleure façon d’offrir</h2>
+        <p>Avec KADOSK, offrez une carte cadeau valable chez le commerce que la personne aime déjà - personnalisée, suivie, et utilisable en boutique dès son activation.</p>
+        <a class="primary-button" href="#how-title">Découvrir comment ça marche <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+    <section class="k2-trust-badges" aria-label="Pourquoi choisir KADOSK">
+      <div><span id="iconeTrustCadeau"></span><p>Un cadeau personnalisé chez le commerce de votre choix</p></div>
+      <div><span id="iconeTrustRapide"></span><p>Simple et rapide à offrir</p></div>
+      <div><span id="iconeTrustSecurise"></span><p>Paiement direct au commerce</p></div>
+      <div><span id="iconeTrustSuivi"></span><p>Solde consultable dans votre espace</p></div>
+    </section>
+
+    <section class="how-it-works" aria-labelledby="how-title">
+      <h2 id="how-title">Comment ça marche ?</h2>
+      <ol>
+        <li><span>1</span><div><strong>Choisissez</strong><p>Un commerce qui lui plaît.</p></div></li>
+        <li><span>2</span><div><strong>Offrez</strong><p>Personnalisez votre cadeau, envoyé après validation du paiement.</p></div></li>
+        <li><span>3</span><div><strong>Scannez</strong><p>Présentez votre QR chez le marchand.</p></div></li><li><span>4</span><div><strong>Confirmez</strong><p>Vérifiez le montant sur votre téléphone ou saisissez votre PIN.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="purchase-promise" aria-label="Comment recevoir votre carte">
+      <div><strong>Un cadeau personnel</strong><p>Le montant de votre choix parmi les offres du commerce, avec votre message.</p></div>
+      <div><strong>Un paiement direct</strong><p>Réglez par virement au commerce. Les instructions sont disponibles après votre commande.</p></div>
+      <div><strong>Une carte suivie</strong><p>Après activation, retrouvez vos cartes et leur solde dans votre espace KADOSK.</p></div>
+    </section>
+    <section class="discovery-section"><h2>Vos questions</h2><details><summary>Quand ma carte est-elle envoyée ?</summary><p>Après réception du virement et validation par le commerce.</p></details><details><summary>Où utiliser ma carte ?</summary><p>Consultez les points de vente acceptant la carte sur la fiche du commerce.</p></details><details><summary>Comment retrouver ma carte ?</summary><p>Connectez-vous avec l’adresse du destinataire dans Mes cartes.</p></details></section>
   </main>
 
-  <footer class="shop-footer"><img src="assets/logo.png" alt="KADOSK" /><p>Des cadeaux qui soutiennent les commerces locaux.</p><a href="mailto:contact@kadosk.com">Besoin d’aide ?</a></footer>
+  <footer class="shop-footer k2-rich-footer">
+    <div class="k2-rich-footer-top">
+      <div class="k2-rich-footer-brand">
+        <img src="assets/logo.png" alt="KADOSK" />
+        <p>Des cadeaux qui soutiennent les commerces locaux.</p>
+      </div>
+      <div class="k2-rich-footer-col">
+        <h3>Liens utiles</h3>
+        <a href="boutique-client.html">Accueil</a>
+        <a href="commercants.html">Commerçants</a>
+        <a href="categories.html">Catégories</a>
+        <a href="aide.html">Aide / FAQ</a>
+      </div>
+      <div class="k2-rich-footer-col">
+        <h3>Contact</h3>
+        <a href="mailto:contact@kadosk.com">contact@kadosk.com</a>
+      </div>
+    </div>
+    <div class="k2-rich-footer-bottom">
+      <span>© 2026 KADOSK. Tous droits réservés.</span>
+      <span><a href="../cgv.html">Conditions d’utilisation</a> · <a href="../confidentialite.html">Politique de confidentialité</a></span>
+    </div>
+  </footer>
 
   <script src="assets/config.js"></script>
   <script src="assets/auth.js"></script>
   <script src="assets/api.js"></script>
   <script src="assets/icons.js"></script>
+  <script src="assets/nav2.js"></script>
+  <script src="assets/shop-header-search.js"></script>
   <script src="assets/panier2.js"></script>
   <script src="assets/cache.js"></script>
+  <script src="assets/discovery.js"></script>
   <script src="assets/boutique-client.js"></script>
   <script src="assets/client-shell.js"></script>
   <script src="assets/wix-nav-bridge.js"></script>

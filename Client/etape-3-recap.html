@@ -9,17 +9,30 @@
 <link rel="stylesheet" href="assets/kadosk-ux-motion.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="assets/mobile-reference.css" />
+<link rel="stylesheet" href="assets/reference-layout.css">
+<link rel="stylesheet" href="assets/reading-comfort.css">
+<script defer src="assets/reading-comfort.js"></script>
 </head>
-<body class="k2-body">
+<body class="k2-body reference-cart"><div class="reference-utility"><a href="mes-commandes.html">Mes cartes et commandes</a><span aria-hidden="true">·</span><a href="aide.html">Besoin d’aide ?</a></div>
   <div class="k2-topbar">
     <a href="boutique-client.html" class="k2-logo">
       <img src="assets/logo.png" alt="KADOSK" />
     </a>
+    <div class="k2-entete-actions">
+      <a href="favoris.html" class="k2-icone-action" aria-label="Mes favoris">
+        <span id="iconeFavorisHeader"></span>
+        <span class="k2-icone-badge" data-favoris-badge style="display:none;">0</span>
+      </a>
+      <a href="etape-3-recap.html" class="k2-icone-action" aria-label="Mon panier">
+        <span id="iconePanierHeader"></span>
+        <span class="k2-icone-badge" data-panier-badge style="display:none;">0</span>
+      </a>
+    </div>
   </div>
 
-  <main class="k2-main" style="max-width:640px;">
-    <p class="k2-titre">ÉTAPE 3</p>
-    <h1 class="k2-sous-titre">Récapitulatif &amp; paiement</h1>
+  <main class="k2-main reference-cart-main">
+    <p class="k2-titre">Votre sélection</p>
+    <h1 class="k2-sous-titre">Mon panier</h1>
 
     <div class="k2-stepper">
       <div class="k2-step k2-step-active"><span class="k2-step-numero">1</span><span>Récapitulatif</span></div>
@@ -29,7 +42,7 @@
       <div class="k2-step"><span class="k2-step-numero">3</span><span>Confirmation</span></div>
     </div>
 
-    <div class="k2-carte">
+    <div class="reference-checkout-grid"><section class="k2-carte reference-cart-items">
       <div class="k2-champ" style="margin-bottom:4px;">
         <label>Récapitulatif de votre commande</label>
         <p style="font-size:12.5px;color:var(--k2-texte-clair);margin:0 0 14px;">Un seul commerce et 5 cartes maximum par commande. Les coordonnées de virement seront disponibles après validation de votre commande et connexion.</p>
@@ -42,6 +55,7 @@
 
       <div id="listeRib"></div>
 
+      </section><aside class="k2-carte reference-order-summary" aria-label="Résumé de la commande"><h2>Résumé de la commande</h2><div class="reference-summary-note">Carte cadeau digitale<span>Personnalisez votre message à l’étape suivante.</span></div>
       <div class="k2-total-bloc" id="blocTotal" style="display:none">
         <span>Total de la commande</span>
         <span class="valeur" id="texteTotal">0,00 DH</span>
@@ -52,23 +66,26 @@
           <span id="k2IconeRetour"></span> Ajouter un article
         </button>
         <button type="button" class="k2-btn k2-btn-primaire" id="btnContinuer">
-          Continuer <span id="k2IconeContinuer"></span>
+          Personnaliser mon cadeau <span id="k2IconeContinuer"></span>
         </button>
       </div>
 
       <div class="k2-securite">
         <span id="k2IconeSecurite"></span>
-        <span>Paiement 100% sécurisé — vos données sont protégées et cryptées.</span>
+        <span>Paiement par virement au commerce. Votre carte sera activée après validation du paiement.</span>
       </div>
-    </div>
+    </aside></div>
   </main>
+<footer class="reference-footer"><a href="boutique-client.html"><img src="assets/logo.png" alt="KADOSK"><span>Le cadeau, simplement.</span></a><nav aria-label="Liens utiles"><a href="aide.html">Aide et questions</a><a href="mes-commandes.html">Mes cartes</a><a href="../cgv.html">Conditions d’utilisation</a><a href="../confidentialite.html">Confidentialité</a></nav><p>© 2026 KADOSK</p></footer>
 
 
   <script src="assets/config.js"></script>
   <script src="assets/auth.js"></script>
   <script src="assets/api.js"></script>
   <script src="assets/icons.js"></script>
+  <script src="assets/header-icons.js"></script>
   <script src="assets/nav2.js"></script>
+
   <script src="assets/panier2.js"></script>
   <script src="assets/etape3.js"></script>
   <script src="assets/kadosk-ux-motion.js"></script>

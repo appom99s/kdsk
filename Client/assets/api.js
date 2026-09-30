@@ -72,6 +72,11 @@ const KADOSK_API = (function () {
   }
 
   return {
+    setOrderPin: (orderNumber, token, pin) => appelerPublic("orderGiftCardPin", "POST", {orderNumber,token,pin}),
+    clientRedemption: (orderItemId, token) => appelerPublic("clientRedemption", "POST", {orderItemId, token}),
+    decideRedemption: (orderItemId, token, requestId, approved, amount) => appelerPublic("clientRedemptionDecision", "POST", {orderItemId, token, requestId, approved, amount}),
+    setCardPin: (orderItemId, token, pin) => appelerPublic("clientCardPin", "POST", {orderItemId, token, pin}),
+    cardHistory: (orderItemId, token) => appelerPublic("clientCardHistory", "POST", {orderItemId, token}),
     getDashboardStats: () => appeler("dashboardStats", "GET"),
     // Habillage de page (nom/logo/palier/rôle) uniquement, sans aucune donnée
     // financière - c'est celui-ci que nav.js doit utiliser (accessible à OWNER

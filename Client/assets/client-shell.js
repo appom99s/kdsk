@@ -5,7 +5,8 @@
     ["boutique-client.html", "house", "Accueil"],
     ["commercants.html", "shopping-bag", "Commerçants"],
     ["mes-commandes.html", "credit-card", "Mes cartes"],
-    ["mon-compte.html", "user", "Mon compte"]
+    ["favoris.html", "heart", "Favoris"],
+    ["mon-compte.html", "user", "Profil"]
   ];
   document.body.classList.add("client-shell");
   const nav = document.createElement("nav");

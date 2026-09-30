@@ -194,6 +194,13 @@
   }
 
   async function chargerPaiements(commande, session) {
+    document.getElementById('order-pin-choice')?.remove();
+    const pinChoice = document.createElement('section'); pinChoice.id = 'order-pin-choice'; pinChoice.className = 'card-help';
+    const pinButton = document.createElement('button'); pinButton.type = 'button'; pinButton.textContent = 'Créer le PIN de mes cartes';
+    const pinStatus = document.createElement('p'); pinStatus.setAttribute('role','status'); pinStatus.textContent = 'Facultatif : choisissez six chiffres avant l’activation. Sinon, un PIN sera envoyé directement au bénéficiaire.';
+    pinChoice.append(pinButton,pinStatus); blocPaiementParMarchand.append(pinChoice);
+    pinButton.onclick = () => KADOSK_SECURE_UI.pin('Créer un PIN','Gardez ce code confidentiel. Si vous offrez la carte, transmettez-le directement au bénéficiaire.',pin => KADOSK_API.setOrderPin(commande.orderNumber,session.token,pin)).then(result => {pinStatus.textContent = `PIN enregistré pour ${result.configured}/${result.total} cartes. Pour une carte déjà activée, le bénéficiaire peut gérer son PIN dans Mes cartes.`;pinButton.disabled=true;}).catch(() => {});
+
     blocPaiementParMarchand.style.display = "block";
     listePaiement.innerHTML = `<div class="k2-etat"><span id="k2IconeChargementPaiement"></span><br />Chargement des coordonnées de virement...</div>`;
     const iconeChargement = document.getElementById("k2IconeChargementPaiement");

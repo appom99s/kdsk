@@ -1,0 +1,60 @@
+/* Client2 light-only variant of shared/card-experience.css. Dark media blocks intentionally excluded. */
+.discovery-section { max-width:1120px; margin:0 auto; padding:30px 32px; }
+.discovery-section h2 { font-size:clamp(23px,3vw,30px); margin:0 0 20px; }
+.gift-finder,.nearby-tools { display:flex; flex-wrap:wrap; gap:16px; align-items:end; }
+.gift-finder label,.nearby-tools label,.location-form label { display:grid; gap:7px; flex:1; min-width:150px; }
+.gift-finder select,.nearby-tools input,.location-form input,.location-form textarea { font:inherit; width:100%; padding:12px; border:1px solid #7fb5ab; border-radius:10px; background:var(--kc-white,#f7faf9); color:inherit; }
+.discovery-section button,.discovery-section summary,.location-form button { min-height:44px; cursor:pointer; }
+.discovery-section details { border-bottom:1px solid #b7d6cf; padding:12px 0; }
+.merchant-cta a { min-height:44px; display:inline-flex; align-items:center; }
+.card-help,.location-form { padding:24px; border:1px solid #b7d6cf; border-radius:18px; margin:20px 0; }
+.card-help p { white-space:pre-wrap; overflow-wrap:anywhere; }
+.card-help a { display:inline-flex; padding:10px 0; min-height:44px; }
+.location-list { display:grid; gap:16px; }
+.location-form { display:grid; gap:16px; background:var(--kc-white,#f7faf9); color:var(--kc-ink,#1f3a34); }
+.location-form fieldset { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; border:1px solid #b7d6cf; padding:16px; border-radius:12px; }
+.location-form label:has(input[type=checkbox]) { display:flex; align-items:center; }
+.location-form input[type=checkbox] { width:22px; height:22px; }
+.kadosk-sheet { border:1px solid #7fb5ab; border-radius:18px; background:#f7faf9; color:#1f3a34; padding:24px; max-width:720px; width:calc(100% - 32px); max-height:90dvh; overflow:auto; }
+.kadosk-sheet::backdrop { background:rgb(31 58 52 / 65%); }
+.kadosk-sheet button { min-height:44px; padding:10px 18px; cursor:pointer; }
+.kadosk-sheet button,.payment-confirmation button { font:inherit; font-weight:600; border:1px solid #7fb5ab; border-radius:12px; background:#f7faf9; color:#1f3a34; }
+.payment-confirmation { margin:24px 0; padding:22px; background:var(--kc-pale,#eaf4f1); border:1px solid #b7d6cf; border-radius:18px; }
+.payment-confirmation h3 { margin:0 0 16px; }
+.payment-amount { display:block; font-size:36px; line-height:1.2; color:#1f3a34; }
+.payment-confirmation button { display:block; min-height:52px; width:100%; margin-top:12px; padding:12px; cursor:pointer; }
+.payment-confirmation button:first-of-type,.kadosk-sheet>button:last-of-type { background:#1f3a34; color:#f7faf9; }
+.payment-confirmation button:disabled { opacity:.6; cursor:wait; }
+.kadosk-sheet progress { display:block; width:100%; height:12px; margin:18px 0; accent-color:#7fb5ab; }
+.kadosk-sheet>button { margin:5px 8px 5px 0; }
+.kadosk-sheet input { min-height:44px; font:inherit; }
+.kadosk-sheet .map-frame { height:320px; width:100%; border:0; }
+.kadosk-sheet [role=status] { white-space:pre-line; }
+.pin-input { font-size:28px!important; letter-spacing:.3em; width:100%; text-align:center; }
+.pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0; }
+.pin-keypad button { font-size:22px; min-height:54px; }
+:focus-visible { outline:3px solid #7fb5ab; outline-offset:3px; }
+@media(max-width:600px) {
+ .discovery-section { padding:24px 18px; }
+ .gift-finder { display:grid; grid-template-columns:1fr; }
+ .location-form fieldset { grid-template-columns:1fr; }
+ .kadosk-sheet { width:100%; max-width:none; height:100dvh; max-height:100dvh; margin:0; border:0; border-radius:0; padding:20px 16px max(20px,env(safe-area-inset-bottom)); }
+ .merchant-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .merchant-info { overflow-wrap:anywhere; }
+}
+
+
+.k2-qr-modal {max-height:95dvh;overflow:auto;}
+@media(max-width:600px) { .k2-qr-overlay {padding:0!important;} .k2-qr-modal {width:100%!important;max-width:none!important;max-height:100dvh;height:100dvh;border-radius:0!important;} }
+
+@media(max-width:780px) {
+ .k2-categories-grid {display:flex;overflow-x:auto;gap:12px;padding-bottom:12px;}
+ .k2-categories-grid>a {flex:0 0 135px;}
+ .merchant-name {white-space:normal!important;font-size:15px!important;}
+ .merchant-category,.merchant-cta {font-size:13px!important;}
+ .how-it-works {display:block!important;}
+ .how-it-works ol {gap:10px;}
+}
+
+
+.payment-confirmation:empty {display:none;}

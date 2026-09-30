@@ -50,13 +50,37 @@
 </style>
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="assets/mobile-reference.css" />
+<link rel="stylesheet" href="assets/card-experience-light.css">
+<link rel="stylesheet" href="assets/reading-comfort.css">
+<script defer src="assets/reading-comfort.js"></script>
 </head>
 <body class="k2-body">
   <div class="k2-topbar">
     <a href="boutique-client.html" class="k2-logo">
       <img src="assets/logo.png" alt="KADOSK" />
     </a>
+    <div class="k2-entete-actions">
+      <a href="favoris.html" class="k2-icone-action" aria-label="Mes favoris">
+        <span id="iconeFavorisHeader"></span>
+        <span class="k2-icone-badge" data-favoris-badge style="display:none;">0</span>
+      </a>
+      <a href="etape-3-recap.html" class="k2-icone-action" aria-label="Mon panier">
+        <span id="iconePanierHeader"></span>
+        <span class="k2-icone-badge" data-panier-badge style="display:none;">0</span>
+      </a>
+    </div>
   </div>
+
+  <div class="k2-shop-header-search-row">
+    <form class="k2-shop-header-search" action="commercants.html" method="get" role="search">
+      <div class="k2-filtre-recherche">
+        <span id="iconeRechercheHeaderTop"></span>
+        <input type="search" name="q" placeholder="Rechercher un commerçant, une enseigne…" autocomplete="off" />
+      </div>
+      <button type="submit" class="k2-btn k2-btn-primaire">Rechercher</button>
+    </form>
+  </div>
+  <nav class="k2-shop-header-categories" id="pillsCategoriesHeader" aria-label="Catégories"></nav>
 
   <main class="k2-main" style="max-width:640px;">
     <h1 class="k2-sous-titre" style="text-align:left;">Mes cartes</h1>
@@ -104,9 +128,9 @@
   <div id="modalQr" class="k2-qr-overlay" style="display:none;">
     <div class="k2-qr-modal">
       <button type="button" id="btnFermerQr" class="k2-qr-fermer" aria-label="Fermer">&times;</button>
-      <h3 style="margin:0 0 4px;">Présentez ce QR en caisse</h3>
+      <h3 style="margin:0 0 4px;">Utiliser ma carte</h3>
       <p style="font-size:12px;color:var(--k2-texte-clair);margin:0 0 16px;">
-        Ce code se renouvelle automatiquement toutes les 30 secondes pour votre sécurité — inutile de faire une capture d'écran, elle ne fonctionnera plus.
+        Présentez le QR au caissier, puis vérifiez le montant de sa demande avant de confirmer. Le QR se renouvelle toutes les 30 secondes.
       </p>
       <div id="qrCanvasZone" style="display:flex;justify-content:center;margin-bottom:12px;"></div>
       <div id="qrEtatTexte" style="text-align:center;font-size:13px;color:var(--k2-texte-clair);"></div>
@@ -117,14 +141,18 @@
   <script src="assets/auth.js"></script>
   <script src="assets/api.js"></script>
   <script src="assets/icons.js"></script>
+  <script src="assets/header-icons.js"></script>
   <script src="assets/nav2.js"></script>
+  <script src="assets/shop-header-search.js"></script>
   <script src="assets/panier2.js"></script>
   <script src="assets/wix-bridge.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="assets/carte-visuelle.js"></script>
   <script src="assets/carte-cadeau-pdf.js"></script>
   <script src="../Merchant/assets/facture-achat-pdf.js"></script>
-  <script src="assets/mes-commandes.js"></script>
+  <script src="../shared/assets/secure-card-ui.js"></script>
+<script src="assets/card-help.js"></script>
+<script src="assets/mes-commandes.js"></script>
   <script src="assets/client-shell.js"></script>
   <script src="assets/wix-nav-bridge.js"></script>
   <script src="assets/wix-iframe-resize.js"></script>

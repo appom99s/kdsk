@@ -10,8 +10,12 @@
 <link rel="stylesheet" href="assets/kadosk-ux-motion.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="assets/mobile-reference.css" />
+<link rel="stylesheet" href="assets/card-experience-light.css">
+<link rel="stylesheet" href="assets/reference-layout.css">
+<link rel="stylesheet" href="assets/reading-comfort.css">
+<script defer src="assets/reading-comfort.js"></script>
 </head>
-<body class="k2-body">
+<body class="k2-body reference-product"><div class="reference-utility"><a href="mes-commandes.html">Mes cartes et commandes</a><span aria-hidden="true">·</span><a href="aide.html">Besoin d’aide ?</a></div>
 
   <div class="k2-menu-mobile-fond" id="menuMobileFond"></div>
   <aside class="k2-menu-mobile" id="menuMobile" aria-label="Menu" aria-hidden="true">
@@ -66,17 +70,28 @@
     </div>
   </header>
 
+  <div class="k2-shop-header-search-row">
+    <form class="k2-shop-header-search" action="commercants.html" method="get" role="search">
+      <div class="k2-filtre-recherche">
+        <span id="iconeRechercheHeaderTop"></span>
+        <input type="search" name="q" placeholder="Rechercher un commerçant, une enseigne…" autocomplete="off" />
+      </div>
+      <button type="submit" class="k2-btn k2-btn-primaire">Rechercher</button>
+    </form>
+  </div>
+  <nav class="k2-shop-header-categories" id="pillsCategoriesHeader" aria-label="Catégories"></nav>
+
   <main id="contenuPrincipal">
     <div class="k2-detail-conteneur">
       <p class="k2-fil-ariane">
-        <a href="commercants.html">Commerçants</a> / <span id="filArianeNom">…</span>
+        <a href="boutique-client.html">Accueil</a> / <a href="commercants.html">Commerçants</a> / <span id="filArianeNom">…</span>
       </p>
 
       <div id="etatChargement" class="k2-etat">Chargement...</div>
       <div id="etatErreur" class="k2-etat k2-etat-erreur" style="display:none"></div>
 
       <div id="detailContenu" class="k2-detail-grille" style="display:none">
-        <div>
+        <div class="reference-product-overview">
           <div class="k2-detail-entete">
             <div class="k2-detail-logo" id="logoMarchand"></div>
             <div>
@@ -85,7 +100,8 @@
             </div>
           </div>
 
-          <p class="k2-detail-bloc-titre">À propos</p>
+          <div class="reference-product-art"><div id="zoneCarteVisuelle"></div></div>
+          <h2 class="k2-detail-bloc-titre">À propos de cette carte</h2>
           <p class="k2-detail-description" id="descriptionCarte"></p>
           <p style="font-size:12.5px;color:var(--k2-texte-clair);margin-top:-10px;" id="texteExpiration"></p>
 
@@ -97,7 +113,7 @@
         </div>
 
         <div class="k2-detail-carte-visuelle-wrap">
-          <div id="zoneCarteVisuelle" style="margin-bottom:20px;"></div>
+          <p class="eyebrow">Offrez une belle attention</p><h2 class="reference-product-heading">Votre carte cadeau</h2><h3 class="k2-detail-bloc-titre">Comment l’offrir ?</h3><div class="reference-delivery"><strong>Carte cadeau digitale</strong><span>Envoyée par e-mail après validation du paiement par le commerce.</span></div>
 
           <p class="k2-detail-bloc-titre">Choisissez un montant</p>
           <div class="k2-montants-grille" id="boutonsMontants"></div>
@@ -127,12 +143,18 @@
 
           <div class="k2-securite" style="margin-top:16px;">
             <span id="k2IconeSecurite"></span>
-            <span>Paiement 100% sécurisé — vos données sont protégées et cryptées.</span>
+            <span>Paiement par virement directement au commerce. Les instructions vous seront communiquées après votre commande.</span>
           </div>
         </div>
       </div>
+
+      <section class="k2-related-merchants" id="blocCommercantsSimilaires" style="display:none" aria-labelledby="titreCommercantsSimilaires">
+        <h2 id="titreCommercantsSimilaires">Vous pourriez aussi aimer</h2>
+        <div class="k2-related-merchants-grid" id="grilleCommercantsSimilaires"></div>
+      </section>
     </div>
   </main>
+<footer class="reference-footer"><a href="boutique-client.html"><img src="assets/logo.png" alt="KADOSK"><span>Le cadeau, simplement.</span></a><nav aria-label="Liens utiles"><a href="aide.html">Aide et questions</a><a href="mes-commandes.html">Mes cartes</a><a href="../cgv.html">Conditions d’utilisation</a><a href="../confidentialite.html">Confidentialité</a></nav><p>© 2026 KADOSK</p></footer>
 
 
   <script src="assets/config.js"></script>
@@ -140,11 +162,13 @@
   <script src="assets/api.js"></script>
   <script src="assets/icons.js"></script>
   <script src="assets/nav2.js"></script>
+  <script src="assets/shop-header-search.js"></script>
   <script src="assets/panier2.js"></script>
   <script src="assets/favoris-data.js"></script>
   <script src="assets/carte-visuelle.js"></script>
   <script src="assets/panier-tiroir.js"></script>
-  <script src="assets/commercant-detail.js"></script>
+  <script src="assets/card-help.js"></script>
+<script src="assets/commercant-detail.js"></script>
   <script src="assets/kadosk-ux-motion.js"></script>
   <script src="assets/client-shell.js"></script>
   <script src="assets/wix-nav-bridge.js"></script>

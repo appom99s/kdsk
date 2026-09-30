@@ -114,6 +114,18 @@
   const qrCanvasZone = document.getElementById("qrCanvasZone");
   const qrEtatTexte = document.getElementById("qrEtatTexte");
 
+  const confirmationZone = document.createElement('section'); confirmationZone.className='payment-confirmation'; confirmationZone.setAttribute('aria-live','polite'); qrEtatTexte.after(confirmationZone);
+  let qrBusy = false, qrOpenedAt = 0, qrFocusReturn = null;
+  modalQr.setAttribute('role','dialog'); modalQr.setAttribute('aria-modal','true'); modalQr.setAttribute('aria-label','Utiliser ma carte');
+  modalQr.addEventListener('keydown', e => {
+    if (e.key === 'Escape') fermerModalQr();
+    if (e.key === 'Tab') {
+      const controls = [...modalQr.querySelectorAll('button:not(:disabled),a,input')].filter(el => el.offsetParent !== null);
+      if (!controls.length) return;
+      if (e.shiftKey && document.activeElement === controls[0]) { e.preventDefault(); controls.at(-1).focus(); }
+      else if (!e.shiftKey && document.activeElement === controls.at(-1)) { e.preventDefault(); controls[0].focus(); }
+    }
+  });
   let minuteurQr = null;
   let instanceQr = null;
   let soldeQrPrecedent = null;
@@ -138,7 +150,7 @@
 
   function fermerModalQr() {
     arreterRafraichissementQr();
-    modalQr.style.display = "none";
+    modalQr.style.display = "none"; document.body.style.overflow = ""; qrFocusReturn?.focus();
   }
 
   btnFermerQr.addEventListener("click", fermerModalQr);
@@ -185,7 +197,15 @@
   }
 
   async function rafraichirQr(orderItemId, token) {
+    if (qrBusy || modalQr.style.display === 'none') return;
+    qrBusy = true;
     try {
+      const pending = await KADOSK_SECURE_UI.clientPending(confirmationZone,orderItemId,token,qrOpenedAt);
+      if (pending && ['PENDING','CONFIRMED','COMPLETED'].includes(pending.state)) {
+        qrCanvasZone.replaceChildren(); instanceQr = null;
+        if (pending.state === 'COMPLETED') { arreterRafraichissementQr(); mettreAJourSoldeCarte(orderItemId,pending.result.remainingBalance); }
+        return;
+      }
       const resultat = await KADOSK_API.getQrTemporaire(orderItemId, token);
 
       // Détection d'un encaissement (même partiel) survenu depuis le dernier sondage :
@@ -243,15 +263,16 @@
       qrCanvasZone.innerHTML = "";
       qrEtatTexte.textContent = message;
       arreterRafraichissementQr();
-    }
+    } finally { qrBusy = false; }
   }
 
   async function ouvrirModalQr(orderItemId, token) {
+    qrOpenedAt = Date.now(); confirmationZone.replaceChildren(); confirmationZone.dataset.request = "";
     instanceQr = null;
     soldeQrPrecedent = null;
     qrCanvasZone.innerHTML = '<div class="k2-spinner"></div>';
     qrEtatTexte.textContent = "";
-    modalQr.style.display = "flex";
+    qrFocusReturn = document.activeElement; modalQr.style.display = "flex"; document.body.style.overflow = "hidden"; btnFermerQr.focus();
 
     try {
       await chargerLibQRCode();
@@ -478,10 +499,13 @@
         // voir getMesCartesParEmail) - un achat pour moi-même aussi bien qu'un cadeau
         // reçu d'un tiers (carte.forSelf === false, voir badge plus bas). Dans les deux
         // cas uniquement deux états possibles ici : épuisée, ou QR.
-        if (carte.redeemed) {
-          zoneQr.innerHTML = `<div class="k2-carte-qr-zone-badge">Carte utilisée</div>`;
+        const expired = carte.expirationDate && new Date(carte.expirationDate).getTime() <= Date.now();
+        const blocked = carte.status && carte.status !== 'ACTIVE';
+        if (carte.redeemed || expired || blocked) {
+          const label = carte.redeemed ? 'Carte utilisée' : expired ? 'Carte expirée' : 'Carte bloquée';
+          zoneQr.textContent = label;
         } else {
-          zoneQr.innerHTML = `<button type="button" class="k2-qr-bouton-carte" data-orderitemid="${echapperHtml(carte.orderItemId)}">${window.KADOSK_ICONE ? window.KADOSK_ICONE("qr-code") : ""}<span>QR</span></button>`;
+          zoneQr.innerHTML = `<button type="button" class="k2-qr-bouton-carte" data-orderitemid="${echapperHtml(carte.orderItemId)}">${window.KADOSK_ICONE ? window.KADOSK_ICONE("qr-code") : ""}<span>Utiliser ma carte</span></button>`;
           const boutonQr = zoneQr.querySelector("[data-orderitemid]");
           if (boutonQr) {
             boutonQr.addEventListener("click", (evenement) => {
@@ -536,7 +560,11 @@
         activityIcon: carte.activityIcon || "cadeau"
       });
     });
+    const summary = document.createElement('p');
+    summary.textContent = 'Solde : ' + formaterMontant(carte.remainingBalance) + ' · Initial : ' + formaterMontant(carte.amount) + (carte.remainingBalance < carte.amount && !carte.redeemed ? ' · Partiellement utilisée' : '');
+    wrapper.append(summary);
     wrapper.appendChild(boutonPdf);
+    const detail = document.createElement('button'); detail.type = 'button'; detail.textContent = 'Solde, historique, PIN et points de vente'; detail.onclick = () => KADOSK_SECURE_UI.detail(carte, token); wrapper.append(detail);
 
     return wrapper;
   }

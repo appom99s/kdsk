@@ -8,14 +8,39 @@
 <link rel="stylesheet" href="assets/client-shell.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="assets/mobile-reference.css" />
+<link rel="stylesheet" href="assets/reading-comfort.css">
+<script defer src="assets/reading-comfort.js"></script>
 </head>
 <body class="k2-body">
   <div class="k2-topbar">
     <a href="boutique-client.html" class="k2-logo">
       <img src="assets/logo.png" alt="KADOSK" />
     </a>
-    <a href="boutique-client.html" class="k2-retour">← Accueil</a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a href="boutique-client.html" class="k2-retour">← Accueil</a>
+      <div class="k2-entete-actions">
+        <a href="favoris.html" class="k2-icone-action" aria-label="Mes favoris">
+          <span id="iconeFavorisHeader"></span>
+          <span class="k2-icone-badge" data-favoris-badge style="display:none;">0</span>
+        </a>
+        <a href="etape-3-recap.html" class="k2-icone-action" aria-label="Mon panier">
+          <span id="iconePanierHeader"></span>
+          <span class="k2-icone-badge" data-panier-badge style="display:none;">0</span>
+        </a>
+      </div>
+    </div>
   </div>
+
+  <div class="k2-shop-header-search-row">
+    <form class="k2-shop-header-search" action="commercants.html" method="get" role="search">
+      <div class="k2-filtre-recherche">
+        <span id="iconeRechercheHeaderTop"></span>
+        <input type="search" name="q" placeholder="Rechercher un commerçant, une enseigne…" autocomplete="off" />
+      </div>
+      <button type="submit" class="k2-btn k2-btn-primaire">Rechercher</button>
+    </form>
+  </div>
+  <nav class="k2-shop-header-categories" id="pillsCategoriesHeader" aria-label="Catégories"></nav>
 
   <main class="k2-main">
     <h1 class="k2-sous-titre" style="text-align:left;">À propos de KADOSK</h1>
@@ -49,7 +74,9 @@
   <script src="assets/auth.js"></script>
   <script src="assets/api.js"></script>
   <script src="assets/icons.js"></script>
+  <script src="assets/header-icons.js"></script>
   <script src="assets/nav2.js"></script>
+  <script src="assets/shop-header-search.js"></script>
   <script src="assets/panier2.js"></script>
   <script src="assets/favoris-data.js"></script>
   <script src="assets/client-shell.js"></script>
