@@ -58,6 +58,15 @@
   }
 
   function appliquerStatistiques(stats) {
+      // Accueil mobile (kadosk-mobile-stats, voir dashboard.html) : mêmes
+      // valeurs que les KPI desktop (revenueToday/activeCardsCount),
+      // simplement affichées dans 2 tuiles au lieu de 4 pour tenir sur un
+      // petit écran - jamais un second calcul, jamais un second appel réseau.
+      const mobVentes = document.getElementById("mobKpiVentes");
+      if (mobVentes) mobVentes.textContent = formaterMontant(stats.revenueToday);
+      const mobCartesActives = document.getElementById("mobKpiCartesActives");
+      if (mobCartesActives) mobCartesActives.textContent = stats.activeCardsCount;
+
       document.getElementById("kpiCA").textContent = formaterMontant(stats.revenueToday);
       const deltaCA = formaterDeltaPourcentage(stats.revenueToday, stats.revenueYesterday);
       document.getElementById("kpiCADetail").innerHTML =
@@ -178,41 +187,48 @@
 
   const LIBELLES_ACTION = { REDEEMED: "Encaissement", REDEEM_FAILED: "Échec d'encaissement" };
 
+  function rendreLigneTransaction(entree) {
+    const codeMasque = window.KADOSK_MASQUER_ID ? window.KADOSK_MASQUER_ID(entree.giftCardId) : "00***";
+    const badge = entree.success
+      ? '<span class="kadosk-badge kadosk-badge-actif">Réussie</span>'
+      : '<span class="kadosk-badge" style="background:var(--kadosk-danger-tint); color:var(--kadosk-danger);">Refusée</span>';
+    return (
+      '<div class="kadosk-liste-item">' +
+      '<div class="kadosk-liste-icone">' + (window.KADOSK_ICONES.cartes || "") + "</div>" +
+      '<div class="kadosk-liste-corps">' +
+      '<div class="kadosk-liste-titre">' + (LIBELLES_ACTION[entree.action] || entree.action) + "</div>" +
+      '<div class="kadosk-liste-sous-titre">Carte ' + codeMasque + " · " + formaterDateHeure(entree.createdAt) + "</div>" +
+      "</div>" +
+      '<div class="kadosk-liste-droite">' +
+      '<div class="kadosk-liste-montant">' + formaterMontant(entree.amount) + " DH</div>" +
+      badge +
+      "</div>" +
+      "</div>"
+    );
+  }
+
   async function chargerTransactions() {
     const conteneur = document.getElementById("listeTransactions");
+    // Accueil mobile (dashboard.html) : même source de données, une liste plus
+    // courte (voir kadosk-mobile-transactions) - pas de second appel réseau,
+    // juste un second point de rendu du même résultat déjà récupéré ci-dessous.
+    const conteneurMobile = document.getElementById("mobListeTransactions");
     try {
       const resultat = await initial.then(data => data.transactions);
       const transactions = resultat.items || [];
 
       if (transactions.length === 0) {
         conteneur.innerHTML = '<div class="kadosk-liste-vide">Aucune transaction pour le moment</div>';
+        if (conteneurMobile) conteneurMobile.innerHTML = '<div class="kadosk-liste-vide">Aucune transaction pour le moment</div>';
         return;
       }
 
-      conteneur.innerHTML = transactions
-        .map((entree) => {
-          const codeMasque = window.KADOSK_MASQUER_ID ? window.KADOSK_MASQUER_ID(entree.giftCardId) : "00***";
-          const badge = entree.success
-            ? '<span class="kadosk-badge kadosk-badge-actif">Réussie</span>'
-            : '<span class="kadosk-badge" style="background:var(--kadosk-danger-tint); color:var(--kadosk-danger);">Refusée</span>';
-          return (
-            '<div class="kadosk-liste-item">' +
-            '<div class="kadosk-liste-icone">' + (window.KADOSK_ICONES.cartes || "") + "</div>" +
-            '<div class="kadosk-liste-corps">' +
-            '<div class="kadosk-liste-titre">' + (LIBELLES_ACTION[entree.action] || entree.action) + "</div>" +
-            '<div class="kadosk-liste-sous-titre">Carte ' + codeMasque + " · " + formaterDateHeure(entree.createdAt) + "</div>" +
-            "</div>" +
-            '<div class="kadosk-liste-droite">' +
-            '<div class="kadosk-liste-montant">' + formaterMontant(entree.amount) + " DH</div>" +
-            badge +
-            "</div>" +
-            "</div>"
-          );
-        })
-        .join("");
+      conteneur.innerHTML = transactions.map(rendreLigneTransaction).join("");
+      if (conteneurMobile) conteneurMobile.innerHTML = transactions.slice(0, 5).map(rendreLigneTransaction).join("");
     } catch (erreur) {
       console.error("Erreur chargement transactions :", erreur);
       conteneur.innerHTML = '<div class="kadosk-liste-vide">Impossible de charger les transactions</div>';
+      if (conteneurMobile) conteneurMobile.innerHTML = '<div class="kadosk-liste-vide">Impossible de charger les transactions</div>';
     }
   }
 
@@ -279,6 +295,12 @@
       conteneur.innerHTML = '<div class="kadosk-liste-vide">Graphique indisponible</div>';
     }
   }
+
+  // Raccourci "Créer une carte" de l'accueil mobile : redirige vers
+  // gift-cards.html, qui ouvre directement le modal de création si l'URL
+  // porte ?creer=1 (voir gift-cards.js).
+  const mobActionCreer = document.getElementById("mobActionCreer");
+  if (mobActionCreer) mobActionCreer.addEventListener("click", () => { window.location.href = "gift-cards.html?creer=1"; });
 
   const content = document.getElementById("dashboardContent");
   if (content) { content.classList.add("kadosk-dashboard-loading"); content.setAttribute("aria-busy", "true"); }

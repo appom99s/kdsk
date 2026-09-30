@@ -453,6 +453,228 @@ a {
   display: block;
 }
 
+/* Barre de navigation basse mobile (nav.js:: initialiserBarreMobile) - façon
+   application native (Accueil/Cartes/Scanner/Menu). Masquée par défaut,
+   activée seulement sous le point de rupture mobile (voir le media query
+   plus bas) : sur desktop la sidebar complète reste la seule navigation. */
+.kadosk-barre-mobile {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 120;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: var(--kadosk-sombre);
+  border-top: 1px solid var(--kadosk-sombre-bordure);
+  box-shadow: 0 -6px 24px rgba(10, 8, 20, 0.22);
+}
+
+.kadosk-barre-mobile-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  padding: 7px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--kadosk-sombre-texte);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kadosk-barre-mobile-item svg {
+  width: 21px;
+  height: 21px;
+}
+
+.kadosk-barre-mobile-item.actif {
+  color: var(--kadosk-sombre-texte-vif);
+}
+
+/* Accueil mobile (dashboard.html uniquement, voir kadosk-mobile-accueil dans
+   le HTML) : en-tête sombre + 2 tuiles chiffrées + raccourcis 2x2 + dernières
+   transactions, façon application native. Masqué par défaut (desktop garde
+   le tableau de bord existant en entier) - activé et substitué au contenu
+   desktop uniquement sous le point de rupture mobile ci-dessous. */
+.kadosk-mobile-accueil {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .kadosk-mobile-accueil {
+    display: block;
+  }
+
+  /* :has() (support large depuis 2022/Chrome 105, Safari 15.4) : ne masque
+     l'entête desktop (titre + hamburger + cloche) et le contenu détaillé
+     (#dashboardContent) QUE sur la page qui contient l'accueil mobile
+     (dashboard.html) - les autres pages Merchant gardent leur entête/contenu
+     habituels sous ce même point de rupture. */
+  .kadosk-main:has(.kadosk-mobile-accueil) .kadosk-entete {
+    display: none;
+  }
+  .kadosk-main:has(.kadosk-mobile-accueil) #dashboardContent {
+    display: none;
+  }
+}
+
+.kadosk-mobile-entete {
+  background: var(--kadosk-sombre);
+  color: var(--kadosk-sombre-texte-vif);
+  border-radius: 18px;
+  padding: 16px 16px 20px;
+  margin-bottom: 12px;
+}
+
+.kadosk-mobile-entete-haut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kadosk-mobile-logo {
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+}
+
+.kadosk-mobile-entete-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kadosk-mobile-cloche {
+  display: inline-flex;
+  color: var(--kadosk-sombre-texte);
+}
+
+.kadosk-mobile-cloche svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kadosk-mobile-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--kadosk-sombre-clair);
+  border: 1px solid var(--kadosk-sombre-bordure);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.kadosk-mobile-entreprise {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kadosk-sombre-texte);
+}
+
+.kadosk-mobile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kadosk-mobile-stat {
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 14px;
+  padding: 13px 14px;
+  box-shadow: 0 8px 24px rgba(28, 39, 35, 0.05);
+}
+
+.kadosk-mobile-stat span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--kadosk-texte-clair);
+  margin-bottom: 4px;
+}
+
+.kadosk-mobile-stat strong {
+  font-size: 20px;
+  color: var(--kadosk-sombre);
+  line-height: 1;
+}
+
+.kadosk-mobile-stat strong small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kadosk-texte-clair);
+}
+
+.kadosk-mobile-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.kadosk-mobile-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--kadosk-sombre);
+  color: var(--kadosk-sombre-texte-vif);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kadosk-mobile-action svg {
+  width: 22px;
+  height: 22px;
+}
+
+.kadosk-mobile-transactions {
+  background: var(--kadosk-blanc);
+  border: 1px solid var(--kadosk-bordure);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.kadosk-mobile-transactions-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.kadosk-mobile-transactions-entete h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.kadosk-mobile-transactions-entete a {
+  font-size: 12px;
+  color: var(--kadosk-texte-clair);
+  text-decoration: none;
+  font-weight: 700;
+}
+
 .kadosk-cloche {
   position: relative;
   width: 38px;
@@ -1420,6 +1642,14 @@ a {
   .kadosk-main {
     padding: 16px 16px 40px;
     max-width: 100%;
+    /* Espace pour ne pas laisser le bas du contenu sous la barre de
+       navigation mobile fixe (kadosk-barre-mobile, ~62px + zone de sécurité
+       iOS/Android). */
+    padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .kadosk-barre-mobile {
+    display: flex;
   }
 
   .kadosk-entete {

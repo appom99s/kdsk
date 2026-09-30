@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>KADOSK Marchand — Tableau de bord</title>
 <link rel="stylesheet" href="assets/style.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
@@ -15,6 +15,65 @@
       <div class="kadosk-entete">
         <h1>Tableau de bord</h1>
         <div id="kadoskEnteteDroite" class="kadosk-entete-droite"></div>
+      </div>
+
+      <!-- Accueil mobile (≤860px, voir style.css) : en-tête + 2 indicateurs +
+           raccourcis en grille, remplace visuellement l'entête/les KPI
+           desktop ci-dessous sur petit écran (voir @media dans style.css),
+           sans dupliquer leur calcul - les valeurs sont écrites par
+           dashboard.js::appliquerStatistiques dans les mêmes éléments que
+           les KPI desktop (mobKpiVentes/mobKpiCartesActives). -->
+      <div class="kadosk-mobile-accueil">
+        <div class="kadosk-mobile-entete">
+          <div class="kadosk-mobile-entete-haut">
+            <span class="kadosk-mobile-logo">KADOSK</span>
+            <div class="kadosk-mobile-entete-actions">
+              <span class="kadosk-mobile-cloche" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6.5-2.5 8.5-2.5 8.5h17S18 14.5 18 8Z"/><path d="M10.3 20.5a1.9 1.9 0 0 0 3.4 0"/></svg>
+              </span>
+              <span class="kadosk-mobile-avatar" data-marchand-avatar>M</span>
+            </div>
+          </div>
+          <div class="kadosk-mobile-entreprise" data-marchand-nom>Chargement…</div>
+        </div>
+
+        <div class="kadosk-mobile-stats">
+          <div class="kadosk-mobile-stat">
+            <span>Ventes aujourd'hui</span>
+            <strong><span id="mobKpiVentes">—</span> <small>MAD</small></strong>
+          </div>
+          <div class="kadosk-mobile-stat">
+            <span>Cartes actives</span>
+            <strong id="mobKpiCartesActives">—</strong>
+          </div>
+        </div>
+
+        <div class="kadosk-mobile-actions">
+          <button type="button" class="kadosk-mobile-action" id="mobActionCreer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/><path d="M6 15h5"/></svg>
+            <span>Créer une carte</span>
+          </button>
+          <a class="kadosk-mobile-action" href="cashier.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 14h2M14 19h2M19 19h2"/></svg>
+            <span>Encaisser</span>
+          </a>
+          <a class="kadosk-mobile-action" href="orders.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 7v5l3.3 2"/></svg>
+            <span>Mes commandes</span>
+          </a>
+          <a class="kadosk-mobile-action" href="finance.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="11" width="3.4" height="10"/><rect x="10.3" y="6" width="3.4" height="15"/><rect x="15.6" y="14" width="3.4" height="7"/></svg>
+            <span>Statistiques</span>
+          </a>
+        </div>
+
+        <div class="kadosk-mobile-transactions">
+          <div class="kadosk-mobile-transactions-entete">
+            <h2>Dernières transactions</h2>
+            <a href="transactions.html">Voir tout</a>
+          </div>
+          <div id="mobListeTransactions"><div class="kadosk-liste-vide">Chargement…</div></div>
+        </div>
       </div>
 
       <div id="dashboardContent">

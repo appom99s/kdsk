@@ -3,7 +3,7 @@
 
   const PAGES = ["dashboard.html", "cashier.html", "orders.html", "transactions.html", "gift-cards.html", "growth.html", "finance.html", "business.html", "settings.html", "invoice-settings.html", "equipe.html"];
   const COMMUNS = new Set(["config.js", "auth.js", "api.js", "cache.js", "nav.js", "guard.js", "spa.js", "ui-system.js"]);
-  const CONTROLEURS = new Set(["dashboard.js", "cashier.js", "orders.js", "transactions.js", "gift-cards.js", "growth.js", "finance.js", "business.js", "settings.js", "invoice-settings.js", "equipe.js", "subscription-summary.js", "subscription-settings.js", "bulk-print.js"]);
+  const CONTROLEURS = new Set(["dashboard.js", "cashier.js", "orders.js", "transactions.js", "gift-cards.js", "growth.js", "finance.js", "business.js", "settings.js", "invoice-settings.js", "equipe.js", "subscription-summary.js", "subscription-settings.js", "bulk-print.js", "locations.js"]);
   const documents = new Map();
   const donnees = new Map();
   let generation = 0;

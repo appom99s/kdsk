@@ -1,4 +1,13 @@
 (function () {
+  const activation = document.createElement('details'); activation.className='card-help';
+  activation.innerHTML='<summary>Activer une carte imprimée</summary><form class="location-form"><label>Référence de la carte<input name="code" required autocomplete="off"></label><label>Nom du bénéficiaire<input name="name" required></label><label>E-mail du bénéficiaire<input name="email" type="email" required></label><button type="submit">Activer et envoyer le PIN</button><p role="status"></p></form>';
+  (document.querySelector('main') || document.body).append(activation);
+  activation.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.target,b=f.querySelector('button'),status=f.querySelector('[role=status]');b.disabled=true;
+    try{await KADOSK_API.assignPrintedCard(f.elements.code.value,f.elements.email.value,f.elements.name.value);status.textContent='Carte activée. PIN envoyé au bénéficiaire.';f.reset();}
+    catch(_){status.textContent='Activation impossible. Vérifiez la référence et le bénéficiaire. Si la carte est déjà attribuée, le bénéficiaire peut réinitialiser son PIN dans Mes cartes.';}
+    finally{b.disabled=false;}
+  };
+
   const corpsTable = document.getElementById("corpsTableCartes");
   const etatVide = document.getElementById("etatVideCartes");
   const filtres = document.querySelectorAll(".kadosk-filtre");
@@ -62,7 +71,7 @@
     canalWhatsApp.setAttribute("aria-pressed", String(estWhatsApp));
     canalEmail.className = "kadosk-bouton" + (estWhatsApp ? " kadosk-bouton-secondaire" : "");
     canalWhatsApp.className = "kadosk-bouton" + (estWhatsApp ? "" : " kadosk-bouton-secondaire");
-    blocCreationEmail.hidden = estWhatsApp;
+    blocCreationEmail.hidden = false;
     blocCreationTelephone.hidden = !estWhatsApp;
   }
   canalEmail.addEventListener("click", () => definirCanal("EMAIL"));
@@ -230,7 +239,7 @@
       creationStatut.textContent = "Le numéro WhatsApp du client est obligatoire.";
       return;
     }
-    if (!estWhatsApp && !recipientEmail) {
+    if (!recipientEmail) {
       creationStatut.textContent = "L’e-mail du client est obligatoire.";
       return;
     }
@@ -245,7 +254,7 @@
         const carte = activated.whatsappCard || {};
         const url = new URL('../Client/mes-commandes.html', location.href);
         const message = 'Bonjour ' + recipientName + ', vous avez reçu une carte cadeau de ' + (carte.amount != null ? carte.amount + ' DH' : '') +
-          '. Code : ' + (carte.code || '') + '. Suivez votre carte ici : ' + url.href;
+          '. Retrouvez votre carte en vous connectant avec votre adresse e-mail : ' + url.href;
         partageWhatsApp.href = 'https://wa.me/' + encodeURIComponent(carte.phone || recipientPhone) + '?text=' + encodeURIComponent(message);
         partageWhatsApp.hidden = false;
         creationStatut.style.color = "#1faa6c";
@@ -290,7 +299,21 @@
   creationNom.addEventListener("change", () => completerClient(creationNom));
   creationTelephone.addEventListener("change", () => completerClient(creationTelephone));
   creationEmail.addEventListener("change", () => completerClient(creationEmail));
-  if (ouvrirEmission) ouvrirEmission.addEventListener("click", () => { modalEmission.style.display = "flex"; definirCanal("EMAIL"); chargerClientsMarchand(); creationNom.focus(); });
+  function ouvrirModalEmission() {
+    modalEmission.style.display = "flex";
+    definirCanal("EMAIL");
+    chargerClientsMarchand();
+    creationNom.focus();
+  }
+  if (ouvrirEmission) ouvrirEmission.addEventListener("click", ouvrirModalEmission);
+  // Raccourci "Créer une carte" du tableau de bord mobile (dashboard.html) :
+  // ?creer=1 ouvre directement ce modal au chargement, sans étape
+  // intermédiaire - le marchand n'a normalement aucune raison de lier
+  // manuellement ce paramètre, il vient uniquement du lien fixe posé côté
+  // dashboard.html.
+  if (new URLSearchParams(window.location.search).get("creer") === "1") {
+    ouvrirModalEmission();
+  }
   if (fermerEmission) fermerEmission.addEventListener("click", () => { modalEmission.style.display = "none"; });
   if (modalEmission) modalEmission.addEventListener("click", (e) => { if (e.target === modalEmission) modalEmission.style.display = "none"; });
   const fermerDetail = document.getElementById("fermerDetailCarte");

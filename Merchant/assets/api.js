@@ -117,6 +117,10 @@ const KADOSK_API = (function () {
 
   return {
     getDashboardInitial: () => appeler("dashboardInitial", "GET"),
+    assignPrintedCard: (code,email,name) => appeler("assignPrintedCard","POST",{code,email,name}),
+    beginRedemption: data => appeler("redemptionBegin", "POST", data),
+    redemptionStatus: requestId => appeler("redemptionStatus", "POST", {requestId}),
+    cashierLocations: () => appeler("cashierLocations", "POST", {}),
     getDashboardStats: () => /\/dashboard\.html$/.test(window.location.pathname)
       ? appeler("dashboardInitial", "GET").then((data) => data.stats)
       : appeler("dashboardStats", "GET"),
@@ -136,6 +140,8 @@ const KADOSK_API = (function () {
       appeler("activateOrder", "POST", { giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone }),
     createMerchantGiftCardDraft: (amount, recipientEmail, recipientName, message, deliveryMode, requestId) =>
       appeler("merchantGiftCardDraft", "POST", { amount, recipientEmail, recipientName, message, deliveryMode, requestId }),
+    getLocations: () => appeler("merchantLocations", "GET"),
+    saveLocations: (data) => appeler("merchantLocations", "POST", data),
     getOfferSettings: () => appeler("offerSettings", "GET"),
     saveOfferSettings: (parametres) => appeler("offerSettings", "POST", parametres),
     getInvoiceTemplate: () => appeler("invoiceTemplate", "GET"),

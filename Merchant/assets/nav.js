@@ -34,6 +34,7 @@
     cloche:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6.5-2.5 8.5-2.5 8.5h17S18 14.5 18 8Z"/><path d="M10.3 20.5a1.9 1.9 0 0 0 3.4 0"/></svg>',
     qr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 14h2M14 19h2M19 19h2"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
     clavier:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M18 13h.01M9 13h6"/></svg>',
     coche:
@@ -175,6 +176,63 @@
     });
 
     initialiserMenuMobile(conteneur);
+    initialiserBarreMobile();
+  }
+
+  // ---------------------------------------------------------------------
+  // Barre de navigation basse mobile (≤640px, voir style.css) : 4 raccourcis
+  // façon application native (Accueil / Cartes / Scanner / Menu), affichée en
+  // plus du tiroir existant - jamais à sa place, pour ne rien retirer de
+  // l'arborescence complète déjà accessible via "Menu". Le bouton "Menu"
+  // réutilise TEL QUEL le tiroir déjà câblé par initialiserMenuMobile (mêmes
+  // classes "ouverte"/"visible" sur la sidebar/l'overlay) plutôt que de
+  // dupliquer une seconde logique d'ouverture/fermeture.
+  // ---------------------------------------------------------------------
+  function initialiserBarreMobile() {
+    if (document.getElementById("kadoskBarreMobile")) return;
+
+    const actuelle = pageActuelle();
+    const items = [
+      { fichier: "dashboard.html", libelle: "Accueil", icone: "dashboard" },
+      { fichier: "gift-cards.html", libelle: "Cartes", icone: "cartes" },
+      { fichier: "cashier.html", libelle: "Scanner", icone: "qr" },
+      { fichier: "__menu__", libelle: "Menu", icone: "menu" }
+    ];
+
+    const barre = document.createElement("nav");
+    barre.id = "kadoskBarreMobile";
+    barre.className = "kadosk-barre-mobile";
+    barre.setAttribute("aria-label", "Navigation principale");
+    barre.innerHTML = items
+      .map((item) => {
+        if (item.fichier === "__menu__") {
+          return (
+            '<button type="button" class="kadosk-barre-mobile-item" data-barre-menu>' +
+            (ICONES[item.icone] || "") +
+            "<span>" + item.libelle + "</span></button>"
+          );
+        }
+        const actif = item.fichier === actuelle;
+        return (
+          '<a class="kadosk-barre-mobile-item' + (actif ? " actif" : "") + '" href="' + item.fichier + '">' +
+          (ICONES[item.icone] || "") +
+          "<span>" + item.libelle + "</span></a>"
+        );
+      })
+      .join("");
+
+    document.body.appendChild(barre);
+
+    const boutonMenu = barre.querySelector("[data-barre-menu]");
+    if (boutonMenu) {
+      boutonMenu.addEventListener("click", () => {
+        const sidebar = document.getElementById("kadoskSidebar");
+        const overlay = document.getElementById("kadoskSidebarOverlay");
+        if (!sidebar) return;
+        const estOuvert = sidebar.classList.toggle("ouverte");
+        if (overlay) overlay.classList.toggle("visible", estOuvert);
+      });
+    }
   }
 
   // ---------------------------------------------------------------------

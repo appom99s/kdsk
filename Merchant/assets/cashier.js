@@ -104,6 +104,14 @@
   const boutonEncaisser = document.getElementById("boutonEncaisser");
   const messageStatutEncaissement = document.getElementById("messageStatutEncaissement");
 
+  const locationSelect = document.createElement('select'); locationSelect.setAttribute('aria-label','Point de vente');
+  const locationLabel = document.createElement('label'); locationLabel.textContent = 'Point de vente'; locationLabel.append(locationSelect); blocMontant.prepend(locationLabel);
+  KADOSK_API.cashierLocations().then(data => {
+    locationSelect.replaceChildren();
+    if (!data.locations.length) locationSelect.add(new Option('établissement principal',''));
+    else { locationSelect.add(new Option('Choisir un établissement','')); data.locations.forEach(l => locationSelect.add(new Option(l.name,l.locationId))); }
+  }).catch(() => { locationSelect.add(new Option('Points de vente indisponibles','')); });
+  boutonEncaisser.textContent = 'Demander confirmation';
   function afficherResultatOperation(type, texte) {
     messageStatutEncaissement.classList.remove("kadosk-resultat-operation", "succes", "erreur");
     if (type) messageStatutEncaissement.classList.add("kadosk-resultat-operation", type);
@@ -590,7 +598,9 @@
     }
   }
 
+  let redemptionAttempt = null;
   async function encaisser() {
+    if (boutonEncaisser.disabled) return;
     if (!codeCarteActuelle && !payloadQrActuel) {
       return;
     }
@@ -614,9 +624,10 @@
       // marchand tarde entre le scan et le clic "Encaisser", l'appel ci-dessous
       // échoue avec QR_CODE_EXPIRE plutôt que d'encaisser sur un état obsolète -
       // c'est le comportement voulu (anti-rejeu), pas un bug.
-      const resultat = payloadQrActuel
-        ? await KADOSK_API.redeemQrTemporaire(payloadQrActuel, montant)
-        : await KADOSK_API.redeemGiftCard(codeCarteActuelle, montant);
+      const attemptKey = [payloadQrActuel || codeCarteActuelle, montant, locationSelect.value].join('|');
+      if (!redemptionAttempt || redemptionAttempt.key !== attemptKey) redemptionAttempt = {key:attemptKey,id:crypto.randomUUID()};
+      const resultat = await KADOSK_SECURE_UI.cashier({payload:payloadQrActuel,code:codeCarteActuelle,amount:montant,requestId:redemptionAttempt.id,locationId:locationSelect.value});
+      redemptionAttempt = null;
 
       // reinitialiserFormulaire() vide messageStatutEncaissement (voir sa
       // définition) - on réinitialise donc D'ABORD le formulaire, puis on affiche
@@ -632,18 +643,10 @@
         ? "Encaissement de " + resultat.amountRedeemed + " DH validé. Carte entièrement utilisée."
         : "Encaissement de " + resultat.amountRedeemed + " DH validé. Solde restant : " + resultat.remainingBalance + " DH.");
 
+      messageStatutEncaissement.textContent += " Référence : " + resultat.reference;
       chargerHistoriqueTransactions();
     } catch (erreur) {
-      const codeErreurEncaissement = erreur && erreur.message;
-      afficherResultatOperation("erreur", codeErreurEncaissement === "QR_CODE_EXPIRE"
-        ? "Le QR a expiré avant l'encaissement (il se renouvelle toutes les 30s) — redemandez au client de le rafraîchir et rescannez."
-        : codeErreurEncaissement === "TROP_DE_TENTATIVES"
-        ? "Trop de tentatives. Merci de réessayer plus tard."
-        : codeErreurEncaissement === "GIFT_CARD_SUSPENDED"
-        ? "Cette carte a été suspendue entre-temps. Contactez le support KADOSK."
-        : codeErreurEncaissement === "GIFT_CARD_CANCELLED"
-        ? "Cette carte a été annulée entre-temps et ne peut plus être utilisée."
-        : "L'encaissement a échoué. Merci de réessayer.");
+      afficherResultatOperation("erreur", KADOSK_SECURE_UI.error(erreur));
     } finally {
       boutonEncaisser.disabled = false;
     }
