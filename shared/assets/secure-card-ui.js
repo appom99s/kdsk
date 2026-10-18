@@ -1,8 +1,9 @@
 (function () {
   'use strict';
   const money = n => Number(n).toLocaleString('fr-FR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' DH';
-  const messages = { PIN_INCORRECT:'PIN incorrect.', PIN_LOCKED:'Carte bloquée. Le client doit demander sa réactivation avec son code permanent, son PIN et un OTP e-mail.', PIN_SETUP_REQUIRED:'Le bénéficiaire doit créer son PIN dans Factures et sécurité.', REDEMPTION_PENDING:'Une confirmation est déjà en attente.', INSUFFICIENT_BALANCE:'Solde insuffisant.', GIFT_CARD_EXPIRED:'Carte expirée.', GIFT_CARD_ACTIVATION_REQUIRED:'Cette carte imprimée doit être attribuée à son bénéficiaire.', LOCATION_NOT_AUTHORIZED:'Point de vente non autorisé.', CLIENT_CONFIRMATION_REQUIRED:'La confirmation du client est nécessaire.', CONCURRENT_MODIFICATION_RETRY:'La carte a changé. Vérifiez le résultat avant de réessayer.', CONFIRMATION_EXPIRED:'Cette demande a expiré.', TROP_DE_TENTATIVES:'Veuillez patienter avant de réessayer.', GIFT_CARD_SUSPENDED:'Carte bloquée.' };
-  const error = e => messages[e?.message] || 'Connexion perdue ou opération indisponible. Réessayez pour vérifier le résultat.';
+  const messages = { PIN_INCORRECT:'PIN incorrect.', PIN_LOCKED:'Carte bloquée. Le client doit demander sa réactivation avec son code permanent, son PIN et un OTP e-mail.', PIN_SETUP_REQUIRED:'Le bénéficiaire doit créer son PIN dans Factures et sécurité.', REDEMPTION_PENDING:'Une confirmation est déjà en attente.', INSUFFICIENT_BALANCE:'Solde insuffisant.', GIFT_CARD_EXPIRED:'Carte expirée.', GIFT_CARD_ACTIVATION_REQUIRED:'Cette carte imprimée doit être attribuée à son bénéficiaire.', LOCATION_NOT_AUTHORIZED:'Point de vente non autorisé.', CLIENT_CONFIRMATION_REQUIRED:'La confirmation du client est nécessaire.', CONCURRENT_MODIFICATION_RETRY:'La carte a changé. Vérifiez le résultat avant de réessayer.', CONFIRMATION_EXPIRED:'Cette demande a expiré.', TROP_DE_TENTATIVES:'Veuillez patienter avant de réessayer.', GIFT_CARD_SUSPENDED:'Carte bloquée.', GIFT_CARD_NOT_FOUND:'Carte introuvable pour ce commerce.', GIFT_CARD_NOT_ACTIVE:'Carte inactive ou déjà utilisée.', INVALID_REDEEM_AMOUNT:'Montant invalide.', PIN_INVALID:'Le PIN doit comporter 6 chiffres.', PERMANENT_CODE_REQUIRED:'Saisissez le code permanent de la carte.', TWO_FACTOR_REQUIRED:'Validez la double authentification puis réessayez.', MERCHANT_ACCOUNT_BLOCKED:'Compte marchand bloqué.', SESSION_EXPIREE:'Session expirée : reconnectez-vous.', COLLECTION_MANQUANTE:'Configuration KADOSK incomplète (collection des encaissements absente). Contactez l’administrateur.', ERREUR_RESEAU:'Connexion perdue. Vérifiez le résultat dans « Mes dernières transactions » avant de réessayer.' };
+  // Code inconnu : on l'affiche (ex. ERREUR_SERVEUR · 500) pour pouvoir diagnostiquer, sans jamais l'inventer.
+  const error = e => messages[e?.message] || ('Opération impossible (' + [e?.message || 'ERREUR_INCONNUE', e?.status].filter(Boolean).join(' · ') + '). Vérifiez « Mes dernières transactions » avant de réessayer.');
   function sheet(title) {
     const dialog = document.createElement('dialog'); dialog.className = 'kadosk-sheet';
     const heading = document.createElement('h2'); heading.textContent = title; heading.id = 'card-dialog-' + crypto.randomUUID(); dialog.setAttribute('aria-labelledby', heading.id);
@@ -29,22 +30,5 @@
       d.onclose = () => { input.value = ''; d.remove(); if (!finished) reject(new Error('CANCELLED')); }; input.focus();
     });
   }
-  async function cashier(data) {
-    let response;
-    response = await pin('Confirmation par PIN','Passez le téléphone au client pour saisir son code PIN. Montant : ' + money(data.amount), value => KADOSK_API.beginRedemption({...data,pin:value}));
-    if (response.state === 'COMPLETED') return response.result;
-    const d = sheet('Confirmation du client'), status = document.createElement('p'); status.setAttribute('role','status'); d.append(status);
-    button(d,'Fermer',() => d.close());
-    try {
-      while (d.open) {
-        status.textContent = `${money(data.amount)} — en attente de confirmation sur le téléphone du client.\nLa demande expire à ${new Date(response.expiresAt).toLocaleTimeString('fr-FR')}.`;
-        await new Promise(resolve => setTimeout(resolve,2000));
-        response = await KADOSK_API.redemptionStatus(response.requestId);
-        if (response.state === 'COMPLETED') return response.result;
-        if (response.state === 'REFUSED' || response.state === 'EXPIRED') throw new Error('CONFIRMATION_EXPIRED');
-      }
-      throw new Error('CANCELLED');
-    } finally { d.close(); d.remove(); }
-  }
-  window.KADOSK_SECURE_UI = {pin,cashier,error};
+  window.KADOSK_SECURE_UI = {pin,error};
 }());
