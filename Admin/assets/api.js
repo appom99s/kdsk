@@ -60,8 +60,89 @@ const KADOSK_API = (function () {
     return donnees;
   }
 
-  async function appeler(nom, methode, corps, dejaReessaye) {
-    return executerAppel(nom, methode, corps, "", dejaReessaye, false);
+  // --- Cache des lectures (V3.3) -------------------------------------------
+  // Tout est chargé une fois (préchargement au début de la session), puis chaque
+  // navigation affiche immédiatement la dernière version connue ; la donnée est
+  // revérifiée en arrière-plan et l'écran n'est mis à jour QUE si elle a changé
+  // (événement « kadosk:donnees-maj »). Stockage : sessionStorage de l'onglet,
+  // lié à une empreinte de la session (jamais le jeton), vidé à la déconnexion et
+  // après toute modification (POST). Jamais utilisé pour décider d'un accès.
+  const CACHE_PREFIXE = "kd_lecture:";
+  const CACHE_FRAIS_MS = 20000;
+  const CACHE_MAX_MS = 30 * 60 * 1000;
+  const LECTURES_DIRECTES = /^(chromeInfo|need2FA|sessionIdentity|adminIdentity|adminDashboard)(\?|$)/;
+  // POST qui ne modifient rien : ils ne vident pas le cache.
+  const POST_LECTURE = /^(cashierLocations|checkGiftCard|redemptionStatus|checkLoginLimit|verify2FA|verify)(\?|$)/;
+  function empreinteSession(session) {
+    let h = 5381;
+    const s = String(session || "");
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    return h.toString(36) + ":" + s.length;
+  }
+  function cacheLire(nom, empreinte) {
+    try {
+      const e = JSON.parse(sessionStorage.getItem(CACHE_PREFIXE + nom) || "null");
+      return e && e.s === empreinte && Date.now() - e.t < CACHE_MAX_MS ? e : null;
+    } catch (_) { return null; }
+  }
+  function cacheEcrire(nom, empreinte, valeur) {
+    try { sessionStorage.setItem(CACHE_PREFIXE + nom, JSON.stringify({ s: empreinte, t: Date.now(), v: valeur })); }
+    catch (_) { viderCache(); }
+  }
+  function viderCache() {
+    try { Object.keys(sessionStorage).filter((k) => k.indexOf(CACHE_PREFIXE) === 0).forEach((k) => sessionStorage.removeItem(k)); }
+    catch (_) { /* stockage indisponible */ }
+  }
+
+  // Lectures concurrentes partagées (une seule requête réseau par clé).
+  const lecturesEnCours = new Map();
+  function lectureReseau(nom, dejaReessaye) {
+    const session = KADOSK_AUTH.lireSessionBridge();
+    const cle = JSON.stringify([session, nom]);
+    if (lecturesEnCours.has(cle)) return lecturesEnCours.get(cle);
+    const partagee = executerAppel(nom, "GET", undefined, "", dejaReessaye, false)
+      .then((resultat) => {
+        if (session !== KADOSK_AUTH.lireSessionBridge()) throw new Error("SESSION_EXPIREE");
+        return resultat;
+      })
+      .finally(() => { if (lecturesEnCours.get(cle) === partagee) lecturesEnCours.delete(cle); });
+    lecturesEnCours.set(cle, partagee);
+    return partagee;
+  }
+
+  function rafraichirEnFond(nom, empreinte, ancienne) {
+    lectureReseau(nom, true).then((fraiche) => {
+      cacheEcrire(nom, empreinte, fraiche);
+      if (JSON.stringify(fraiche) !== JSON.stringify(ancienne)) {
+        document.dispatchEvent(new CustomEvent("kadosk:donnees-maj", { detail: { nom } }));
+      }
+    }).catch(() => { try { sessionStorage.removeItem(CACHE_PREFIXE + nom); } catch (_) { /* rien */ } });
+  }
+
+  function appeler(nom, methode, corps, dejaReessaye) {
+    if (methode !== "GET" && POST_LECTURE.test(nom)) return executerAppel(nom, methode, corps, "", dejaReessaye, false);
+    if (methode !== "GET") {
+      viderCache();
+      return executerAppel(nom, methode, corps, "", dejaReessaye, false).then((resultat) => { viderCache(); return resultat; });
+    }
+    if (LECTURES_DIRECTES.test(nom)) return lectureReseau(nom, dejaReessaye);
+    const empreinte = empreinteSession(KADOSK_AUTH.lireSessionBridge());
+    const entree = cacheLire(nom, empreinte);
+    if (entree) {
+      if (Date.now() - entree.t > CACHE_FRAIS_MS) rafraichirEnFond(nom, empreinte, entree.v);
+      return Promise.resolve(entree.v);
+    }
+    return lectureReseau(nom, dejaReessaye).then((valeur) => { cacheEcrire(nom, empreinte, valeur); return valeur; });
+  }
+
+  // Préchargement unique par session : chaque fonction est un appel de lecture.
+  const CLE_PRECHARGE = "kd_precharge_fait";
+  async function precharger(lectures) {
+    try { if (sessionStorage.getItem(CLE_PRECHARGE) === empreinteSession(KADOSK_AUTH.lireSessionBridge())) return; } catch (_) { return; }
+    const file = lectures.filter((f) => typeof f === "function");
+    const travailleur = async () => { while (file.length) { try { await file.shift()(); } catch (_) { /* lecture facultative */ } } };
+    await Promise.all([travailleur(), travailleur()]);
+    try { sessionStorage.setItem(CLE_PRECHARGE, empreinteSession(KADOSK_AUTH.lireSessionBridge())); } catch (_) { /* facultatif */ }
   }
 
   // Pour les appels avant connexion (mot de passe oublié, limite de connexion) :
@@ -72,6 +153,8 @@ const KADOSK_API = (function () {
   }
 
   return {
+    viderCache,
+    precharger,
     getDashboardStats: () => appeler("dashboardStats", "GET"),
     // Habillage de page (nom/logo/palier/rôle) uniquement, sans aucune donnée
     // financière - c'est celui-ci que nav.js doit utiliser (accessible à OWNER

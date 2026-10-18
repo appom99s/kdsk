@@ -85,9 +85,11 @@
     });
   }
 
-  async function naviguer(href, ajouterHistorique) {
+  async function naviguer(href, ajouterHistorique, garderDefilement) {
     if (navigationEnCours) return;
     navigationEnCours = true;
+    saisieEnCours = false;
+    const defilement = window.scrollY;
     try {
       const url = new URL(href, location.href);
       const html = await chargerDocument(url.href);
@@ -100,7 +102,7 @@
       document.title = doc.title;
       if (ajouterHistorique) history.pushState({ kadoskSpa: true }, "", url.href);
       actualiserNavigation(nomFichier(url.pathname));
-      window.scrollTo(0, 0);
+      window.scrollTo(0, garderDefilement ? defilement : 0);
       if (window.KADOSK_NAV) KADOSK_NAV.rendreEnteteDroite("kadoskEnteteDroite");
       await executerScripts(doc);
     } catch (erreur) {
@@ -117,7 +119,8 @@
   if (api) {
     // Small display resources only; permissions, subscriptions, balances,
     // financial history and large lists always use fresh server reads.
-    const lectures = ["getOfferSettings", "getInvoiceTemplate", "getMerchantProfile"];
+    // Les lectures sont désormais mises en cache par api.js (sessionStorage + revalidation).
+    const lectures = [];
     lectures.forEach((nom) => {
       if (typeof api[nom] !== "function") return;
       const original = api[nom].bind(api);
@@ -188,6 +191,36 @@
       chargerDocument(lien.href).catch(() => {});
     }
   });
+
+  // --- Données : tout précharger au début, puis seulement les changements ---
+  // Après le premier affichage, les lectures de toutes les pages sont chargées en
+  // arrière-plan (propriétaire uniquement). Quand api.js détecte qu'une donnée a
+  // changé, la page en cours est redessinée sur place, sauf saisie en cours.
+  let saisieEnCours = false;
+  document.addEventListener("input", (e) => { if (e.target && e.target.closest && e.target.closest(".kadosk-main")) saisieEnCours = true; }, true);
+  let minuterieMaj = null;
+  document.addEventListener("kadosk:donnees-maj", () => {
+    clearTimeout(minuterieMaj);
+    minuterieMaj = setTimeout(() => {
+      const actif = document.activeElement;
+      if (saisieEnCours || navigationEnCours || document.querySelector("dialog[open]") || (actif && actif.matches && actif.matches("input, select, textarea"))) return;
+      naviguer(location.href, false, true);
+    }, 400);
+  });
+  if (api && api.precharger && window.KADOSK_NAV) {
+    setTimeout(() => {
+      KADOSK_NAV.chargerChromeInfo().then((info) => {
+        if (!info || info.role !== "OWNER") return;
+        api.precharger([
+          () => api.getDashboardInitial(), () => api.getOnboardingChecklist(), () => api.getSubscriptionInfo(),
+          () => api.getAllGiftCards(), () => api.getRecentTransactions("", 20), () => api.getOfferSettings(),
+          () => api.getMerchantProfile(), () => api.getLocations(), () => api.getTeamMembers(),
+          () => api.getFinanceSummary(), () => api.getCommissionMonthly(), () => api.getMyMonthlyInvoices(),
+          () => api.getInvoiceTemplate(), () => api.getMerchantGrowth()
+        ].filter((f) => { try { return typeof f === "function"; } catch (_) { return false; } }));
+      }).catch(() => { /* préchargement facultatif */ });
+    }, 1200);
+  }
 
   window.KADOSK_SPA = { naviguer, invaliderDonnees };
 })();

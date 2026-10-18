@@ -92,6 +92,7 @@
   // Clé d'idempotence d'un encaissement : réutilisée si le caissier réessaie le même
   // encaissement après une coupure, pour ne jamais débiter deux fois.
   let redemptionAttempt = null;
+  let minuterieMessage = null;
 
   const locationSelect = document.getElementById("champPointVente");
   KADOSK_API.cashierLocations().then(data => {
@@ -358,7 +359,9 @@
         ? "Encaissement de " + resultat.amountRedeemed + " DH validé. Carte entièrement utilisée."
         : "Encaissement de " + resultat.amountRedeemed + " DH validé. Solde restant : " + resultat.remainingBalance + " DH.");
 
-      messageStatutEncaissement.textContent += " Référence : " + resultat.reference;
+      // Message bref, sans référence, qui s'efface tout seul pour le client suivant.
+      clearTimeout(minuterieMessage);
+      minuterieMessage = setTimeout(() => afficherResultatOperation("", ""), 5000);
       chargerHistoriqueTransactions();
     } catch (erreur) {
       afficherResultatOperation("erreur", KADOSK_SECURE_UI.error(erreur));

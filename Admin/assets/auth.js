@@ -312,6 +312,8 @@ const KADOSK_AUTH = (function () {
   // par défaut) - même principe que cheminRedirectionPersonnalise dans
   // demarrerAutorisationMembre/traiterRetourAutorisation ci-dessus.
   async function deconnecter(cheminRedirectionPersonnalise) {
+    // Cache des lectures (api.js) et préchargement : propres à la session.
+    try { Object.keys(sessionStorage).filter((k) => k.indexOf("kd_lecture:") === 0 || k === "kd_precharge_fait").forEach((k) => sessionStorage.removeItem(k)); } catch (_) { /* rien */ }
     await effacerTokens();
     window.location.href = cheminRedirectionPersonnalise || config().logoutRedirectPath;
   }

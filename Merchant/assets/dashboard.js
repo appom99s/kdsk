@@ -64,21 +64,27 @@
   const lireSession = (cle) => { try { return sessionStorage.getItem(cle); } catch (_) { return null; } };
   const ecrireSession = (cle, v) => { try { sessionStorage.setItem(cle, v); } catch (_) { /* facultatif */ } };
 
-  function etapes(etat) {
-    const pastille = (ok, oui, non) => `<span class="kd-statut ${ok ? "ok" : "attente"} kd-assistant-etat">${ok ? oui : non}</span>`;
-    return [
-      { titre: "Bienvenue sur KADOSK", html: `<p>En quelques étapes, votre commerce est prêt à vendre et encaisser des cartes cadeaux.</p><ul><li>Sécuriser votre compte</li><li>Compléter votre dossier</li><li>Personnaliser votre carte</li><li>Ajouter vos points de vente et votre équipe</li><li>Émettre et encaisser votre première carte</li></ul>` },
-      { titre: "Sécurisez votre compte", html: `<p>La double authentification (application d’authentification ou biométrie) protège l’accès à vos encaissements et à vos données clients.</p>`, action: ["Configurer la sécurité", "business.html"] },
-      { titre: "Complétez votre dossier", html: `${pastille(etat.ready, "Dossier complet", (etat.completed || 0) + " / " + (etat.total || 0) + " éléments complétés")}<p>Raison sociale, ICE, RC, adresse, documents : ces informations sont nécessaires à la validation finale par KADOSK et apparaissent sur vos factures.</p>`, action: ["Compléter mon dossier", "settings.html#blocOnboarding"] },
-      { titre: "Personnalisez votre carte cadeau", html: `${pastille(etat.cardDesigned, "Carte personnalisée", "À personnaliser")}<p>Choisissez un thème, vos couleurs, votre logo et le nom de la carte. L’aperçu correspond exactement à la carte reçue par e-mail par vos clients.</p>`, action: ["Ouvrir l’éditeur de carte", "settings.html#editeurCarteCadeau"] },
-      { titre: "Points de vente et équipe", html: `${pastille(etat.locationsCount > 0, etat.locationsCount + " point(s) de vente", "Aucun point de vente")}<p>Déclarez vos établissements puis invitez vos caissiers : chacun n’a accès qu’à l’encaissement.</p>`, action: ["Ajouter un point de vente", "settings.html#merchant-locations"], action2: ["Inviter un caissier", "equipe.html"] },
-      { titre: "Émettre et encaisser", html: `<p><strong>Émettre :</strong> dans « Cartes cadeaux », saisissez le montant et l’e-mail du client ; il reçoit sa carte, son code permanent et son PIN par e-mail.</p><p><strong>Encaisser :</strong> dans « Encaisser », saisissez le code permanent de la carte, le montant, puis le client tape son PIN à 6 chiffres. Aucun QR temporaire n’est utilisé.</p>`, action: ["Créer ma première carte", "gift-cards.html"] }
+  // Seules les tâches restantes sont proposées : un compte complet n'a jamais l'assistant.
+  function tachesManquantes(etat) {
+    const taches = [
+      { fait: !!etat.ready, titre: "Complétez votre dossier", html: `<span class="kd-statut attente kd-assistant-etat">${(etat.completed || 0) + " / " + (etat.total || 0)} éléments complétés</span><p>Raison sociale, ICE, RC, adresse, documents : ces informations sont nécessaires à la validation finale par KADOSK et apparaissent sur vos factures.</p>`, action: ["Compléter mon dossier", "settings.html#blocOnboarding"] },
+      { fait: !!etat.cardDesigned, titre: "Personnalisez votre carte cadeau", html: `<p>Choisissez un thème, vos couleurs, votre logo et le nom de la carte. L’aperçu correspond exactement à la carte reçue par e-mail par vos clients.</p>`, action: ["Ouvrir l’éditeur de carte", "settings.html#editeurCarteCadeau"] },
+      { fait: (etat.locationsCount || 0) > 0, titre: "Ajoutez un point de vente", html: `<p>Déclarez vos établissements, puis attribuez chaque caissier à son point de vente dans « Équipe ».</p>`, action: ["Ajouter un point de vente", "settings.html#merchant-locations"], action2: ["Gérer l’équipe", "equipe.html"] },
+      { fait: !!etat.cartesEmises, titre: "Émettez votre première carte", html: `<p><strong>Émettre :</strong> dans « Cartes cadeaux », saisissez le montant et l’e-mail du client ; il reçoit sa carte, son code permanent et son PIN par e-mail.</p><p><strong>Encaisser :</strong> saisissez le code de la carte, le montant, puis le client tape son PIN à 6 chiffres.</p>`, action: ["Créer ma première carte", "gift-cards.html"] }
     ];
+    return taches.filter((t) => !t.fait);
+  }
+
+  function etapes(etat) {
+    const restantes = tachesManquantes(etat);
+    if (!restantes.length) return [];
+    return [{ titre: "Il vous reste " + restantes.length + " étape" + (restantes.length > 1 ? "s" : ""), html: `<p>Terminez la configuration de votre commerce :</p><ul>${restantes.map((t) => "<li>" + t.titre + "</li>").join("")}</ul>` }, ...restantes];
   }
 
   function ouvrirAssistant(etat) {
     if (document.querySelector(".kd-assistant[open]")) return;
     const liste = etapes(etat);
+    if (!liste.length) return;
     let index = Math.min(Number(lireSession(CLE_ETAPE)) || 0, liste.length - 1);
     const d = document.createElement("dialog");
     d.className = "kd-assistant";
@@ -134,22 +140,23 @@
 
   function progression(etat) {
     const bloc = $("dbProgression");
-    const etapesFaites = [etat.ready, etat.cardDesigned, etat.locationsCount > 0].filter(Boolean).length;
-    if (etat.wizardCompletedAt && etapesFaites === 3) { bloc.hidden = true; return; }
+    const restantes = tachesManquantes(etat);
+    if (!restantes.length) { bloc.hidden = true; return; }
     bloc.hidden = false;
-    $("dbProgressionResume").textContent = "Dossier " + (etat.completed || 0) + "/" + (etat.total || 0) + " · carte " + (etat.cardDesigned ? "personnalisée" : "à personnaliser") + " · " + (etat.locationsCount || 0) + " point(s) de vente";
-    const barre = $("dbProgressionBarre"); barre.max = 3; barre.value = etapesFaites;
+    $("dbProgressionResume").textContent = "À faire : " + restantes.map((t) => t.titre.toLowerCase()).join(" · ");
+    const barre = $("dbProgressionBarre"); barre.max = 4; barre.value = 4 - restantes.length;
     $("dbOuvrirAssistant").onclick = () => ouvrirAssistant(etat);
   }
 
   KADOSK_NAV.chargerChromeInfo().then((info) => {
     if (info.role !== "OWNER") return;
-    KADOSK_API.getOnboardingChecklist().then((etat) => {
-      progression(etat);
-      if (!etat.wizardCompletedAt && lireSession(CLE_PLUS_TARD) !== "1") ouvrirAssistant(etat);
-    }).catch(() => { /* l'assistant est facultatif */ });
-    return KADOSK_API.getDashboardInitial().then(({ stats, transactions, chart, subscription }) => {
+    return Promise.all([KADOSK_API.getDashboardInitial(), KADOSK_API.getOnboardingChecklist().catch(() => null)]).then(([{ stats, transactions, chart, subscription }, etat]) => {
       const s = stats || {};
+      if (etat) {
+        etat.cartesEmises = (s.activeCardsCount || 0) + (s.usedCardsCount || 0) + (s.expiredCardsCount || 0) > 0;
+        progression(etat);
+        if (lireSession(CLE_PLUS_TARD) !== "1") ouvrirAssistant(etat);
+      }
       $("dbBonjour").textContent = "Bonjour" + (s.merchantName ? ", " + s.merchantName : "");
       $("kpiEncaisse").textContent = dh(s.revenueToday);
       delta($("kpiEncaisseDelta"), s.revenueToday, s.revenueYesterday, " DH");

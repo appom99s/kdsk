@@ -47,6 +47,29 @@
 
   let idEnCoursDeRetrait = null;
 
+  // Points de vente du commerce, chargés une fois : attribution directe d'un caissier.
+  let pointsDeVente = [];
+  const champPointVente = document.getElementById("champPointVenteEquipe");
+  function selectPointVente(u) {
+    const ids = u.locationIds || [];
+    if (!pointsDeVente.length) return '<small>Aucun point de vente déclaré</small>';
+    const options = ['<option value="">— À attribuer —</option>']
+      .concat(ids.length > 1 ? ['<option value="__plusieurs" selected>' + ids.length + ' points de vente</option>'] : [])
+      .concat(pointsDeVente.map((l) => '<option value="' + echapperHtml(l.locationId) + '"' + (ids.length === 1 && ids[0] === l.locationId ? " selected" : "") + ">" + echapperHtml(l.name) + "</option>"));
+    return '<select class="kadosk-input" data-point-vente="' + echapperHtml(u.id) + '" aria-label="Point de vente de ' + echapperHtml(u.name || u.email) + '" style="margin-top:6px;min-height:40px;">' + options.join("") + "</select>";
+  }
+  async function chargerPointsDeVente() {
+    try {
+      const { locations } = await KADOSK_API.getLocations();
+      pointsDeVente = (locations || []).filter((l) => l.active !== false);
+    } catch (_) { pointsDeVente = []; }
+    if (champPointVente) {
+      champPointVente.innerHTML = pointsDeVente.length
+        ? '<option value="">— Choisir —</option>' + pointsDeVente.map((l) => '<option value="' + echapperHtml(l.locationId) + '">' + echapperHtml(l.name) + "</option>").join("")
+        : '<option value="">Établissement principal (aucun point de vente déclaré)</option>';
+    }
+  }
+
   function rendreTable(items) {
     if (!items.length) {
       corpsTable.innerHTML = "";
@@ -61,7 +84,7 @@
         <td>${echapperHtml(u.name || "—")}</td>
         <td>${echapperHtml(u.email)}</td>
         <td>${echapperHtml(LIBELLES_ROLE[u.role] || u.role)}<br><small>${u.deviceAssigned ? "Appareil dédié associé" : "Appareil à associer à la première connexion validée"}</small></td>
-        <td>${echapperHtml(libellesAcces(u))}<br><button type="button" class="kadosk-lien-action" data-affecter="${echapperHtml(u.id)}">Points de vente (${(u.locationIds || []).length})</button></td>
+        <td>${echapperHtml(libellesAcces(u))}<br>${selectPointVente(u)} <button type="button" class="kadosk-lien-action" data-affecter="${echapperHtml(u.id)}">Plusieurs…</button></td>
         <td>${formaterDate(u.invitedAt)}</td>
         <td><button type="button" class="kadosk-lien-action" data-renvoyer="${echapperHtml(u.id)}">Renvoyer l’e-mail</button> <button type="button" class="kadosk-lien-action" data-retirer="${echapperHtml(u.id)}">Retirer</button></td>
       </tr>`
@@ -88,6 +111,22 @@
         } catch(_) {messageStatut.textContent='Impossible de charger les points de vente.';}
         finally {button.disabled=false;}
       };
+    });
+    corpsTable.querySelectorAll("[data-point-vente]").forEach((select) => {
+      select.addEventListener("change", async () => {
+        if (select.value === "__plusieurs") return;
+        select.disabled = true;
+        messageStatut.style.color = "";
+        try {
+          await KADOSK_API.saveTeamAssignments(select.dataset.pointVente, select.value ? [select.value] : []);
+          messageStatut.style.color = "#1faa6c";
+          messageStatut.textContent = select.value ? "Caissier attribué à « " + select.options[select.selectedIndex].text + " »." : "Attribution retirée : ce caissier ne peut plus encaisser.";
+          await chargerEquipe();
+        } catch (_) {
+          messageStatut.textContent = "Attribution impossible. Vérifiez la double authentification puis réessayez.";
+          select.disabled = false;
+        }
+      });
     });
     corpsTable.querySelectorAll("[data-renvoyer]").forEach(button => {
       button.addEventListener("click", async () => {
@@ -161,9 +200,19 @@
         nom,
         champPeutVoirCartes.checked
       );
+      // Attribution du point de vente choisi dès l'invitation.
+      const pointVenteChoisi = champPointVente ? champPointVente.value : "";
+      if (pointVenteChoisi) {
+        try {
+          const liste = await KADOSK_API.getTeamMembers();
+          const nouveau = ((liste && liste.items) || []).find((u) => String(u.email || "").toLowerCase() === email.toLowerCase());
+          if (nouveau) await KADOSK_API.saveTeamAssignments(nouveau.id, [pointVenteChoisi]);
+        } catch (_) { console.error("Attribution du point de vente à l'invitation impossible"); }
+      }
       champNom.value = "";
       champEmail.value = "";
       champPeutVoirCartes.checked = false;
+      if (champPointVente) champPointVente.value = "";
       messageStatut.style.color = "#1faa6c";
       messageStatut.textContent = resultat && resultat.emailSent
         ? "Caissier ajouté. L’e-mail pour créer son mot de passe a été envoyé."
@@ -206,6 +255,6 @@
 
   boutonAjouter.addEventListener("click", ajouterMembre);
 
-  chargerEquipe();
+  chargerPointsDeVente().then(chargerEquipe);
   chargerQuota();
 })();

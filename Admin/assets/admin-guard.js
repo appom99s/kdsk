@@ -22,10 +22,33 @@
     if (role && badge) badge.textContent = role;
   } catch (_) { /* stockage indisponible */ }
   const verification = page === "admin-dashboard.html" ? KADOSK_API.getAdminDashboard() : KADOSK_API.getAdminIdentity();
+  // Donnée changée en arrière-plan (api.js) : la page se redessine avec la version
+  // à jour, sauf si une fenêtre est ouverte ou qu'une saisie est en cours.
+  let dernierDetail = null, saisieEnCours = false, minuterieMaj = null;
+  document.addEventListener("input", () => { saisieEnCours = true; }, true);
+  document.addEventListener("kadosk:donnees-maj", () => {
+    clearTimeout(minuterieMaj);
+    minuterieMaj = setTimeout(() => {
+      const actif = document.activeElement;
+      const modalOuvert = Array.from(document.querySelectorAll(".adm-modal-fond")).some((m) => m.style.display && m.style.display !== "none");
+      if (!dernierDetail || saisieEnCours || modalOuvert || document.querySelector("dialog[open]") || (actif && actif.matches && actif.matches("input, select, textarea"))) return;
+      document.dispatchEvent(new CustomEvent("kadosk:admin-ready", { detail: dernierDetail }));
+    }, 400);
+  });
   window.KADOSK_ADMIN_READY = verification
     .then((donnees) => {
       try { if (donnees && donnees.subRole) sessionStorage.setItem(CLE_ROLE, donnees.subRole); } catch (_) { /* facultatif */ }
+      dernierDetail = donnees;
       document.dispatchEvent(new CustomEvent("kadosk:admin-ready", { detail: donnees }));
+      // Précharge une fois par session les listes des autres pages (affichage immédiat ensuite).
+      setTimeout(() => {
+        if (!KADOSK_API.precharger) return;
+        KADOSK_API.precharger([
+          () => KADOSK_API.getAdminMerchants("", "", 1), () => KADOSK_API.getAdminGiftCards("", 1),
+          () => KADOSK_API.getAdminFinanceSummary(), () => KADOSK_API.getAdminMerchantsFiltre(),
+          () => KADOSK_API.getAdminReconciliation(), () => KADOSK_API.getAdminAutoEntrepreneurSettings()
+        ]);
+      }, 1200);
       return donnees;
     })
     .catch((erreur) => {
