@@ -203,6 +203,73 @@
     }
   }
 
+  // --- Émission : montant (fixe enregistré ou libre) et design de la carte ---
+  const zoneMontants = document.getElementById("creationMontants");
+  const blocMontantLibre = document.getElementById("blocMontantLibre");
+  const aideMontantLibre = document.getElementById("aideMontantLibre");
+  const zoneDesigns = document.getElementById("creationDesigns");
+  const apercuEmission = document.getElementById("apercuEmission");
+  const DESIGNS_EMISSION = [["saved", "Mon design"], ["classique", "Classique"], ["luxury", "Luxe"], ["botanical", "Botanique"], ["celebration", "Fête"], ["moroccan", "Marocain"], ["ocean", "Océan"], ["minimal", "Minimal"]];
+  let offreEmission = null, designChoisi = "saved", montantLibreChoisi = false, carteApercu = null;
+
+  function montantsFixes() {
+    return String((offreEmission && offreEmission.presetAmounts) || "").split(",").map((v) => Number(v.trim())).filter((n) => n > 0 && n <= 1000);
+  }
+  function bornesLibres() {
+    const o = offreEmission || {};
+    const libre = !!o.freeAmountEnabled || !montantsFixes().length;
+    return { libre, min: Number(o.freeAmountMin) || 1, max: Math.min(1000, Number(o.freeAmountMax) || 1000) };
+  }
+  function choix(zone, texte, actif, action) {
+    const b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", String(actif)); b.textContent = texte;
+    b.addEventListener("click", action);
+    zone.append(b);
+  }
+  function rendreMontants() {
+    if (!zoneMontants) return;
+    zoneMontants.replaceChildren();
+    const fixes = montantsFixes(), bornes = bornesLibres();
+    if (!fixes.length) montantLibreChoisi = true;
+    fixes.forEach((m) => choix(zoneMontants, m.toLocaleString("fr-FR") + " DH", !montantLibreChoisi && Number(creationMontant.value) === m, () => {
+      montantLibreChoisi = false; creationMontant.value = String(m); rendreMontants(); majApercu();
+    }));
+    if (bornes.libre && fixes.length) choix(zoneMontants, "Montant libre", montantLibreChoisi, () => {
+      montantLibreChoisi = true; creationMontant.value = ""; rendreMontants(); creationMontant.focus(); majApercu();
+    });
+    blocMontantLibre.hidden = !montantLibreChoisi;
+    creationMontant.min = String(bornes.min); creationMontant.max = String(bornes.max);
+    aideMontantLibre.textContent = "Entre " + bornes.min.toLocaleString("fr-FR") + " et " + bornes.max.toLocaleString("fr-FR") + " DH.";
+  }
+  // Même règle que le backend (designPourEmission) : design enregistré, classique ou thème.
+  function designOffre(cle) {
+    const o = offreEmission || {};
+    const base = { accentColor: o.accentColor, pattern: o.pattern, font: o.font, backgroundType: o.backgroundType, backgroundImageUrl: o.backgroundImageUrl,
+      gradientFrom: o.gradientFrom, gradientTo: o.gradientTo, gradientAngle: o.gradientAngle, design: { ...(o.design || {}) } };
+    if (cle === "classique") return { ...base, backgroundType: "couleur", design: { ...base.design, theme: "" } };
+    if (cle !== "saved") return { ...base, backgroundType: "theme", design: { ...base.design, theme: cle } };
+    return base;
+  }
+  function rendreDesigns() {
+    if (!zoneDesigns) return;
+    zoneDesigns.replaceChildren();
+    DESIGNS_EMISSION.forEach(([cle, texte]) => choix(zoneDesigns, texte, designChoisi === cle, () => { designChoisi = cle; rendreDesigns(); majApercu(); }));
+  }
+  function majApercu() {
+    const R = window.KADOSK_GIFT_CARD_RENDERER;
+    if (!R || !apercuEmission || !offreEmission) return;
+    const donnees = { businessName: offreEmission.name || "Votre commerce", cardName: offreEmission.name || "", logoUrl: offreEmission.logoUrl, amount: Number(creationMontant.value) || null };
+    if (!carteApercu) { carteApercu = R.creer(donnees, designOffre(designChoisi)); apercuEmission.replaceChildren(carteApercu); }
+    else { R.majDonnees(carteApercu, donnees); R.majDesignOffre(carteApercu, designOffre(designChoisi)); }
+  }
+  async function preparerEmission() {
+    try { offreEmission = await KADOSK_API.getOfferSettings(); } catch (_) { offreEmission = {}; }
+    const fixes = montantsFixes();
+    if (!creationMontant.value && fixes.length && !montantLibreChoisi) creationMontant.value = String(fixes[0]);
+    rendreMontants(); rendreDesigns(); majApercu();
+  }
+  if (creationMontant) creationMontant.addEventListener("input", majApercu);
+
   const creationEnvoyer = document.getElementById('creationEnvoyer');
   let issuanceRequest=null;
   async function creerCarte() {
@@ -213,6 +280,11 @@
     const recipientName = creationNom.value.trim();
     if (!recipientName || !amount || amount <= 0) {
       creationStatut.textContent = "Nom et montant valide sont obligatoires.";
+      return;
+    }
+    const bornes = bornesLibres();
+    if (!montantsFixes().includes(amount) && (!bornes.libre || amount < bornes.min || amount > bornes.max)) {
+      creationStatut.textContent = bornes.libre ? "Le montant libre doit être entre " + bornes.min + " et " + bornes.max + " DH." : "Choisissez un des montants enregistrés.";
       return;
     }
     
@@ -226,10 +298,10 @@
     creationStatut.textContent = "Création en cours…";
     try {
       const paymentStatus=document.getElementById('creationPaiement').value;
-      const fingerprint=JSON.stringify([amount,recipientEmail,recipientName,creationMessage.value.trim(),paymentStatus]);
+      const fingerprint=JSON.stringify([amount,recipientEmail,recipientName,creationMessage.value.trim(),paymentStatus,designChoisi]);
       if(issuanceRequest && issuanceRequest.fingerprint!==fingerprint) throw Error('Reprenez la demande précédente avant de modifier ses informations.');
       issuanceRequest ||= {id:crypto.randomUUID(),fingerprint};
-      const draft = await KADOSK_API.createMerchantGiftCardDraft(amount, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode, issuanceRequest.id, paymentStatus);
+      const draft = await KADOSK_API.createMerchantGiftCardDraft(amount, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode, issuanceRequest.id, paymentStatus, designChoisi);
       const activated = await KADOSK_API.activateOrder(draft.orderItemId, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode, recipientPhone);
       {
         if (activated.emailSent === false) {
@@ -249,6 +321,7 @@
       creationEmail.value = "";
       creationTelephone.value = "";
       creationMontant.value = "";
+      montantLibreChoisi = false;
       creationMessage.value = "";
       await chargerCartes();
     } catch (erreur) {
@@ -259,7 +332,8 @@
         QUOTA_CARTES_ATTEINT: "Vous avez atteint la limite de cartes de votre essai gratuit (10 cartes ou 30 jours). Passez à un abonnement payant pour continuer.",
         TWO_FACTOR_REQUIRED: "Validez la double authentification avant de créer la carte.",
         "2FA_ENROLLMENT_REQUIRED": "Activez la double authentification avant de créer la carte.",
-        INVALID_AMOUNT_FOR_OFFER: "Ce montant n’est pas autorisé dans votre offre.",
+        INVALID_AMOUNT_FOR_OFFER: "Ce montant n’est pas autorisé : choisissez un montant fixe enregistré ou un montant libre dans la fourchette de votre offre.",
+        INVALID_DESIGN_CHOICE: "Design inconnu : choisissez un des designs proposés.",
         INVALID_INITIAL_BALANCE: "Le montant doit être compris entre 1 et 1 000 DH.",
         FORBIDDEN_ROLE: "Seul le propriétaire du compte peut créer une carte.",
         MERCHANT_ACCOUNT_BLOCKED: "Le compte marchand est bloqué.",
@@ -278,6 +352,7 @@
   creationEmail.addEventListener("change", () => completerClient(creationEmail));
   function ouvrirModalEmission() {
     modalEmission.style.display = "flex";
+    preparerEmission();
 
     chargerClientsMarchand();
     creationNom.focus();

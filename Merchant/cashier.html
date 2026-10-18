@@ -27,6 +27,16 @@
         </div>
         <div class="kadosk-ligne-boutons">
           <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonRechercher">Rechercher</button>
+          <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonScanner">Scanner le code</button>
+        </div>
+        <!-- Scan du QR du CODE PERMANENT (imprimé sur la carte e-mail). Caméra lancée à la demande uniquement. -->
+        <div id="blocScan" hidden style="margin-top:14px;">
+          <div style="position:relative;border-radius:14px;overflow:hidden;background:#0d1a17;aspect-ratio:1/1;max-width:340px;margin:0 auto;">
+            <video id="videoScan" playsinline muted style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+            <div style="position:absolute;inset:14%;border:2px solid rgba(255,255,255,.7);border-radius:14px;pointer-events:none;"></div>
+          </div>
+          <p class="kd-aide" id="messageScan" role="status" style="text-align:center;">Visez le QR « Scanner à la caisse » de la carte.</p>
+          <div class="kadosk-ligne-boutons" style="justify-content:center;"><button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonFermerScan">Fermer la caméra</button></div>
         </div>
 
         <div class="kadosk-carte-info" id="carteInfo" style="display:none;"></div>

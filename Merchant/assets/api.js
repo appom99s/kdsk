@@ -202,8 +202,8 @@ const KADOSK_API = (function () {
     
     activateOrder: (giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone) =>
       appeler("activateOrder", "POST", { giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone }),
-    createMerchantGiftCardDraft: (amount, recipientEmail, recipientName, message, deliveryMode, requestId, paymentStatus) =>
-      appeler("merchantGiftCardDraft", "POST", { amount, recipientEmail, recipientName, message, deliveryMode, requestId, paymentStatus }),
+    createMerchantGiftCardDraft: (amount, recipientEmail, recipientName, message, deliveryMode, requestId, paymentStatus, designChoice) =>
+      appeler("merchantGiftCardDraft", "POST", { amount, recipientEmail, recipientName, message, deliveryMode, requestId, paymentStatus, designChoice }),
     getLocations: () => appeler("merchantLocations", "GET"),
     saveLocations: (data) => appeler("merchantLocations", "POST", data),
     getOfferSettings: () => appeler("offerSettings", "GET"),

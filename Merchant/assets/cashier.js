@@ -427,6 +427,112 @@
 
   chargerHistoriqueTransactions();
 
+  // --- Scan du code PERMANENT (QR « Scanner à la caisse » de la carte e-mail) ---
+  // Caméra démarrée uniquement sur demande, une seule à la fois, arrêtée dès la
+  // lecture, à la fermeture, quand l'onglet est masqué ou quand on quitte la page
+  // (navigation interne comprise). Seul un code KDSK-XXXX-XXXX-XXXX-XXXX est accepté.
+  const FORMAT_CODE_PERMANENT = /^KDSK(-[A-Z0-9]{4}){4}$/;
+  const boutonScanner = document.getElementById("boutonScanner");
+  const blocScan = document.getElementById("blocScan");
+  const videoScan = document.getElementById("videoScan");
+  const messageScan = document.getElementById("messageScan");
+  let fluxCamera = null, demarrageCamera = false, minuterieScan = null, detecteur = null, canvasScan = null, sessionScan = 0;
+
+  function chargerJsQr() {
+    if (window.jsQR) return Promise.resolve();
+    const sources = ["https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js", "https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"];
+    return sources.reduce((promesse, src) => promesse.catch(() => new Promise((ok, ko) => {
+      const s = document.createElement("script"); s.src = src; s.crossOrigin = "anonymous";
+      s.onload = () => (window.jsQR ? ok() : ko(new Error("JSQR"))); s.onerror = () => ko(new Error("JSQR"));
+      document.head.append(s);
+    })), Promise.reject(new Error("START")));
+  }
+
+  function arreterScan() {
+    sessionScan++;
+    clearTimeout(minuterieScan); minuterieScan = null;
+    if (fluxCamera) { fluxCamera.getTracks().forEach((piste) => piste.stop()); fluxCamera = null; }
+    if (videoScan) videoScan.srcObject = null;
+    if (blocScan) blocScan.hidden = true;
+  }
+
+  async function lireImage() {
+    if (detecteur) {
+      const codes = await detecteur.detect(videoScan);
+      return codes[0] && codes[0].rawValue;
+    }
+    if (!window.jsQR || !videoScan.videoWidth) return null;
+    const echelle = Math.min(1, 640 / Math.max(videoScan.videoWidth, videoScan.videoHeight));
+    canvasScan = canvasScan || document.createElement("canvas");
+    canvasScan.width = Math.round(videoScan.videoWidth * echelle); canvasScan.height = Math.round(videoScan.videoHeight * echelle);
+    const ctx = canvasScan.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(videoScan, 0, 0, canvasScan.width, canvasScan.height);
+    const image = ctx.getImageData(0, 0, canvasScan.width, canvasScan.height);
+    const resultat = window.jsQR(image.data, image.width, image.height, { inversionAttempts: "dontInvert" });
+    return resultat && resultat.data;
+  }
+
+  async function boucleScan() {
+    if (!fluxCamera) return;
+    if (!videoScan.isConnected || document.hidden) { arreterScan(); return; }
+    try {
+      const brut = await lireImage();
+      if (brut) {
+        const code = String(brut).trim().toUpperCase();
+        if (FORMAT_CODE_PERMANENT.test(code)) {
+          arreterScan();
+          champCode.value = code;
+          rechercherCarte();
+          return;
+        }
+        messageScan.textContent = "Ce QR n’est pas un code de carte KADOSK. Visez le QR « Scanner à la caisse ».";
+      }
+    } catch (_) { /* image pas encore exploitable */ }
+    minuterieScan = setTimeout(boucleScan, 180);
+  }
+
+  async function demarrerScan() {
+    if (demarrageCamera || fluxCamera) return;
+    demarrageCamera = true;
+    prepareContexteAudio();
+    reinitialiserFormulaire();
+    const maSession = ++sessionScan;
+    blocScan.hidden = false;
+    messageScan.textContent = "Activation de la caméra…";
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error("CAMERA"), { name: "NotFoundError" });
+      if ("BarcodeDetector" in window) {
+        try { const formats = await window.BarcodeDetector.getSupportedFormats(); if (formats.includes("qr_code")) detecteur = new window.BarcodeDetector({ formats: ["qr_code"] }); } catch (_) { detecteur = null; }
+      }
+      if (!detecteur) await chargerJsQr();
+      let flux;
+      try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false }); }
+      catch (e) { if (e && (e.name === "OverconstrainedError" || e.name === "ConstraintNotSatisfiedError")) flux = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); else throw e; }
+      if (maSession !== sessionScan || !videoScan.isConnected) { flux.getTracks().forEach((p) => p.stop()); return; }
+      fluxCamera = flux;
+      videoScan.srcObject = flux;
+      videoScan.play().catch(() => { /* lecture relancée par le navigateur */ });
+      messageScan.textContent = "Visez le QR « Scanner à la caisse » de la carte.";
+      boucleScan();
+    } catch (erreur) {
+      if (maSession !== sessionScan) return; // fermé par l'utilisateur pendant l'activation
+      arreterScan();
+      blocScan.hidden = false;
+      const nom = erreur && erreur.name;
+      messageScan.textContent = nom === "NotAllowedError" ? "Accès à la caméra refusé : autorisez la caméra pour ce site, ou saisissez le code."
+        : nom === "NotFoundError" ? "Aucune caméra disponible : saisissez le code de la carte."
+        : nom === "NotReadableError" ? "La caméra est utilisée par une autre application. Fermez-la puis réessayez."
+        : erreur && erreur.message === "JSQR" ? "Lecteur QR indisponible : saisissez le code de la carte."
+        : "Caméra indisponible : saisissez le code de la carte.";
+    } finally { demarrageCamera = false; }
+  }
+
+  if (boutonScanner) boutonScanner.addEventListener("click", demarrerScan);
+  const boutonFermerScan = document.getElementById("boutonFermerScan");
+  if (boutonFermerScan) boutonFermerScan.addEventListener("click", arreterScan);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) arreterScan(); });
+  window.addEventListener("pagehide", arreterScan);
+
   boutonRechercher.addEventListener("click", rechercherCarte);
   boutonEncaisser.addEventListener("click", encaisser);
   champCode.addEventListener("keydown", (evenement) => {

@@ -1,0 +1,6 @@
+/* Émission de carte : choix du montant et du design (V3.5). */
+.em-bloc{margin-top:14px}
+.em-choix{display:flex;flex-wrap:wrap;gap:8px}
+.em-choix button{min-height:40px;padding:8px 14px;border:1.5px solid #cfdcd7;border-radius:999px;background:#fff;color:#1f3a34;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.em-choix button[aria-checked="true"]{background:#1f3a34;border-color:#1f3a34;color:#fff}
+.em-apercu{max-width:420px;margin-top:12px}

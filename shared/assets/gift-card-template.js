@@ -149,7 +149,7 @@ function gcLisibilite(e) {
   return { ton, voile, ref };
 }
 
-// p : { merchantName, cardTitle, amount, currency, logoHref, fontFamily, uid, design }
+// p : { merchantName, cardTitle, amount, currency, logoHref, fontFamily, uid, design, qrCode? }
 function construireSvgCarteCadeau(p) {
   const e = gcNormaliserDesign(p.design);
   const lis = gcLisibilite(e);
@@ -213,9 +213,121 @@ function construireSvgCarteCadeau(p) {
   calques.push(`<text x="32" y="${yMontant}" font-family="${sans}" font-size="34" font-weight="700" fill="${or}">${gcXml(gcMontant(p.amount))}<tspan font-size="16" dx="4">${gcXml(p.currency || "DH")}</tspan></text>`);
   calques.push(`<text x="32" y="${H - 18}" font-family="${sans}" font-size="11" fill="${texte}" opacity="0.85">Une attention qui fait toute la différence.</text>`);
   calques.push(`<text x="${L - 32}" y="${H - 18}" text-anchor="end" font-family="${sans}" font-size="10" letter-spacing="1" fill="${texte}" opacity="0.7">GÉRÉ PAR KADOSK</text>`);
+  // QR du code permanent (e-mail uniquement) : scanné à la caisse, puis le client saisit son PIN.
+  if (p.qrCode) {
+    calques.push(gcQrSvg(p.qrCode, L - 136, 124, 104));
+    calques.push(`<text x="${L - 84}" y="244" text-anchor="middle" font-family="${sans}" font-size="9" letter-spacing="1" fill="${texte}" opacity="0.85">SCANNER À LA CAISSE</text>`);
+  }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${L} ${H}" width="${L}" height="${H}" role="img" aria-label="${gcXml("Carte cadeau " + nom)}">` +
     `<defs>${defs.join("")}</defs><g clip-path="url(#gcc${u})">${calques.join("")}</g></svg>`;
+}
+// QR code (mode octet, correction M, versions 1 à 10) pour le code PERMANENT de
+// la carte, lu par le scanner de la caisse. Aucune dépendance externe.
+function gcQrMatrice(texte) {
+  const ECC = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26], BLOCS = [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5];
+  const octets = Array.from(unescape(encodeURIComponent(String(texte))), (c) => c.charCodeAt(0));
+  const modulesBruts = (v) => { let r = (16 * v + 128) * v + 64; if (v >= 2) { const n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; } return r; };
+  const nbDonnees = (v) => Math.floor(modulesBruts(v) / 8) - ECC[v] * BLOCS[v];
+  let v = 1;
+  while (v <= 10 && 4 + (v < 10 ? 8 : 16) + 8 * octets.length > nbDonnees(v) * 8) v++;
+  if (v > 10) throw new Error("QR_TROP_LONG");
+  const bits = [];
+  const ajout = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+  ajout(4, 4); ajout(octets.length, v < 10 ? 8 : 16); octets.forEach((b) => ajout(b, 8));
+  const capacite = nbDonnees(v) * 8;
+  ajout(0, Math.min(4, capacite - bits.length)); ajout(0, (8 - (bits.length % 8)) % 8);
+  for (let p = 0xec; bits.length < capacite; p ^= 0xec ^ 0x11) ajout(p, 8);
+  const donnees = [];
+  for (let i = 0; i < bits.length; i += 8) { let x = 0; for (let j = 0; j < 8; j++) x = (x << 1) | bits[i + j]; donnees.push(x); }
+  const mult = (x, y) => { let z = 0; for (let i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11d); z ^= ((y >>> i) & 1) * x; } return z; };
+  const diviseur = (deg) => { const r = new Array(deg).fill(0); r[deg - 1] = 1; let racine = 1; for (let i = 0; i < deg; i++) { for (let j = 0; j < deg; j++) { r[j] = mult(r[j], racine); if (j + 1 < deg) r[j] ^= r[j + 1]; } racine = mult(racine, 2); } return r; };
+  const reste = (data, div) => { const r = div.map(() => 0); for (const b of data) { const f = b ^ r.shift(); r.push(0); div.forEach((c, i) => { r[i] ^= mult(c, f); }); } return r; };
+  const nb = BLOCS[v], eccLg = ECC[v], brut = Math.floor(modulesBruts(v) / 8), nbCourts = nb - (brut % nb), lgCourt = Math.floor(brut / nb), div = diviseur(eccLg);
+  const blocs = [];
+  for (let i = 0, k = 0; i < nb; i++) {
+    const dat = donnees.slice(k, k + lgCourt - eccLg + (i < nbCourts ? 0 : 1)); k += dat.length;
+    const ecc = reste(dat, div); if (i < nbCourts) dat.push(0); blocs.push(dat.concat(ecc));
+  }
+  const final = [];
+  for (let i = 0; i < blocs[0].length; i++) blocs.forEach((b, j) => { if (i !== lgCourt - eccLg || j >= nbCourts) final.push(b[i]); });
+
+  const taille = v * 4 + 17;
+  const m = Array.from({ length: taille }, () => new Array(taille).fill(false));
+  const f = Array.from({ length: taille }, () => new Array(taille).fill(false));
+  const fixe = (x, y, noir) => { m[y][x] = noir; f[y][x] = true; };
+  for (let i = 0; i < taille; i++) { fixe(6, i, i % 2 === 0); fixe(i, 6, i % 2 === 0); }
+  [[3, 3], [taille - 4, 3], [3, taille - 4]].forEach(([cx, cy]) => {
+    for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+      const d = Math.max(Math.abs(dx), Math.abs(dy)), x = cx + dx, y = cy + dy;
+      if (x >= 0 && x < taille && y >= 0 && y < taille) fixe(x, y, d !== 2 && d !== 4);
+    }
+  });
+  if (v > 1) {
+    const n = Math.floor(v / 7) + 2, pas = Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2, pos = [6];
+    for (let p = taille - 7; pos.length < n; p -= pas) pos.splice(1, 0, p);
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      if ((i === 0 && j === 0) || (i === 0 && j === n - 1) || (i === n - 1 && j === 0)) continue;
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) fixe(pos[i] + dx, pos[j] + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+    }
+  }
+  const format = (masque) => {
+    const data = masque; // niveau M = 00
+    let r = data; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+    const b = ((data << 10) | r) ^ 0x5412, bit = (i) => ((b >>> i) & 1) === 1;
+    for (let i = 0; i <= 5; i++) fixe(8, i, bit(i));
+    fixe(8, 7, bit(6)); fixe(8, 8, bit(7)); fixe(7, 8, bit(8));
+    for (let i = 9; i < 15; i++) fixe(14 - i, 8, bit(i));
+    for (let i = 0; i < 8; i++) fixe(taille - 1 - i, 8, bit(i));
+    for (let i = 8; i < 15; i++) fixe(8, taille - 15 + i, bit(i));
+    fixe(8, taille - 8, true);
+  };
+  format(0);
+  if (v >= 7) {
+    let r = v; for (let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1f25);
+    const b = (v << 12) | r;
+    for (let i = 0; i < 18; i++) { const noir = ((b >>> i) & 1) === 1, a = taille - 11 + (i % 3), c = Math.floor(i / 3); fixe(a, c, noir); fixe(c, a, noir); }
+  }
+  let k = 0;
+  for (let droite = taille - 1; droite >= 1; droite -= 2) {
+    if (droite === 6) droite = 5;
+    for (let vert = 0; vert < taille; vert++) for (let j = 0; j < 2; j++) {
+      const x = droite - j, montant = ((droite + 1) & 2) === 0, y = montant ? taille - 1 - vert : vert;
+      if (!f[y][x] && k < final.length * 8) { m[y][x] = ((final[k >>> 3] >>> (7 - (k & 7))) & 1) === 1; k++; }
+    }
+  }
+  const MASQUES = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x) => x % 3 === 0, (x, y) => (x + y) % 3 === 0,
+    (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => (x * y) % 2 + (x * y) % 3 === 0,
+    (x, y) => ((x * y) % 2 + (x * y) % 3) % 2 === 0, (x, y) => ((x + y) % 2 + (x * y) % 3) % 2 === 0];
+  const appliquer = (n) => { for (let y = 0; y < taille; y++) for (let x = 0; x < taille; x++) if (!f[y][x] && MASQUES[n](x, y)) m[y][x] = !m[y][x]; };
+  const penalite = () => {
+    let p = 0, noirs = 0;
+    for (let y = 0; y < taille; y++) for (const sens of [0, 1]) {
+      let suite = 1;
+      for (let x = 1; x < taille; x++) {
+        const a = sens ? m[x][y] : m[y][x], b = sens ? m[x - 1][y] : m[y][x - 1];
+        if (a === b) { suite++; if (suite === 5) p += 3; else if (suite > 5) p++; } else suite = 1;
+      }
+    }
+    for (let y = 0; y < taille; y++) for (let x = 0; x < taille; x++) {
+      if (m[y][x]) noirs++;
+      if (x < taille - 1 && y < taille - 1 && m[y][x] === m[y][x + 1] && m[y][x] === m[y + 1][x] && m[y][x] === m[y + 1][x + 1]) p += 3;
+    }
+    return p + Math.floor(Math.abs(noirs * 20 - taille * taille * 10) / (taille * taille)) * 10;
+  };
+  let meilleur = 0, score = Infinity;
+  for (let n = 0; n < 8; n++) { appliquer(n); format(n); const s = penalite(); if (s < score) { score = s; meilleur = n; } appliquer(n); }
+  appliquer(meilleur); format(meilleur);
+  return m;
+}
+
+// Bloc SVG (fond blanc + modules) d'un QR placé en (x, y) sur un carré de « cote ».
+function gcQrSvg(texte, x, y, cote) {
+  const m = gcQrMatrice(texte), n = m.length, marge = 2, pas = cote / (n + marge * 2);
+  let d = "";
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (m[r][c]) d += "M" + (c + marge) + " " + (r + marge) + "h1v1h-1z";
+  return `<rect x="${x}" y="${y}" width="${cote}" height="${cote}" rx="10" fill="#ffffff"/>` +
+    `<path transform="translate(${x} ${y}) scale(${Math.round(pas * 10000) / 10000})" d="${d}" fill="#111111" shape-rendering="crispEdges"/>`;
 }
 // ---- FIN DU GABARIT PARTAGE ----
   return { construireSvg: construireSvgCarteCadeau, normaliser: gcNormaliserDesign, lisibilite: gcLisibilite, LARGEUR: GC_LARGEUR, HAUTEUR: GC_HAUTEUR };

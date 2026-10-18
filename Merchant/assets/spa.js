@@ -203,7 +203,7 @@
     clearTimeout(minuterieMaj);
     minuterieMaj = setTimeout(() => {
       const actif = document.activeElement;
-      if (saisieEnCours || navigationEnCours || document.querySelector("dialog[open]") || (actif && actif.matches && actif.matches("input, select, textarea"))) return;
+      if (saisieEnCours || navigationEnCours || document.querySelector("dialog[open]") || document.querySelector(".kadosk-main [data-kd-edition]") || (actif && actif.matches && actif.matches("input, select, textarea"))) return;
       naviguer(location.href, false, true);
     }, 400);
   });
