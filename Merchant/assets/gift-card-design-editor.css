@@ -180,7 +180,7 @@
     background: var(--kd-ed-surface);
   }
   .kd-ed__stage { padding: 10px; border-radius: 14px; }
-  .kd-ed__stage .kd-gc { max-width: min(100%, 360px, calc((34vh - 24px) * 1.586)); }
+  .kd-ed__stage .kd-gc { max-width: min(100%, 360px, calc((34vh - 24px) * 2)); }
   .kd-ed__preview-meta { margin-bottom: 8px; }
   .kd-ed__badge { display: none; }
   .kd-ed__amounts { flex-wrap: nowrap; justify-content: center; width: 100%; }

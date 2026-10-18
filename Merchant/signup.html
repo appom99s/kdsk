@@ -8,16 +8,25 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F7FAF9">
 <link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="../shared/assets/ui-system.css">
 <link rel="stylesheet" href="assets/landing.css">
 <style>
 .signup-wrap{min-height:calc(100vh - 84px);padding:40px 20px;display:flex;justify-content:center;align-items:flex-start}
 .signup-card{width:100%;max-width:720px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:32px;box-sizing:border-box}
 .signup-card h1{font-size:28px;margin:0 0 12px}
-.signup-intro{color:var(--muted);line-height:1.6;margin:0 0 24px}
-.partner-form{display:block;width:100%;height:920px;border:0;border-radius:16px;background:#fff}
+.signup-intro{line-height:1.6;margin:0 0 24px}
+.signup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+.signup-grid .kd-champ{margin:0}
+.signup-grid .plein{grid-column:1/-1}
+.signup-section{margin:26px 0 12px;font-size:15px;font-weight:800;color:var(--ink)}
+.signup-consent{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:14px;line-height:1.5;color:var(--muted)}
+.signup-consent input{width:18px;height:18px;min-height:0;margin-top:2px;flex:0 0 18px;accent-color:#1f3a34}
+.signup-consent a,.signup-note a{text-decoration:underline;text-underline-offset:3px}
+.signup-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:22px}
 .signup-note{font-size:14px;line-height:1.6;margin:20px 0 0}
-.signup-note a{text-decoration:underline;text-underline-offset:3px}
-@media(max-width:600px){.signup-wrap{padding:20px 10px}.signup-card{padding:20px 12px;border-radius:20px}.signup-card h1{font-size:24px}.partner-form{height:1100px}}
+.signup-done{padding:22px;border-radius:16px;background:#e7f3ef;color:#1f3a34}
+.signup-done h2{margin:0 0 8px;font-size:20px}
+@media(max-width:600px){.signup-wrap{padding:20px 10px}.signup-card{padding:20px 14px;border-radius:20px}.signup-card h1{font-size:24px}.signup-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="../shared/assets/release-polish.css">
 </head>
@@ -29,11 +38,56 @@
 <main class="signup-wrap">
 <section class="signup-card" aria-labelledby="partner-title">
 <h1 id="partner-title">Devenir partenaire KADOSK</h1>
-<p class="signup-intro">Présentez votre entreprise et laissez-nous vos coordonnées pour l’étude de votre demande.</p>
-<iframe class="partner-form" src="https://kilosc.wixforms.com/f/7514054177136313368" title="Formulaire de demande de partenariat KADOSK" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-<p class="signup-note">Le formulaire ne s’affiche pas ? <a href="https://kilosc.wixforms.com/f/7514054177136313368" target="_blank" rel="noopener noreferrer">Ouvrir le formulaire dans une nouvelle fenêtre</a>.</p>
+<p class="signup-intro">Présentez votre entreprise : votre dossier est étudié par l’équipe KADOSK, qui vous contacte avant toute activation. Les champs marqués <span class="kd-requis">*</span> sont obligatoires.</p>
+
+<form id="partnerForm" novalidate>
+  <p class="signup-section">Entreprise</p>
+  <div class="signup-grid">
+    <div class="kd-champ plein"><label class="kd-obligatoire" for="pBusinessName">Nom de l’entreprise</label><input id="pBusinessName" name="businessName" maxlength="120" autocomplete="organization" required></div>
+    <div class="kd-champ"><label class="kd-obligatoire" for="pRc">Registre du commerce (RC)</label><input id="pRc" name="rc" maxlength="40" autocomplete="off" required><span class="kd-aide">Numéro tel qu’indiqué sur votre attestation RC.</span></div>
+    <div class="kd-champ"><label class="kd-obligatoire" for="pCategory">Activité</label>
+      <select id="pCategory" name="category" required>
+        <option value="">Choisir…</option>
+        <option>Restaurant</option><option>Café</option><option>Boulangerie / Pâtisserie</option>
+        <option>Beauté / Bien-être</option><option>Mode</option><option>Sport</option>
+        <option>Technologie</option><option>Santé</option><option>Voyage / Hôtellerie</option>
+        <option>Loisirs</option><option>Épicerie</option><option>Maison / Décoration</option>
+        <option>Boutique</option><option>Autre</option>
+      </select></div>
+    <div class="kd-champ plein"><label class="kd-obligatoire" for="pCity">Ville</label><input id="pCity" name="city" maxlength="100" autocomplete="address-level2" required></div>
+  </div>
+
+  <p class="signup-section">Responsable du compte</p>
+  <div class="signup-grid">
+    <div class="kd-champ"><label class="kd-obligatoire" for="pFirstName">Prénom</label><input id="pFirstName" name="firstName" maxlength="80" autocomplete="given-name" required></div>
+    <div class="kd-champ"><label class="kd-obligatoire" for="pLastName">Nom</label><input id="pLastName" name="lastName" maxlength="80" autocomplete="family-name" required></div>
+    <div class="kd-champ"><label for="pPosition">Fonction</label><input id="pPosition" name="position" maxlength="100" autocomplete="organization-title"></div>
+    <div class="kd-champ"><label class="kd-obligatoire" for="pPhone">Téléphone</label><input id="pPhone" name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="06 00 00 00 00" required></div>
+    <div class="kd-champ plein"><label class="kd-obligatoire" for="pEmail">E-mail professionnel</label><input id="pEmail" name="email" type="email" maxlength="190" autocomplete="email" required><span class="kd-aide">Cet e-mail deviendra l’identifiant de connexion après approbation.</span></div>
+  </div>
+
+  <label class="signup-consent"><input type="checkbox" id="pTerms" required><span>J’accepte les <a href="../conditions-partenaires.html" target="_blank">conditions partenaires</a>. <span class="kd-requis">*</span></span></label>
+  <label class="signup-consent"><input type="checkbox" id="pPrivacy" required><span>J’accepte le traitement de mes données selon la <a href="../confidentialite.html" target="_blank">politique de confidentialité</a>. <span class="kd-requis">*</span></span></label>
+  <label class="signup-consent"><input type="checkbox" id="pMarketing"><span>J’accepte de recevoir les actualités KADOSK (facultatif).</span></label>
+
+  <div class="signup-actions">
+    <button type="submit" class="kd-bouton" id="pSubmit">Envoyer ma demande</button>
+  </div>
+  <p class="kd-message-erreur" id="pStatus" role="alert" aria-live="polite"></p>
+</form>
+
+<div class="signup-done" id="partnerDone" hidden tabindex="-1">
+  <h2>Demande envoyée</h2>
+  <p>Merci ! Votre dossier est enregistré. L’équipe KADOSK l’étudie et vous contactera par e-mail.</p>
+</div>
+
 <p class="signup-note"><a href="../confidentialite.html">Politique de confidentialité</a> · <a href="../conditions-partenaires.html">Conditions partenaires</a></p>
 </section>
 </main>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/signup.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>

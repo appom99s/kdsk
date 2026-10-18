@@ -38,7 +38,7 @@ window.KADOSK_GC_EDITOR = (function () {
   let initial = "";
   let historique = [];
   let position = -1;
-  let donnees = { businessName: "", logoUrl: "", amount: null, amounts: [] };
+  let donnees = { businessName: "", cardName: "", logoUrl: "", amount: null, amounts: [] };
   let montantChoisi = null;
   let enregistrement = null; // callback fourni par settings.js
   let dernierTheme = "minimal";
@@ -50,7 +50,7 @@ window.KADOSK_GC_EDITOR = (function () {
   function gabarit() {
     return `
 <header class="kd-ed__header">
-  <div class="kd-ed__title"><div class="kadosk-section-numero">2</div><div><h2>Design de la carte</h2><p>Choisissez un thème puis ajustez couleurs, motif et typographie. L’aperçu se met à jour instantanément.</p></div></div>
+  <div class="kd-ed__title"><div class="kadosk-section-numero">2</div><div><h2>Design de la carte</h2><p>Choisissez un thème puis ajustez couleurs, motif et typographie. L’aperçu est la carte exacte envoyée par e-mail à vos clients.</p></div></div>
   <div class="kd-ed__history">
     <button type="button" class="kd-ed__icon-btn" data-action="undo" aria-label="Annuler" title="Annuler">${ICONES.undo}</button>
     <button type="button" class="kd-ed__icon-btn" data-action="redo" aria-label="Rétablir" title="Rétablir">${ICONES.redo}</button>
@@ -61,7 +61,7 @@ window.KADOSK_GC_EDITOR = (function () {
     <div class="kd-ed__preview-meta"><span class="kd-ed__badge">Aperçu en direct</span><div class="kd-ed__amounts" data-role="amounts"></div></div>
     <div class="kd-ed__stage" data-role="stage"></div>
     <p class="kd-ed__notice" data-role="notice" role="status" aria-live="polite"></p>
-    <div class="kd-ed__locked">${ICONES.lock}<span>Le QR code est généré de façon sécurisée par KADOSK pour chaque carte ; celui de l’aperçu est une démonstration non fonctionnelle. La mention « Géré par KADOSK » est toujours affichée.</span></div>
+    <div class="kd-ed__locked">${ICONES.lock}<span>Forme identique à l’e-mail « Votre carte cadeau ». Le code, le PIN et le lien de facture sont ajoutés de façon sécurisée dans l’e-mail, jamais sur l’aperçu. La mention « Géré par KADOSK » est toujours affichée.</span></div>
   </div>
   <div class="kd-ed__controls">
     <div class="kd-ed__group">
@@ -156,7 +156,7 @@ window.KADOSK_GC_EDITOR = (function () {
     etat = R.normaliser({});
     carte = document.createElement("div");
     $('[data-role="stage"]').append(carte);
-    R.majDonnees(carte, { ...donnees, qr: "demo" });
+    R.majDonnees(carte, { ...donnees });
     construireThemes();
     construireCouleurs();
     construireMotifs();
@@ -170,7 +170,7 @@ window.KADOSK_GC_EDITOR = (function () {
   function construireThemes() {
     const zone = $('[data-role="themes"]');
     const themes = Object.keys(R.THEMES).map((k) => [k, R.THEMES[k].label, R.THEMES[k].hint]);
-    themes.push(["classique", "Classique", "Le design KADOSK d’origine"]);
+    themes.push(["classique", "Classique", "Couleur principale unie"]);
     themes.forEach(([cle, label, hint]) => {
       const b = document.createElement("button");
       b.type = "button";
@@ -179,7 +179,7 @@ window.KADOSK_GC_EDITOR = (function () {
       const design = cle === "classique"
         ? { backgroundType: "couleur", accentColor: "#8ab6a9", font: "poppins" }
         : { backgroundType: "theme", design: { theme: cle }, accentColor: R.THEMES[cle].accent, font: R.THEMES[cle].font };
-      const mini = R.creer({ businessName: "Votre commerce", amount: 500, qr: "demo" }, design);
+      const mini = R.creer({ businessName: "Votre commerce", cardName: "Votre carte", amount: 500 }, design);
       mini.setAttribute("aria-hidden", "true");
       mini.removeAttribute("role");
       const t = document.createElement("strong");
@@ -456,7 +456,7 @@ window.KADOSK_GC_EDITOR = (function () {
     liste.forEach((m) => {
       const b = document.createElement("button");
       b.type = "button";
-      b.textContent = m.toLocaleString("fr-FR") + " MAD";
+      b.textContent = m.toLocaleString("fr-FR") + " DH";
       b.setAttribute("aria-pressed", String(m === montantChoisi));
       b.addEventListener("click", () => {
         montantChoisi = m;
@@ -464,7 +464,7 @@ window.KADOSK_GC_EDITOR = (function () {
       });
       zone.append(b);
     });
-    R.majDonnees(carte, { businessName: donnees.businessName, logoUrl: donnees.logoUrl, amount: montantChoisi || 500, qr: "demo" });
+    R.majDonnees(carte, { businessName: donnees.businessName, cardName: donnees.cardName, logoUrl: donnees.logoUrl, amount: montantChoisi || 500 });
   }
 
   // --- Image de fond : validation, optimisation, envoi via le stockage KADOSK ----

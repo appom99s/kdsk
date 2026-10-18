@@ -1,6 +1,10 @@
 (function () {
   if (window.KADOSK_SPA) return;
 
+  // Pages servies par la navigation interne (sans rechargement complet). Sans
+  // cette liste, estPageInterne levait une ReferenceError avalée par son
+  // try/catch : chaque clic rechargeait toute la page (auth, habillage, données).
+  const PAGES = ["dashboard.html", "cashier.html", "transactions.html", "gift-cards.html", "growth.html", "finance.html", "business.html", "settings.html", "invoice-settings.html", "equipe.html"];
   const COMMUNS = new Set(["config.js", "auth.js", "api.js", "cache.js", "nav.js", "guard.js", "spa.js", "ui-system.js"]);
   const CONTROLEURS = new Set(["dashboard.js", "cashier.js", "orders.js", "transactions.js", "gift-cards.js", "growth.js", "finance.js", "business.js", "settings.js", "invoice-settings.js", "equipe.js", "subscription-summary.js", "subscription-settings.js", "bulk-print.js", "locations.js"]);
   const documents = new Map();

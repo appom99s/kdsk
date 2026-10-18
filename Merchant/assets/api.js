@@ -192,6 +192,8 @@ const KADOSK_API = (function () {
     confirmPasswordChange: (code) => appeler("confirmPasswordChange", "POST", { code }),
 
     // Mot de passe oublié (déconnecté) : appels publics avec token visiteur.
+    // Devenir partenaire (signup.html) : crée une ligne Merchants « Submitted », sans Wix Forms.
+    submitPartnerRequest: (demande) => appelerPublic("partnerRequest", "POST", demande),
     forgotPassword: (email, newPassword) => appelerPublic("forgotPassword", "POST", { email, newPassword }),
     confirmForgotPassword: (email, code) => appelerPublic("confirmForgotPassword", "POST", { email, code }),
 

@@ -442,6 +442,7 @@
       const champEnseigne = document.getElementById("obBusinessName");
       EDITEUR.majDonnees({
         businessName: (champEnseigne && champEnseigne.value.trim()) || champNom.value.trim(),
+        cardName: champNom.value.trim(),
         logoUrl: champLogoUrl.value.trim(),
         amounts: montantsSaisis()
       });

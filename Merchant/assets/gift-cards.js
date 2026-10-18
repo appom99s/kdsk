@@ -196,6 +196,7 @@
         FORBIDDEN_ROLE: "Vous n’avez pas l’autorisation de consulter les cartes cadeaux.",
         MERCHANT_NOT_FOUND: "Compte marchand introuvable.",
         MERCHANT_ACCOUNT_BLOCKED: "Le compte marchand est bloqué.",
+        MERCHANT_AUTO_SUSPENDED: "Compte suspendu automatiquement : volume inhabituel de cartes générées. Contactez KADOSK pour le réactiver.",
         SESSION_EXPIREE: "Votre session a expiré. Reconnectez-vous."
       };
       etatVide.textContent = messages[erreur && erreur.message] || "Impossible de charger les cartes cadeaux. Réessayez dans quelques instants.";
@@ -262,6 +263,7 @@
         INVALID_INITIAL_BALANCE: "Le montant doit être compris entre 1 et 1 000 DH.",
         FORBIDDEN_ROLE: "Seul le propriétaire du compte peut créer une carte.",
         MERCHANT_ACCOUNT_BLOCKED: "Le compte marchand est bloqué.",
+        MERCHANT_AUTO_SUSPENDED: "Compte suspendu automatiquement : volume inhabituel de cartes générées. Contactez KADOSK pour le réactiver.",
         MISSING_PARAMETERS: "E-mail invalide."
       };
       creationStatut.textContent = messages[erreur.message] || "Création impossible : " + (erreur.message || "erreur inconnue");
