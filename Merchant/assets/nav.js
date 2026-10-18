@@ -168,7 +168,7 @@
 
   // ---------------------------------------------------------------------
   // Barre de navigation basse mobile (≤640px, voir style.css) : 4 raccourcis
-  // façon application native (Accueil / Cartes / Scanner / Menu), affichée en
+  // façon application native (Accueil / Cartes / Encaisser / Menu), affichée en
   // plus du tiroir existant - jamais à sa place, pour ne rien retirer de
   // l'arborescence complète déjà accessible via "Menu". Le bouton "Menu"
   // réutilise TEL QUEL le tiroir déjà câblé par initialiserMenuMobile (mêmes
@@ -182,7 +182,7 @@
     const items = [
       { fichier: "dashboard.html", libelle: "Accueil", icone: "dashboard" },
       { fichier: "gift-cards.html", libelle: "Cartes", icone: "cartes" },
-      { fichier: "cashier.html", libelle: "Scanner", icone: "qr" },
+      { fichier: "cashier.html", libelle: "Encaisser", icone: "encaisser" },
       { fichier: "__menu__", libelle: "Menu", icone: "menu" }
     ];
 

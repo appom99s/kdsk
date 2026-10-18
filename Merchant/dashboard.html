@@ -2,13 +2,80 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KADOSK Marchand — Tableau de bord</title>
 <link rel="stylesheet" href="assets/style.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="assets/dashboard.css" />
 <link rel="stylesheet" href="../shared/assets/release-polish.css">
 </head>
-<body><div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside><main class="kadosk-main"><div class="kadosk-entete"><h1>Tableau de bord</h1><div id="kadoskEnteteDroite"></div></div><div class="kadosk-panneau-large"><h2>Vos cartes cadeaux</h2><p>Créez une carte et envoyez-la au client depuis votre portail.</p><a class="kadosk-bouton" href="gift-cards.html">Créer une carte</a> <a class="kadosk-bouton-secondaire" href="cashier.html">Encaisser</a></div><section class="kadosk-grille-listes"><article class="kadosk-panneau-large"><h2>Encaissements du jour</h2><strong id="revenue">—</strong></article><article class="kadosk-panneau-large"><h2>Cartes actives</h2><strong id="active">—</strong></article><article class="kadosk-panneau-large"><h2>Encours</h2><strong id="balance">—</strong></article></section><p id="dashboardStatus" role="status"></p><a href="transactions.html">Consulter les transactions</a></main></div><script src="assets/config.js"></script>
+<body><div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+<main class="kadosk-main">
+  <div class="kadosk-entete"><h1>Tableau de bord</h1><div id="kadoskEnteteDroite"></div></div>
+
+  <section class="db-hero" aria-labelledby="dbBonjour">
+    <div>
+      <p class="db-eyebrow" id="dbDate"></p>
+      <h2 id="dbBonjour">Bonjour</h2>
+      <p class="db-sous-titre">Voici l’activité de vos cartes cadeaux aujourd’hui.</p>
+    </div>
+    <div class="db-actions">
+      <a class="kadosk-bouton" href="gift-cards.html">Créer une carte</a>
+      <a class="kadosk-bouton kadosk-bouton-secondaire" href="cashier.html">Encaisser</a>
+    </div>
+  </section>
+
+  <section class="db-progression" id="dbProgression" hidden aria-labelledby="dbProgressionTitre">
+    <div class="db-progression-texte">
+      <h2 id="dbProgressionTitre">Finalisez la configuration de votre compte</h2>
+      <p id="dbProgressionResume"></p>
+      <progress id="dbProgressionBarre" max="1" value="0"></progress>
+    </div>
+    <div class="db-actions">
+      <button type="button" class="kadosk-bouton" id="dbOuvrirAssistant">Reprendre l’assistant</button>
+    </div>
+  </section>
+
+  <section class="db-kpis" aria-label="Indicateurs clés">
+    <article class="db-kpi"><span class="db-kpi-label">Encaissé aujourd’hui</span><strong class="db-kpi-valeur" id="kpiEncaisse">—</strong><span class="db-kpi-delta" id="kpiEncaisseDelta"></span></article>
+    <article class="db-kpi"><span class="db-kpi-label">Encaissements du jour</span><strong class="db-kpi-valeur" id="kpiTransactions">—</strong><span class="db-kpi-delta" id="kpiTransactionsDelta"></span></article>
+    <article class="db-kpi"><span class="db-kpi-label">Cartes actives</span><strong class="db-kpi-valeur" id="kpiActives">—</strong><span class="db-kpi-delta" id="kpiUtilisees"></span></article>
+    <article class="db-kpi"><span class="db-kpi-label">Encours (solde clients)</span><strong class="db-kpi-valeur" id="kpiEncours">—</strong><span class="db-kpi-delta">Montant restant à encaisser</span></article>
+  </section>
+
+  <section class="db-grille">
+    <article class="kadosk-panneau-large db-panneau db-graphique">
+      <div class="db-panneau-entete"><h2>Encaissements des 7 derniers jours</h2><strong id="dbTotalSemaine"></strong></div>
+      <div id="dbGraphique" class="db-graphique-zone" role="img" aria-label="Graphique des encaissements des 7 derniers jours"></div>
+    </article>
+    <article class="kadosk-panneau-large db-panneau">
+      <div class="db-panneau-entete"><h2>Abonnement</h2><a href="business.html#abonnement" class="db-lien">Gérer</a></div>
+      <p class="db-abonnement" id="dbAbonnement">—</p>
+      <progress id="dbQuota" hidden></progress>
+      <p class="kd-aide" id="dbQuotaTexte"></p>
+      <p class="kd-aide" id="dbCaissiers"></p>
+    </article>
+  </section>
+
+  <section class="db-grille">
+    <article class="kadosk-panneau-large db-panneau">
+      <div class="db-panneau-entete"><h2>Dernières opérations</h2><a href="transactions.html" class="db-lien">Tout voir</a></div>
+      <ul class="db-liste" id="dbOperations"><li class="db-vide">Chargement…</li></ul>
+    </article>
+    <article class="kadosk-panneau-large db-panneau">
+      <div class="db-panneau-entete"><h2>Raccourcis</h2></div>
+      <nav class="db-raccourcis" aria-label="Raccourcis">
+        <a href="settings.html#editeurCarteCadeau"><strong>Personnaliser la carte</strong><span>Design envoyé par e-mail</span></a>
+        <a href="gift-cards.html"><strong>Cartes émises</strong><span>Suivi, statuts, renvoi</span></a>
+        <a href="equipe.html"><strong>Équipe</strong><span>Caissiers et accès</span></a>
+        <a href="finance.html"><strong>Finance</strong><span>Commissions et factures</span></a>
+      </nav>
+    </article>
+  </section>
+
+  <p class="kadosk-message-erreur" id="dashboardStatus" role="status"></p>
+</main></div>
+<script src="assets/config.js"></script>
 <script src="assets/auth.js"></script>
 <script src="assets/api.js"></script>
 <script src="assets/cache.js"></script>
@@ -16,4 +83,5 @@
 <script src="assets/guard.js"></script>
 <script src="assets/spa.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
-<script src="assets/subscription-summary.js"></script><script src="assets/dashboard.js"></script></body></html>
+<script src="assets/dashboard.js"></script>
+</body></html>

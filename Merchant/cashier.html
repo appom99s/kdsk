@@ -20,48 +20,29 @@
       </div>
 
       <div class="kadosk-panneau-large" style="max-width:520px;">
-        <div style="display:flex; gap:10px; margin-bottom:18px;">
-          <button type="button" id="ongletScan" class="kadosk-bouton-onglet" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600;">
-            <span id="iconeOngletScan"></span> Scanner QR
-          </button>
-          <button type="button" id="ongletManuel" class="kadosk-bouton-onglet" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600;">
-            <span id="iconeOngletManuel"></span> Saisir un code
-          </button>
+        <!-- Encaissement uniquement par code permanent + PIN du client (plus de QR temporaire). -->
+        <div class="kd-champ">
+          <label class="kd-obligatoire" for="champCode">Code de la carte</label>
+          <input type="text" id="champCode" placeholder="KDSK-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" />
         </div>
-
-        <div id="panneauScan">
-          <div class="kadosk-scan-conteneur" id="blocVideoScan" style="position:relative; border-radius:10px; overflow:hidden; background:#0d0b18; aspect-ratio:1/1; max-width:340px; margin:0 auto;">
-            <video id="videoScan" playsinline muted style="width:100%; height:100%; object-fit:cover; display:block;"></video>
-            <div style="position:absolute; inset:0; border:2px solid rgba(255,255,255,0.55); margin:14%; border-radius:14px; pointer-events:none;"></div>
-          </div>
-          <canvas id="canvasScan" style="display:none;"></canvas>
-          <div id="messageStatutScan" style="text-align:center; font-size:13px; color:var(--kadosk-texte-clair); margin-top:12px;">Initialisation de la caméra…</div>
-          <div class="kadosk-ligne-boutons" style="justify-content:center; margin-top:8px;">
-            <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonArreterScan">Arrêter le scan</button>
-            <button class="kadosk-bouton" id="boutonRescanner" style="display:none;">Scanner une autre carte</button>
-          </div>
-        </div>
-
-        <div id="panneauManuel" style="display:none;">
-          <div class="kadosk-champ">
-            <label for="champCode">Code de la carte</label>
-            <input type="text" id="champCode" placeholder="Saisir le code" />
-          </div>
-
-          <div class="kadosk-ligne-boutons">
-            <button class="kadosk-bouton kadosk-bouton-secondaire" id="boutonRechercher">Rechercher</button>
-          </div>
+        <div class="kadosk-ligne-boutons">
+          <button type="button" class="kadosk-bouton kadosk-bouton-secondaire" id="boutonRechercher">Rechercher</button>
         </div>
 
         <div class="kadosk-carte-info" id="carteInfo" style="display:none;"></div>
 
-        <div class="kadosk-champ" id="blocMontant" style="display:none; margin-top:16px;">
-          <label for="champMontant">Montant à encaisser</label>
-          <input type="text" id="champMontant" inputmode="decimal" autocomplete="off" />
+        <div id="blocMontant" style="display:none; margin-top:16px;">
+          <div class="kd-champ">
+            <label for="champPointVente">Point de vente</label>
+            <select id="champPointVente"></select>
+          </div>
+          <div class="kd-champ" style="margin-top:14px;">
+            <label class="kd-obligatoire" for="champMontant">Montant à encaisser (DH)</label>
+            <input type="text" id="champMontant" inputmode="decimal" autocomplete="off" />
+          </div>
         </div>
 
-        <!-- Pavé numérique tactile : visible uniquement sur mobile (voir style.css), pour
-             saisir le montant plus facilement qu'avec le clavier du téléphone. -->
+        <!-- Pavé numérique tactile : visible uniquement sur mobile (voir style.css). -->
         <div class="kadosk-pave-numerique" id="paveNumerique" style="display:none;">
           <button type="button" class="kadosk-touche-pave" data-touche="1">1</button>
           <button type="button" class="kadosk-touche-pave" data-touche="2">2</button>
@@ -77,11 +58,17 @@
           <button type="button" class="kadosk-touche-pave kadosk-touche-pave-effacer" id="toucheEffacerPave" aria-label="Effacer un chiffre">⌫</button>
         </div>
 
-        <div class="kadosk-ligne-boutons" id="blocBoutonEncaisser" style="display:none; margin-top:8px;">
-          <button class="kadosk-bouton" id="boutonEncaisser">Encaisser</button>
+        <div class="kd-champ" id="blocPin" style="display:none; margin-top:14px;">
+          <label class="kd-obligatoire" for="champPin">PIN du client (6 chiffres)</label>
+          <input type="password" id="champPin" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" class="pin-input" />
+          <span class="kd-aide">Le client saisit lui-même son PIN. Après 5 erreurs la carte est bloquée.</span>
         </div>
 
-        <div class="kadosk-message-erreur" id="messageStatutEncaissement"></div>
+        <div class="kadosk-ligne-boutons" id="blocBoutonEncaisser" style="display:none; margin-top:12px;">
+          <button type="button" class="kadosk-bouton" id="boutonEncaisser">Encaisser</button>
+        </div>
+
+        <div class="kadosk-message-erreur" id="messageStatutEncaissement" role="status" aria-live="polite"></div>
       </div>
 
       <div class="kadosk-panneau-large" style="max-width:520px; margin-top:20px;">
@@ -91,8 +78,6 @@
     </main>
   </div>
 
-  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous"></script>
-  <script src="assets/jsqr-loader.js"></script>
   <script src="assets/config.js"></script>
   <script src="assets/auth.js"></script>
   <script src="assets/api.js"></script>

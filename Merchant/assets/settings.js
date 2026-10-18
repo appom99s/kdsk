@@ -649,6 +649,10 @@
       if (!ouvert) editeurCarteCadeau.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
+  // Lien direct depuis l'assistant du dashboard : settings.html#editeurCarteCadeau
+  if (boutonModifierCarte && editeurCarteCadeau && location.hash === "#editeurCarteCadeau" && editeurCarteCadeau.style.display === "none") {
+    boutonModifierCarte.click();
+  }
 
   [champNom, champDescription, champMontants, champMontantLibreMin, champExpiration].forEach((champ) => {
     champ.addEventListener("input", () => { actualiserApercu(); actualiserResumeOffre(); });

@@ -22,8 +22,7 @@
   // Générés directement via l'API Web Audio (deux tonalités synthétisées), sans
   // fichier audio externe à héberger. Les navigateurs exigent qu'un AudioContext
   // soit créé/repris suite à un vrai geste utilisateur : on le prépare donc au
-  // premier clic sur la page (onglets, Rechercher, Encaisser) pour qu'il soit déjà
-  // prêt quand un son doit être joué automatiquement après un scan caméra.
+  // premier clic sur la page (Rechercher, Encaisser).
   let contexteAudio = null;
   function prepareContexteAudio() {
     if (!contexteAudio) {
@@ -78,17 +77,6 @@
   // refait obligatoirement le contrôle atomique sur le solde courant.
   let soldeAfficheActuel = null;
 
-  const ongletScan = document.getElementById("ongletScan");
-  const ongletManuel = document.getElementById("ongletManuel");
-  const panneauScan = document.getElementById("panneauScan");
-  const panneauManuel = document.getElementById("panneauManuel");
-  const blocVideoScan = document.getElementById("blocVideoScan");
-  const videoScan = document.getElementById("videoScan");
-  const canvasScan = document.getElementById("canvasScan");
-  const messageStatutScan = document.getElementById("messageStatutScan");
-  const boutonArreterScan = document.getElementById("boutonArreterScan");
-  const boutonRescanner = document.getElementById("boutonRescanner");
-
   const champCode = document.getElementById("champCode");
   const boutonRechercher = document.getElementById("boutonRechercher");
   const carteInfo = document.getElementById("carteInfo");
@@ -99,245 +87,24 @@
   const blocBoutonEncaisser = document.getElementById("blocBoutonEncaisser");
   const boutonEncaisser = document.getElementById("boutonEncaisser");
   const messageStatutEncaissement = document.getElementById("messageStatutEncaissement");
+  const blocPin = document.getElementById("blocPin");
+  const champPin = document.getElementById("champPin");
+  // Clé d'idempotence d'un encaissement : réutilisée si le caissier réessaie le même
+  // encaissement après une coupure, pour ne jamais débiter deux fois.
+  let redemptionAttempt = null;
 
-  const locationSelect = document.createElement('select'); locationSelect.setAttribute('aria-label','Point de vente');
-  const locationLabel = document.createElement('label'); locationLabel.textContent = 'Point de vente'; locationLabel.append(locationSelect); blocMontant.prepend(locationLabel);
+  const locationSelect = document.getElementById("champPointVente");
   KADOSK_API.cashierLocations().then(data => {
     locationSelect.replaceChildren();
-    if (!data.locations.length) locationSelect.add(new Option('établissement principal',''));
-    else { locationSelect.add(new Option('Choisir un établissement','')); data.locations.forEach(l => locationSelect.add(new Option(l.name,l.locationId))); }
+    if (!data.locations.length) locationSelect.add(new Option('Établissement principal',''));
+    else { locationSelect.add(new Option('Choisir un point de vente','')); data.locations.forEach(l => locationSelect.add(new Option(l.name,l.locationId))); }
   }).catch(() => { locationSelect.add(new Option('Points de vente indisponibles','')); });
-  boutonEncaisser.textContent = 'Demander confirmation';
   function afficherResultatOperation(type, texte) {
     messageStatutEncaissement.classList.remove("kadosk-resultat-operation", "succes", "erreur");
     if (type) messageStatutEncaissement.classList.add("kadosk-resultat-operation", type);
     messageStatutEncaissement.style.color = type === "succes" ? "#1faa6c" : type === "erreur" ? "#c0392b" : "";
     messageStatutEncaissement.textContent = texte || "";
   }
-
-  if (window.KADOSK_ICONES) {
-    const iconeOngletScan = document.getElementById("iconeOngletScan");
-    const iconeOngletManuel = document.getElementById("iconeOngletManuel");
-    if (iconeOngletScan) iconeOngletScan.innerHTML = window.KADOSK_ICONES.qr || "";
-    if (iconeOngletManuel) iconeOngletManuel.innerHTML = window.KADOSK_ICONES.clavier || "";
-  }
-
-  // --- Scanner QR ---
-  let fluxCamera = null;
-  let idAnimationScan = null;
-  let scanEnCours = false;
-  // Bug trouvé : demarrerScan() n'avait aucune protection contre les appels en double.
-  // Sur mobile, la fenêtre d'autorisation caméra du système fait passer la page en
-  // "cachée" puis "visible" (document.hidden bascule), ce qui déclenche le listener
-  // visibilitychange plus bas et relance demarrerScan() une seconde fois PENDANT que
-  // le premier appel attend encore la réponse de getUserMedia. Deux négociations
-  // caméra concurrentes sur le même appareil peuvent alors se sérialiser côté
-  // système et prendre jusqu'à ~30 secondes avant qu'un flux utilisable arrive -
-  // ce n'est donc pas le matériel qui est lent, c'est le site qui redemandait la
-  // caméra une deuxième fois sans s'en rendre compte. Ces deux drapeaux empêchent
-  // ce doublon et referment proprement un flux obtenu trop tard si entre-temps on a
-  // demandé l'arrêt du scan.
-  let demarrageEnCours = false;
-  let annulationDemandee = false;
-  const contexteCanvas = canvasScan.getContext("2d", { willReadFrequently: true });
-
-  function afficherOngletScan() {
-    ongletScan.classList.add("actif");
-    ongletManuel.classList.remove("actif");
-    panneauScan.style.display = "block";
-    panneauManuel.style.display = "none";
-    reinitialiserFormulaire();
-    demarrerScan();
-  }
-
-  function afficherOngletManuel() {
-    ongletManuel.classList.add("actif");
-    ongletScan.classList.remove("actif");
-    panneauManuel.style.display = "block";
-    panneauScan.style.display = "none";
-    arreterScan();
-    reinitialiserFormulaire();
-    champCode.focus();
-  }
-
-  async function demarrerScan() {
-    // Empêche deux négociations caméra simultanées (voir l'explication plus haut) :
-    // si un démarrage est déjà en cours, ou si la caméra tourne déjà, on ne fait rien.
-    if (demarrageEnCours || fluxCamera) {
-      return;
-    }
-    demarrageEnCours = true;
-    annulationDemandee = false;
-
-    afficherEtatCameraActive();
-
-    if (!window.jsQR) {
-      messageStatutScan.textContent = "Le scanner QR n'a pas pu se charger. Utilisez la saisie manuelle.";
-      demarrageEnCours = false;
-      return;
-    }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      messageStatutScan.textContent = "La caméra n'est pas disponible sur cet appareil. Utilisez la saisie manuelle.";
-      demarrageEnCours = false;
-      return;
-    }
-
-    // Sur certains téléphones, l'activation peut malgré tout prendre quelques secondes
-    // (matériel qui se réveille) : on affiche juste un message pour que ça ne semble
-    // pas figé si ça prend du temps.
-    const avertissementLenteur = setTimeout(() => {
-      if (!scanEnCours) {
-        messageStatutScan.textContent = "Ça prend plus de temps que prévu… (vérifiez qu'aucune autre application n'utilise la caméra)";
-      }
-    }, 6000);
-
-    try {
-      messageStatutScan.textContent = "Initialisation de la caméra…";
-      let flux;
-      try {
-        flux = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-          audio: false
-        });
-      } catch (erreurContrainte) {
-        // Repli : "ideal" est censé être un simple souhait (jamais une exigence
-        // stricte), mais certains navigateurs/webviews échouent quand même dessus -
-        // typiquement un ordinateur qui n'a qu'une seule caméra (jamais "environment"),
-        // ou certains navigateurs mobiles pointilleux. On retente sans cette
-        // contrainte plutôt que d'abandonner directement sur la première caméra
-        // disponible, réellement utilisable.
-        if (
-          erreurContrainte &&
-          (erreurContrainte.name === "OverconstrainedError" || erreurContrainte.name === "ConstraintNotSatisfiedError")
-        ) {
-          flux = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        } else {
-          throw erreurContrainte;
-        }
-      }
-
-      if (annulationDemandee) {
-        // Le scan a été arrêté (page cachée, changement d'onglet...) pendant qu'on
-        // attendait la caméra : on referme ce flux tout de suite au lieu de s'en
-        // servir, pour ne jamais laisser deux flux caméra ouverts en même temps.
-        flux.getTracks().forEach((piste) => piste.stop());
-        return;
-      }
-
-      fluxCamera = flux;
-      videoScan.srcObject = fluxCamera;
-      await videoScan.play();
-      messageStatutScan.textContent = "Visez le QR code de la carte cadeau.";
-      scanEnCours = true;
-      idAnimationScan = requestAnimationFrame(boucleScan);
-    } catch (erreur) {
-      // Message précis selon la cause réelle (loggée pour diagnostic) plutôt qu'un
-      // seul message générique qui masque si c'est un refus, une absence de caméra,
-      // ou une caméra déjà occupée par une autre application/onglet.
-      console.error("Erreur accès caméra (scan QR) :", erreur && erreur.name, erreur && erreur.message, erreur);
-      if (erreur && erreur.name === "NotAllowedError") {
-        messageStatutScan.textContent =
-          "Accès à la caméra refusé. Autorisez la caméra pour ce site dans les paramètres de votre navigateur, ou utilisez la saisie manuelle.";
-      } else if (erreur && erreur.name === "NotFoundError") {
-        messageStatutScan.textContent = "Aucune caméra détectée sur cet appareil. Utilisez la saisie manuelle.";
-      } else if (erreur && erreur.name === "NotReadableError") {
-        messageStatutScan.textContent =
-          "La caméra est déjà utilisée par une autre application ou un autre onglet. Fermez-la puis réessayez, ou utilisez la saisie manuelle.";
-      } else {
-        messageStatutScan.textContent = "Accès à la caméra refusé ou indisponible. Utilisez la saisie manuelle.";
-      }
-    } finally {
-      clearTimeout(avertissementLenteur);
-      demarrageEnCours = false;
-    }
-  }
-
-  function arreterScan() {
-    annulationDemandee = true;
-    scanEnCours = false;
-    if (idAnimationScan) {
-      cancelAnimationFrame(idAnimationScan);
-      idAnimationScan = null;
-    }
-    if (fluxCamera) {
-      fluxCamera.getTracks().forEach((piste) => piste.stop());
-      fluxCamera = null;
-    }
-    videoScan.srcObject = null;
-  }
-
-  // La caméra reste allumée pendant la recherche du QR code, et se coupe dès
-  // qu'un code est détecté (pas de relance automatique : le marchand décide
-  // quand scanner la carte suivante via le bouton "Scanner une autre carte").
-  function afficherEtatCameraActive() {
-    blocVideoScan.style.display = "block";
-    boutonArreterScan.style.display = "inline-flex";
-    boutonRescanner.style.display = "none";
-  }
-
-  function afficherEtatCameraArretee() {
-    arreterScan();
-    blocVideoScan.style.display = "none";
-    boutonArreterScan.style.display = "none";
-    boutonRescanner.style.display = "inline-flex";
-  }
-
-  function boucleScan() {
-    if (!scanEnCours) return;
-
-    if (videoScan.readyState === videoScan.HAVE_ENOUGH_DATA) {
-      canvasScan.width = videoScan.videoWidth;
-      canvasScan.height = videoScan.videoHeight;
-      contexteCanvas.drawImage(videoScan, 0, 0, canvasScan.width, canvasScan.height);
-
-      try {
-        const imageData = contexteCanvas.getImageData(0, 0, canvasScan.width, canvasScan.height);
-        const resultat = window.jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "dontInvert"
-        });
-
-        if (resultat && resultat.data) {
-          const codeDetecte = resultat.data.trim();
-          if (codeDetecte) {
-            messageStatutScan.textContent = "Code détecté, vérification en cours…";
-            afficherEtatCameraArretee();
-            champCode.value = codeDetecte;
-            rechercherCarte();
-            return;
-          }
-        }
-      } catch (erreur) {
-        // image pas encore exploitable, on continue la boucle
-      }
-    }
-
-    idAnimationScan = requestAnimationFrame(boucleScan);
-  }
-
-  // Prépare/débloque l'AudioContext dès le premier vrai geste utilisateur sur la
-  // page, pour que les sons déclenchés plus tard automatiquement (après un scan
-  // caméra détecté en dehors d'un clic direct) puissent bien être joués.
-  panneauScan.addEventListener("click", prepareContexteAudio, { once: true });
-  panneauManuel.addEventListener("click", prepareContexteAudio, { once: true });
-
-  ongletScan.addEventListener("click", afficherOngletScan);
-  ongletManuel.addEventListener("click", afficherOngletManuel);
-  boutonArreterScan.addEventListener("click", afficherOngletManuel);
-  boutonRescanner.addEventListener("click", () => {
-    reinitialiserFormulaire();
-    demarrerScan();
-  });
-
-  window.addEventListener("beforeunload", arreterScan);
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      arreterScan();
-    } else if (panneauScan.style.display !== "none" && boutonRescanner.style.display === "none") {
-      // On ne relance la caméra automatiquement que si elle était censée
-      // être active (pas si un code vient d'être trouvé et la caméra coupée volontairement).
-      demarrerScan();
-    }
-  });
 
   // --- Pavé numérique tactile (mobile uniquement) pour le montant à encaisser ---
   // Sur mobile, le champ passe en lecture seule et ce pavé prend le relais du clavier du
@@ -410,7 +177,7 @@
     toucheEffacerPave.addEventListener("click", effacerToucheMontant);
   }
 
-  // --- Recherche et encaissement (partagés entre scan et saisie manuelle) ---
+  // --- Recherche (code permanent) et encaissement (PIN du client) ---
 
   const LIBELLES_PORTEE = {
     UNIVERSAL: "Universelle · valable chez tous les marchands KADOSK",
@@ -462,6 +229,8 @@
     carteInfo.innerHTML = "";
     blocMontant.style.display = "none";
     blocBoutonEncaisser.style.display = "none";
+    blocPin.style.display = "none";
+    champPin.value = "";
     messageStatutEncaissement.textContent = "";
     codeCarteActuelle = null;
 
@@ -520,7 +289,9 @@
       blocMontant.style.display = "block";
       blocBoutonEncaisser.style.display = "flex";
       activerPaveNumeriqueSiMobile();
-      if (panneauManuel.style.display !== "none" && !champMontant.readOnly) {
+      blocPin.style.display = "block";
+      champPin.value = "";
+      if (!champMontant.readOnly) {
         champMontant.focus();
       }
     } catch (erreur) {
@@ -559,23 +330,29 @@
       return;
     }
 
+    const pin = champPin.value.trim();
+    if (!/^\d{6}$/.test(pin)) {
+      afficherResultatOperation("erreur", "Le client doit saisir son PIN à 6 chiffres.");
+      champPin.focus();
+      return;
+    }
+
     boutonEncaisser.disabled = true;
+    boutonEncaisser.setAttribute("aria-busy", "true");
+    afficherResultatOperation("", "Vérification du PIN…");
 
     try {
       const attemptKey = [codeCarteActuelle, montant, locationSelect.value].join('|');
       if (!redemptionAttempt || redemptionAttempt.key !== attemptKey) redemptionAttempt = {key:attemptKey,id:crypto.randomUUID()};
-      const resultat = await KADOSK_SECURE_UI.cashier({code:codeCarteActuelle,amount:montant,requestId:redemptionAttempt.id,locationId:locationSelect.value});
+      champPin.value = "";
+      let reponse = await KADOSK_API.beginRedemption({code:codeCarteActuelle,amount:montant,requestId:redemptionAttempt.id,locationId:locationSelect.value,pin});
+      // Le serveur débite dans le même appel ; une seule relecture couvre une réponse tardive.
+      if (reponse.state !== 'COMPLETED' && reponse.requestId) reponse = await KADOSK_API.redemptionStatus(reponse.requestId);
+      if (reponse.state !== 'COMPLETED') throw new Error(reponse.state === 'EXPIRED' ? 'CONFIRMATION_EXPIRED' : 'REDEMPTION_PENDING');
+      const resultat = reponse.result;
       redemptionAttempt = null;
 
-      // reinitialiserFormulaire() vide messageStatutEncaissement (voir sa
-      // définition) - on réinitialise donc D'ABORD le formulaire, puis on affiche
-      // le message de confirmation ENSUITE, sinon il était effacé dans la même
-      // frappe avant que le caissier ait pu le voir.
-      const enModeScan = panneauScan.style.display !== "none";
       reinitialiserFormulaire();
-      if (enModeScan) {
-        boutonRescanner.style.display = "inline-flex";
-      }
 
       afficherResultatOperation("succes", resultat.fullyRedeemed
         ? "Encaissement de " + resultat.amountRedeemed + " DH validé. Carte entièrement utilisée."
@@ -587,6 +364,7 @@
       afficherResultatOperation("erreur", KADOSK_SECURE_UI.error(erreur));
     } finally {
       boutonEncaisser.disabled = false;
+      boutonEncaisser.removeAttribute("aria-busy");
     }
   }
 
@@ -655,11 +433,9 @@
     if (evenement.key === "Enter") encaisser();
   });
 
-  // --- Démarrage : onglet initial selon ?mode= ---
-  const modeInitial = new URLSearchParams(window.location.search).get("mode");
-  if (modeInitial === "manual") {
-    afficherOngletManuel();
-  } else {
-    afficherOngletScan();
-  }
+  champPin.addEventListener("keydown", (evenement) => {
+    if (evenement.key === "Enter") encaisser();
+  });
+  document.addEventListener("click", prepareContexteAudio, { once: true });
+  champCode.focus();
 })();

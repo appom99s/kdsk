@@ -177,6 +177,7 @@ const KADOSK_API = (function () {
     getMerchantProfile: () => appeler("merchantProfile", "GET"),
     saveMerchantProfile: (profile, submitForReview) => appeler("merchantProfile", "POST", { profile, submitForReview }),
     getOnboardingChecklist: () => appeler("onboardingChecklist", "GET"),
+    markOnboardingWizardDone: () => appeler("onboardingWizardDone", "POST", {}),
     getSubscriptionInfo: () => /\/dashboard\.html$/.test(window.location.pathname)
       ? appeler("dashboardInitial", "GET").then(data => data.subscription)
       : appeler("subscriptionInfo", "GET"),
