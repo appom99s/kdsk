@@ -1,15 +1,3 @@
-// Cache client léger, partagé entre les pages MARCHAND (nav.js/guard.js) et les
-// pages ACHETEUR public (accueil.js/catalogue) - deux "types d'utilisateur"
-// distincts, chacun avec ses propres clés de cache (préfixées, jamais mélangées).
-//
-// But (voir cahier des charges) : au premier chargement, chaque type de page
-// récupère ses informations comme avant ; ensuite, en NAVIGUANT d'une page à
-// l'autre du même type (ex. dashboard.html -> orders.html, ou accueil.html ->
-// boutique.html), la donnée déjà connue est affichée INSTANTANÉMENT depuis ce
-// cache local persistant, pendant qu'une requête réseau part en arrière-plan
-// pour vérifier s'il y a du nouveau. Si la réponse
-// diffère de ce qui était affiché, le rappel onDonnees est appelé une seconde
-// fois avec la version fraîche.
 const KADOSK_CACHE = (function () {
   const memoire = new Map();
 

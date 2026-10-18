@@ -6,6 +6,15 @@
   const content = document.getElementById('invoiceContent');
   const status = document.getElementById('invoiceStatus');
   let email = '';
+  // Message précis selon le code renvoyé par le serveur (plus de « erreur 500 » muette).
+  function messageErreur(erreur) {
+    const code = erreur && erreur.message;
+    if (code === 'ORDER_NOT_FOUND') return 'Aucune commande ne correspond à cette adresse e-mail.';
+    if (code === 'INVOICE_UNAVAILABLE') return 'La facture de cette commande n’est pas encore disponible.';
+    if (code === 'JETON_INVALIDE' || code === 'JETON_EXPIRE' || code === 'SESSION_REVOQUEE') return 'Votre vérification a expiré. Saisissez à nouveau votre e-mail.';
+    if (code === 'TROP_DE_REQUETES') return 'Trop de tentatives. Réessayez dans une minute.';
+    return 'Facture momentanément indisponible. Réessayez dans quelques instants.';
+  }
   const money = n => Number(n || 0).toLocaleString('fr-MA', { style: 'currency', currency: 'MAD' });
   function field(list, label, value) {
     const dt = document.createElement('dt'), dd = document.createElement('dd');
@@ -49,13 +58,14 @@
     try {
       const result = await KADOSK_API.confirmerCodeCommandes(email, document.getElementById('invoiceCode').value.trim(), KADOSK_BUYER_SESSION.deviceId);
       KADOSK_BUYER_SESSION.definir(result.token, email, result.expiresInDays);
-      await display(result.token);
-    } catch (_) { status.textContent = 'Code invalide ou expiré, ou facture indisponible pour cette adresse.'; }
+      try { await display(result.token); }
+      catch (erreur) { status.textContent = messageErreur(erreur); }
+    } catch (_) { status.textContent = 'Code invalide ou expiré.'; }
     finally { button.disabled = false; }
   });
   document.getElementById('invoiceChangeEmail').addEventListener('click', () => { login.hidden = false; codeForm.hidden = true; document.getElementById('invoiceCode').value = ''; });
   if (!order || order.length > 120) { login.hidden = true; status.textContent = 'Lien incomplet. Ouvrez la facture depuis Factures et sécurité.'; return; }
   // The reference in the URL grants no access; the server checks the buyer token.
   const session = KADOSK_BUYER_SESSION.lire();
-  if (session) display(session.token).catch(() => { login.hidden = false; status.textContent = 'Vérifiez votre e-mail pour accéder à cette facture.'; });
+  if (session) display(session.token).catch((erreur) => { login.hidden = false; status.textContent = messageErreur(erreur); });
 })();

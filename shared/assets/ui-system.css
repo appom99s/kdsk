@@ -102,3 +102,94 @@ button:disabled { cursor: not-allowed; opacity: .62; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ==========================================================================
+   V3.1 — Homogénéisation Merchant / Admin / Client : un seul style pour les
+   libellés, champs de saisie, indicateurs (statuts, messages) et boutons.
+   Chargé après style.css / admin-style.css : ces règles font foi.
+   ========================================================================== */
+:root {
+  --kd-ink: #1f3a34;
+  --kd-ink-hover: #2c5047;
+  --kd-accent: #7fb5ab;
+  --kd-muted: #5b6e68;
+  --kd-field-border: #cfdcd7;
+  --kd-field-bg: #ffffff;
+  --kd-danger: #c0392b;
+  --kd-danger-bg: #fbeae8;
+  --kd-success: #2f7d6a;
+  --kd-success-bg: #e7f3ef;
+  --kd-warning: #9a5b00;
+  --kd-warning-bg: #fff3e0;
+  --kd-neutral-bg: #edeae2;
+  --kd-radius-field: 12px;
+}
+
+/* Libellés */
+.kadosk-champ label, .adm-champ label, .k2-champ label, .kd-champ label {
+  display: block; margin: 0 0 6px; font-size: 13px; font-weight: 700; line-height: 1.35; color: var(--kd-ink);
+}
+.kd-requis, label.kd-obligatoire::after { color: var(--kd-danger); font-weight: 700; }
+label.kd-obligatoire::after { content: " *"; }
+.kadosk-aide, .adm-aide, .kd-aide { display: block; margin-top: 6px; font-size: 12.5px; line-height: 1.45; color: var(--kd-muted); }
+
+/* Champs de saisie */
+.kadosk-champ input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]),
+.kadosk-champ select, .kadosk-champ textarea,
+.adm-champ input:not([type="checkbox"]):not([type="radio"]), .adm-champ select, .adm-champ textarea,
+.kd-champ input:not([type="checkbox"]):not([type="radio"]), .kd-champ select, .kd-champ textarea,
+.adm-input, .adm-select, .kadosk-input {
+  width: 100%; min-height: 46px; padding: 11px 14px;
+  border: 1.5px solid var(--kd-field-border); border-radius: var(--kd-radius-field) !important;
+  background: var(--kd-field-bg); color: var(--kd-ink);
+  font-family: inherit; font-size: 15px; line-height: 1.4;
+}
+.adm-toolbar .adm-input, .adm-toolbar .adm-select { width: auto; }
+.kadosk-champ ::placeholder, .adm-champ ::placeholder, .kd-champ ::placeholder, .adm-input::placeholder, .kadosk-input::placeholder { color: #8a9a95; opacity: 1; }
+.kadosk-champ input:focus, .kadosk-champ select:focus, .kadosk-champ textarea:focus,
+.adm-champ input:focus, .adm-champ select:focus, .adm-champ textarea:focus,
+.kd-champ input:focus, .kd-champ select:focus, .kd-champ textarea:focus,
+.adm-input:focus, .adm-select:focus, .kadosk-input:focus {
+  outline: none; border-color: var(--kd-ink) !important;
+  box-shadow: 0 0 0 4px rgba(127, 181, 171, .28) !important;
+}
+.kadosk-champ input[type="checkbox"], .kadosk-champ-checkbox input[type="checkbox"], .kd-champ input[type="checkbox"] { accent-color: var(--kd-ink); }
+@media (max-width: 760px) {
+  /* 16px minimum : Safari iOS zoome sur un champ plus petit. */
+  .kadosk-champ input, .kadosk-champ select, .kadosk-champ textarea, .adm-champ input, .adm-input, .adm-select, .kadosk-input, .kd-champ input, .kd-champ select { font-size: 16px; }
+}
+
+/* Indicateurs : messages */
+.kadosk-message-erreur, .adm-message-erreur, .kd-message-erreur { color: var(--kd-danger); font-size: 13px; font-weight: 600; line-height: 1.45; min-height: 18px; margin-top: 10px; }
+.kadosk-message-info, .kd-message-info { color: var(--kd-muted); font-size: 13px; line-height: 1.45; min-height: 18px; margin-top: 10px; }
+.kd-message-succes { color: var(--kd-success); font-size: 13px; font-weight: 600; line-height: 1.45; margin-top: 10px; }
+
+/* Indicateurs : statuts (pastilles) */
+.adm-statut, .kadosk-badge, .kd-statut {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; line-height: 1.3; white-space: nowrap;
+  background: var(--kd-neutral-bg); color: var(--kd-muted);
+}
+.adm-statut::before, .kadosk-badge::before, .kd-statut::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: 0 0 7px; }
+.adm-statut.ok, .kadosk-badge-actif, .kd-statut.ok { background: var(--kd-success-bg); color: var(--kd-success); }
+.adm-statut.attente, .kadosk-badge-attente, .kd-statut.attente { background: var(--kd-warning-bg); color: var(--kd-warning); }
+.adm-statut.refuse, .kadosk-badge-refuse, .kd-statut.refuse { background: var(--kd-danger-bg); color: var(--kd-danger); }
+.adm-statut.neutre, .kadosk-badge-neutre, .kd-statut.neutre { background: var(--kd-neutral-bg); color: var(--kd-muted); }
+
+/* Boutons : principal / secondaire / danger */
+.kadosk-bouton, .adm-bouton, .kd-bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 10px 20px; border: 1.5px solid var(--kd-ink); border-radius: 13px !important;
+  background: var(--kd-ink); color: #ffffff; font-family: inherit; font-size: 14.5px; font-weight: 700; line-height: 1.25;
+  text-align: center; text-decoration: none; cursor: pointer; transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.kadosk-bouton:hover:not(:disabled), .adm-bouton:hover:not(:disabled), .kd-bouton:hover:not(:disabled) { background: var(--kd-ink-hover); border-color: var(--kd-ink-hover); filter: none; }
+.kadosk-bouton-secondaire, .adm-bouton.secondaire, .kd-bouton.secondaire {
+  background: #ffffff; color: var(--kd-ink); border-color: var(--kd-field-border);
+}
+.kadosk-bouton-secondaire:hover:not(:disabled), .adm-bouton.secondaire:hover:not(:disabled), .kd-bouton.secondaire:hover:not(:disabled) { background: #f1f6f4; border-color: var(--kd-ink); color: var(--kd-ink); }
+.kadosk-bouton-danger, .adm-bouton.danger, .kd-bouton.danger { background: var(--kd-danger); border-color: var(--kd-danger); color: #ffffff; }
+.kadosk-bouton-danger:hover:not(:disabled), .adm-bouton.danger:hover:not(:disabled), .kd-bouton.danger:hover:not(:disabled) { background: #a5301f; border-color: #a5301f; }
+.kadosk-bouton:disabled, .adm-bouton:disabled, .kd-bouton:disabled, .kadosk-bouton[aria-busy="true"], .adm-bouton[aria-busy="true"], .kd-bouton[aria-busy="true"] { opacity: .55; cursor: not-allowed; }
+.kadosk-bouton:focus-visible, .adm-bouton:focus-visible, .kd-bouton:focus-visible { outline: 3px solid var(--kd-accent); outline-offset: 3px; }
+.kadosk-ligne-boutons { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }

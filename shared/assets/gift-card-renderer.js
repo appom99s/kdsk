@@ -1,15 +1,11 @@
-// GiftCardRenderer — rendu unique de la carte cadeau KADOSK (aperçu marchand,
-// fiche commerçant, "Mes cartes"). Présentation uniquement : ce module ne reçoit
-// jamais de code, PIN, hash ou jeton. La zone QR est un emplacement : l'appelant
-// y insère le QR sécurisé existant ; sinon un QR de démonstration non
-// fonctionnel est affiché.
+// GiftCardRenderer — rendu unique de la carte cadeau KADOSK. Depuis V3.1 la carte
+// a la forme de l'e-mail « Envoi carte cadeau » (format 2:1, titre, montant doré,
+// « Le plaisir d'offrir ») : le dessin est délégué à shared/assets/gift-card-template.js,
+// copie exacte du gabarit utilisé par le backend pour l'image de l'e-mail.
+// Présentation uniquement : ce module ne reçoit jamais de code, PIN, hash ou jeton.
 //
-// Thèmes, motifs et fonds sont générés en CSS/SVG inline (aucune image distante).
-// Les couleurs de la carte sont explicites : le thème clair/sombre de l'interface
-// ne modifie jamais la carte.
-//
-// Dépend de KADOSK_CARTE_VISUELLE (carte-visuelle.js) pour les motifs, les
-// polices et la résolution des couleurs historiques : charger ce fichier après.
+// Dépend de KADOSK_CARTE_VISUELLE (polices, couleurs historiques) et de
+// KADOSK_CARTE_GABARIT : charger ce fichier après carte-visuelle.js et gift-card-template.js.
 window.KADOSK_GIFT_CARD_RENDERER = (function () {
   "use strict";
 
@@ -269,233 +265,85 @@ window.KADOSK_GIFT_CARD_RENDERER = (function () {
     return { ton, voile, ref, corrige: !!voile };
   }
 
-  // --- QR de démonstration (non fonctionnel) -----------------------------------
-  function qrDemo() {
-    const n = 21, cases = [];
-    const oeil = (x, y) => `<path d="M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5z" fill-rule="evenodd"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`;
-    let graine = 7;
-    for (let y = 0; y < n; y++) {
-      for (let x = 0; x < n; x++) {
-        const dansOeil = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
-        graine = (graine * 1103515245 + 12345) % 2147483648;
-        if (!dansOeil && graine % 5 < 2) cases.push(`M${x} ${y}h1v1h-1z`);
-      }
-    }
-    return `<svg viewBox="0 0 ${n} ${n}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true"><g fill="#111">${oeil(0, 0)}${oeil(14, 0)}${oeil(0, 14)}<path d="${cases.join("")}"/></g></svg>`;
-  }
+  // --- Rendu : gabarit SVG partagé avec l'e-mail ------------------------------
+  // La carte affichée ici est EXACTEMENT celle envoyée par e-mail (même code,
+  // shared/assets/gift-card-template.js <-> backend/giftCardTemplate.js).
+  const G = () => window.KADOSK_CARTE_GABARIT || null;
 
-  // --- Styles (injectés une seule fois) ----------------------------------------
   function injecterStyles() {
     if (document.getElementById("kd-gc-styles")) return;
     const style = document.createElement("style");
     style.id = "kd-gc-styles";
     style.textContent = `
-.kd-gc{--kd-gc-accent:#7fb5ab;--kd-gc-text:#1f3a34;--kd-gc-font:'Poppins',sans-serif;position:relative;display:block;width:100%;max-width:520px;margin:0 auto;aspect-ratio:1.586;container-type:inline-size;border-radius:2.7% / 4.3%;overflow:hidden;isolation:isolate;color:var(--kd-gc-text);font-family:var(--kd-gc-font);box-shadow:0 12px 32px rgba(15,35,30,.16),0 2px 6px rgba(15,35,30,.08);background:#f7faf9;text-align:left;line-height:1.2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.kd-gc.kadosk-carte-apercu{border:0;max-width:520px;padding:0}
+.kd-gc{position:relative;display:block;width:100%;max-width:560px;margin:0 auto;aspect-ratio:2/1;border-radius:3.125%/6.25%;overflow:hidden;box-shadow:0 12px 32px rgba(15,35,30,.16),0 2px 6px rgba(15,35,30,.08);background:#1f3a34;line-height:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.kd-gc.kadosk-carte-apercu{border:0;max-width:560px;padding:0}
 .kd-gc.kadosk-carte-apercu::before{content:none;display:none}
-.kd-gc.k2-carte-statut-active{outline:2px solid #c9a227;outline-offset:-2px}
-.kd-gc.k2-carte-statut-redeemed{outline:2px solid #c0392b;outline-offset:-2px}
-.kd-gc__bg,.kd-gc__decor,.kd-gc__pattern,.kd-gc__scrim{position:absolute;inset:0;pointer-events:none}
-.kd-gc__bg{z-index:0;background-size:cover;background-position:center;transition:background .25s ease}
-.kd-gc__decor{z-index:1;width:100%;height:100%}
-.kd-gc__pattern{z-index:2;background-repeat:repeat;background-position:center}
-.kd-gc__scrim{z-index:3;opacity:0;transition:opacity .2s ease}
-.kd-gc[data-voile="sombre"] .kd-gc__scrim{opacity:1;background:linear-gradient(180deg,rgba(8,20,17,.55),rgba(8,20,17,.38) 55%,rgba(8,20,17,.5))}
-.kd-gc[data-voile="clair"] .kd-gc__scrim{opacity:1;background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.6) 55%,rgba(255,255,255,.72))}
-.kd-gc__content{position:absolute;inset:0;z-index:4;display:grid;grid-template-rows:auto 1fr auto;padding:4.6cqw 5.4cqw 4.2cqw}
-.kd-gc__head{display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqw;min-width:0;max-width:62%}
-.kd-gc__logo{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:2.2cqw;padding:1.2cqw 1.8cqw;box-shadow:0 1px 4px rgba(0,0,0,.12);height:9cqw;max-width:38cqw;min-width:9cqw;overflow:hidden}
-.kd-gc[data-logo="small"] .kd-gc__logo{height:7cqw;max-width:30cqw;min-width:7cqw}
-.kd-gc[data-logo="large"] .kd-gc__logo{height:11.5cqw;max-width:46cqw;min-width:11.5cqw}
-.kd-gc__logo img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
-.kd-gc__logo-initiale{font:700 4.6cqw/1 var(--kd-gc-font);color:#1f3a34;letter-spacing:.02em}
-.kd-gc__merchant{font-size:3.2cqw;font-weight:600;letter-spacing:.02em;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kd-gc__center{align-self:center;justify-self:center;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1cqw;max-width:62%;padding-top:1.5cqw}
-.kd-gc__eyebrow{font-size:2.6cqw;font-weight:700;letter-spacing:.42em;padding-left:.42em;color:var(--kd-gc-eyebrow,var(--kd-gc-accent));display:flex;align-items:center;gap:2cqw;white-space:nowrap}
-.kd-gc__eyebrow::before,.kd-gc__eyebrow::after{content:"";width:4.5cqw;height:1px;background:currentColor;opacity:.7}
-.kd-gc__amount{font-size:8.6cqw;font-weight:700;line-height:1;white-space:nowrap;letter-spacing:-.01em}
-.kd-gc__amount[hidden]{display:none}
-.kd-gc__currency{font-size:4.2cqw;font-weight:600;margin-left:.25em;opacity:.9}
-.kd-gc__foot{display:flex;align-items:flex-end;justify-content:space-between;gap:3cqw}
-.kd-gc__brand{display:inline-flex;align-items:center;gap:1.3cqw;background:rgba(255,255,255,.94);border-radius:1.8cqw;padding:1cqw 1.8cqw;box-shadow:0 1px 3px rgba(0,0,0,.1);opacity:1}
-.kd-gc__brand span{font:500 1.9cqw/1 Arial,sans-serif;color:#5b6f69;letter-spacing:.02em;white-space:nowrap}
-.kd-gc__brand img{display:block;height:3.4cqw;width:auto;max-width:18cqw}
-.kd-gc__qr-wrap{display:flex;flex-direction:column;align-items:center;gap:1cqw;flex:0 0 auto}
-.kd-gc .kd-gc__qr.kadosk-carte-apercu-qr-zone,.kd-gc__qr{position:relative;inset:auto;right:auto;bottom:auto;width:18cqw;height:18cqw;aspect-ratio:1/1;background:#fff;border-radius:2cqw;padding:1.6cqw;box-shadow:0 1px 4px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:1;filter:none;mix-blend-mode:normal;box-sizing:border-box}
-.kd-gc__qr svg,.kd-gc__qr img,.kd-gc__qr canvas{display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
-.kd-gc__qr button{font-size:1.9cqw!important}
-.kd-gc__qr-demo{position:absolute;inset:auto 0 0 0;background:rgba(255,255,255,.92);font:700 1.5cqw/1.5 Arial,sans-serif;letter-spacing:.08em;color:#9a3b3b;text-align:center}
-.kd-gc__qr-caption{font-size:1.75cqw;font-weight:500;white-space:nowrap;opacity:.92}
+.kd-gc>svg{display:block;width:100%;height:100%}
 `;
     document.head.appendChild(style);
-  }
-
-  // --- Construction / mise à jour -------------------------------------------------
-  function el(tag, cls) {
-    const e = document.createElement(tag);
-    if (cls) e.className = cls;
-    return e;
   }
 
   function construire(racine) {
     injecterStyles();
     racine.classList.add("kd-gc");
     racine.replaceChildren();
-    const r = {
-      bg: el("div", "kd-gc__bg"),
-      decor: document.createElementNS("http://www.w3.org/2000/svg", "svg"),
-      pattern: el("div", "kd-gc__pattern"),
-      scrim: el("div", "kd-gc__scrim"),
-      content: el("div", "kd-gc__content"),
-      logo: el("div", "kd-gc__logo"),
-      merchant: el("div", "kd-gc__merchant"),
-      eyebrow: el("div", "kd-gc__eyebrow"),
-      amount: el("div", "kd-gc__amount"),
-      nombre: el("span", "kadosk-carte-apercu-montant-nombre"),
-      devise: el("span", "kd-gc__currency devise"),
-      brand: el("div", "kd-gc__brand"),
-      qr: el("div", "kd-gc__qr kadosk-carte-apercu-qr-zone"),
-      caption: el("span", "kd-gc__qr-caption"),
-      uid: ++compteurId
-    };
-    r.decor.setAttribute("class", "kd-gc__decor");
-    r.decor.setAttribute("viewBox", "0 0 400 252");
-    r.decor.setAttribute("preserveAspectRatio", "xMidYMid slice");
-    r.decor.setAttribute("aria-hidden", "true");
-    [r.bg, r.pattern, r.scrim].forEach((c) => c.setAttribute("aria-hidden", "true"));
-
-    const head = el("div", "kd-gc__head");
-    head.append(r.logo, r.merchant);
-    const center = el("div", "kd-gc__center");
-    r.eyebrow.textContent = "CARTE CADEAU";
-    r.amount.append(r.nombre, r.devise);
-    center.append(r.eyebrow, r.amount);
-
-    // Attribution KADOSK obligatoire : toujours rendue, jamais paramétrable.
-    const gere = el("span");
-    gere.textContent = "Géré par";
-    const logoK = el("img");
-    logoK.alt = "KADOSK";
-    logoK.decoding = "async";
-    r.brand.append(gere, logoK);
-    r.logoKadosk = logoK;
-
-    const qrWrap = el("div", "kd-gc__qr-wrap");
-    r.caption.textContent = "Scannez pour utiliser cette carte";
-    qrWrap.append(r.qr, r.caption);
-    const foot = el("div", "kd-gc__foot");
-    foot.append(r.brand, qrWrap);
-
-    r.content.append(head, center, foot);
-    racine.append(r.bg, r.decor, r.pattern, r.scrim, r.content);
     racine.setAttribute("role", "img");
+    const r = { donnees: {}, offre: {}, uid: "e" + (++compteurId) };
     racine.__kdGc = r;
     return r;
   }
 
+  function dessiner(racine) {
+    const r = racine.__kdGc;
+    const gabarit = G();
+    if (!r || !gabarit) return;
+    const d = r.donnees;
+    const vis = V();
+    const police = vis && vis.POLICES[r.offre.font] ? r.offre.font : "poppins";
+    if (vis) vis.chargerPolice(police);
+    const nom = String(d.businessName || "").trim() || "Votre commerce";
+    const svg = gabarit.construireSvg({
+      merchantName: nom,
+      cardTitle: String(d.cardName || "").trim() || nom,
+      amount: d.hideAmount === true ? null : d.amount,
+      currency: "DH",
+      logoHref: urlSure(d.logoUrl),
+      fontFamily: vis && vis.POLICES[police] ? vis.POLICES[police].famille : "'Poppins', sans-serif",
+      uid: r.uid,
+      design: r.offre
+    });
+    if (r.svgActuel !== svg) { racine.innerHTML = svg; r.svgActuel = svg; }
+    racine.setAttribute("aria-label", "Carte cadeau " + nom);
+  }
+
   function majDonnees(racine, donnees) {
     const r = racine.__kdGc || construire(racine);
-    const d = donnees || {};
-    const nom = String(d.businessName || "").trim();
-    r.merchant.textContent = nom || "Votre commerce";
-
-    const logo = urlSure(d.logoUrl);
-    if (logo !== r.logoActuel) {
-      r.logoActuel = logo;
-      r.logo.replaceChildren();
-      if (logo) {
-        const img = el("img");
-        img.alt = nom ? "Logo " + nom : "Logo du commerce";
-        img.decoding = "async";
-        img.referrerPolicy = "no-referrer";
-        img.src = logo;
-        r.logo.append(img);
-      } else {
-        const initiale = el("span", "kd-gc__logo-initiale");
-        initiale.textContent = (nom || "?").charAt(0).toUpperCase();
-        r.logo.append(initiale);
-      }
-    } else if (!logo) {
-      const initiale = r.logo.querySelector(".kd-gc__logo-initiale");
-      if (initiale) initiale.textContent = (nom || "?").charAt(0).toUpperCase();
-    }
-
-    const montant = d.amount;
-    const aMontant = montant !== undefined && montant !== null && montant !== "";
-    r.amount.hidden = d.hideAmount === true;
-    r.nombre.textContent = aMontant && Number(montant) > 0 ? Number(montant).toLocaleString("fr-FR", { maximumFractionDigits: 2 }) : "—";
-    r.devise.textContent = d.currency || "MAD";
-    r.logoKadosk.src = d.kadoskLogoSrc || "assets/logo.png";
-
-    if (d.qr === "demo" && !r.qrDemo) {
-      r.qrDemo = true;
-      r.qr.innerHTML = qrDemo();
-      const tag = el("span", "kd-gc__qr-demo");
-      tag.textContent = "APERÇU";
-      r.qr.append(tag);
-    } else if (d.qr === "placeholder" && !r.qr.childNodes.length) {
-      const vis = V();
-      if (vis) r.qr.innerHTML = vis.HTML_PLACEHOLDER_QR;
-    }
-    racine.setAttribute("aria-label", "Carte cadeau" + (nom ? " " + nom : ""));
+    r.donnees = { ...(donnees || {}) };
+    dessiner(racine);
     return r;
   }
 
   function majDesign(racine, source, estEtat) {
     const r = racine.__kdGc || construire(racine);
     const e = estEtat ? source : normaliser(source);
-    const accent = e.accentColor;
-    racine.style.setProperty("--kd-gc-accent", accent);
-
-    // Fond + décor
-    let bg = "", decor = "";
-    if (e.backgroundType === "theme") {
-      bg = THEMES[e.theme].bg;
-      decor = THEMES[e.theme].decor(accent, r.uid);
-    } else if (e.backgroundType === "degrade") {
-      bg = `linear-gradient(${e.gradientAngle}deg, ${e.gradientFrom}, ${e.gradientTo})`;
-    } else if (e.backgroundType === "image" && e.backgroundImageUrl) {
-      bg = `#1f3a34 url("${e.backgroundImageUrl.replace(/["\\\n\r]/g, "")}") center/cover no-repeat`;
-    } else {
-      bg = CLASSIQUE.bg;
-      decor = CLASSIQUE.decor(accent);
-    }
-    if (r.bgActuel !== bg) { r.bg.style.background = bg; r.bgActuel = bg; }
-    if (r.decorActuel !== decor) { r.decor.innerHTML = decor; r.decorActuel = decor; }
-
-    // Lisibilité
-    const lis = lisibilite(e);
-    const texte = lis.ton === "light" ? TEXTE_CLAIR : TEXTE_SOMBRE;
-    racine.style.setProperty("--kd-gc-text", texte);
+    r.offre = versOffre(e);
+    if (e.backgroundType === "image") r.offre.backgroundImageUrl = e.backgroundImageUrl;
+    dessiner(racine);
+    const gabarit = G();
+    const brut = gabarit ? gabarit.lisibilite(gabarit.normaliser(r.offre)) : { ton: "light", voile: "", ref: null };
+    const lis = { ...brut, corrige: !!brut.voile && e.backgroundType !== "image" };
     racine.dataset.ton = lis.ton;
     racine.dataset.voile = lis.voile || "";
-    // Surtitre en accent seulement s'il reste lisible (≥ 3:1), sinon couleur du texte.
-    const refEff = lis.voile === "sombre" ? "#0e1c18" : lis.voile === "clair" ? "#f4f6f5" : lis.ref;
-    const accentLisible = refEff && contraste(luminance(accent), luminance(refEff)) >= 3;
-    racine.style.setProperty("--kd-gc-eyebrow", accentLisible ? accent : texte);
-
-    // Motif (jamais au-dessus du contenu : calque z-index 2 < contenu 4)
-    const vis = V();
-    const svg = e.pattern !== "aucun" && vis ? vis.motifSvgComplet(e.pattern, lis.ton === "light" ? "#ffffff" : accent, 1) : "";
-    const motif = svg ? `url("${vis.svgVersDataUri(svg)}")` : "none";
-    if (r.motifActuel !== motif) { r.pattern.style.backgroundImage = motif; r.motifActuel = motif; }
-    r.pattern.style.opacity = String(e.patternOpacity * (lis.ton === "light" ? 1.2 : 1.6));
-    r.pattern.style.backgroundSize = DENSITES[e.patternDensity];
-
-    // Police
-    if (vis && vis.POLICES[e.font]) {
-      vis.chargerPolice(e.font);
-      racine.style.setProperty("--kd-gc-font", vis.POLICES[e.font].famille);
-    }
-    racine.dataset.logo = e.logoSize;
     racine.dataset.fond = e.backgroundType;
+    racine.dataset.logo = e.logoSize;
     return { etat: e, lisibilite: lis };
   }
 
   // Crée une carte autonome. donnees : {businessName, logoUrl, amount, currency,
   // qr: "demo"|"placeholder"|"none", kadoskLogoSrc}. design : forme "offre".
   function creer(donnees, design) {
-    const racine = el("div", "kadosk-carte-apercu");
+    const racine = document.createElement("div");
+    racine.className = "kadosk-carte-apercu";
     construire(racine);
     majDonnees(racine, donnees);
     majDesign(racine, design);

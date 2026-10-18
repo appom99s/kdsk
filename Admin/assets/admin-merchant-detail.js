@@ -13,6 +13,7 @@
   const merchantId = parametres.get("id");
 
   let actionEnCours = null;
+  let sousRole = null;
 
   function echapperHtml(valeur) {
     return String(valeur === undefined || valeur === null ? "" : valeur)
@@ -52,10 +53,17 @@
     APPROVE: "Valider définitivement le dossier",
     REJECT: "Rejeter ce marchand",
     SUSPEND: "Suspendre ce marchand",
-    REACTIVATE: "Réactiver ce marchand"
+    REACTIVATE: "Réactiver ce marchand",
+    DELETE: "Supprimer définitivement ce dossier refusé"
+  };
+  const MOT_CONFIRMATION_SUPPRESSION = "SUPPRIMER";
+  const ERREURS_SUPPRESSION = {
+    MERCHANT_HAS_ACTIVITY: "Suppression impossible : ce marchand a déjà des commandes, cartes ou commissions.",
+    MERCHANT_NOT_REJECTED: "Seul un dossier refusé peut être supprimé."
   };
 
   function actionsDisponibles(statut) {
+    if(sousRole !== 'SUPER_ADMIN') return [];
     if (statut === "Submitted" || statut === "Under Review") {
       return [["PREAPPROVE", "1re approbation"], ["REJECT", "Rejeter"]];
     }
@@ -68,6 +76,9 @@
     if (statut === "Suspended") {
       return [["REACTIVATE", "Réactiver"]];
     }
+    if (statut === "Rejected") {
+      return [["DELETE", "Supprimer définitivement"]];
+    }
     return [];
   }
 
@@ -75,6 +86,10 @@
     actionEnCours = action;
     modalTitre.textContent = LIBELLES_ACTION[action] || "Confirmer l'action";
     modalRaison.value = "";
+    modalRaison.placeholder = action === "DELETE"
+      ? "Tapez " + MOT_CONFIRMATION_SUPPRESSION + " pour confirmer (action irréversible)"
+      : "Raison (obligatoire)...";
+    modalConfirmer.className = action === "DELETE" ? "adm-bouton danger" : "adm-bouton";
     modalErreur.textContent = "";
     modalFond.style.display = "flex";
   }
@@ -87,6 +102,22 @@
   modalConfirmer.addEventListener("click", async () => {
     if (!actionEnCours) return;
     const raison = modalRaison.value.trim();
+    if (actionEnCours === "DELETE") {
+      if (raison !== MOT_CONFIRMATION_SUPPRESSION) {
+        modalErreur.textContent = "Tapez " + MOT_CONFIRMATION_SUPPRESSION + " en majuscules pour confirmer.";
+        return;
+      }
+      modalConfirmer.disabled = true;
+      try {
+        await KADOSK_API.deleteRejectedMerchant(merchantId);
+        window.location.href = "admin-merchants.html";
+      } catch (erreur) {
+        modalErreur.textContent = ERREURS_SUPPRESSION[erreur && erreur.message] || "Echec de la suppression : " + ((erreur && erreur.message) || "erreur inconnue");
+      } finally {
+        modalConfirmer.disabled = false;
+      }
+      return;
+    }
     if (!raison) {
       modalErreur.textContent = "La raison est obligatoire.";
       return;
@@ -110,7 +141,7 @@
 
   function rendreDossier(m) {
     const actions = actionsDisponibles(m.merchantStatus)
-      .map(([action, libelle]) => `<button class="adm-bouton${action === "REJECT" || action === "SUSPEND" ? " secondaire" : ""}" data-action="${action}">${libelle}</button>`)
+      .map(([action, libelle]) => `<button class="adm-bouton${action === "DELETE" ? " danger" : action === "REJECT" || action === "SUSPEND" ? " secondaire" : ""}" data-action="${action}">${libelle}</button>`)
       .join(" ");
 
     const entete = `
@@ -270,6 +301,7 @@
   }
 
   document.addEventListener("kadosk:admin-ready", (evenement) => {
+    sousRole = evenement.detail?.subRole;
     document.getElementById("admBadgeRole").textContent = (evenement.detail && evenement.detail.subRole) || "Admin";
     charger();
   });
