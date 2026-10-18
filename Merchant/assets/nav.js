@@ -88,12 +88,8 @@
     const segments = window.location.pathname.split("/");
     return segments[segments.length - 1] || "dashboard.html";
   }
-
-  // Le caissier voit toute l'architecture de la plateforme afin de comprendre
-  // les fonctions disponibles. Les liens non autorisés restent verrouillés et
-  // aucune donnée n'est chargée : les contrôles serveur demeurent la référence.
   function filtrerGroupesPourRole(role, permissions) {
-    if (role !== "CASHIER") return GROUPES;
+    if (role === "OWNER") return GROUPES;
     const acces = permissions || {};
     return GROUPES.filter((groupe) => {
       if (groupe.titre === "Encaisser") return true;
@@ -355,7 +351,7 @@
   }
 
   let promesseChromeInfo = null;
-  let roleCourant = null;
+  let roleCourant = "CASHIER";
   let permissionsCourantes = null;
 
   // Habillage de page (nom/logo/palier marchand) + rôle/permissions de
@@ -391,7 +387,7 @@
 
     function appliquer(infos) {
       rendreInfosMarchand(infos);
-      roleCourant = (infos && infos.role) || null;
+      roleCourant = (infos && infos.role) || "CASHIER";
       permissionsCourantes = (infos && infos.permissions) || null;
       document.querySelectorAll("[data-marchand-role]").forEach((el) => {
         el.textContent = roleCourant === "CASHIER" ? "Accès caissier" : "Propriétaire";
@@ -401,11 +397,6 @@
       const mobile=document.getElementById("kadoskBarreMobile");if(mobile)mobile.remove();
       rendreBarreLaterale("kadoskSidebar", roleCourant, permissionsCourantes);
       document.dispatchEvent(new CustomEvent("kadosk:permissions",{detail:{role:roleCourant,permissions:permissionsCourantes}}));
-      // La cloche (commandes en attente, voir rendreEnteteDroite) appelle
-      // listMyDraftGiftCards - verrouillée à la permission "validateOrders"
-      // côté backend (voir giftCardSecurity.web.js). Un caissier sans cette
-      // permission ne doit même pas voir l'icône (elle échouerait de toute
-      // façon, mais on la masque plutôt que de laisser une erreur au clic).
 
     }
 
@@ -432,19 +423,6 @@
     );
     return promesseChromeInfo;
   }
-
-  // Compteur + liste "commandes en attente" (badge cloche, badge sidebar "En
-  // attente", et contenu du panneau cloche) - source UNIQUE : getDraftOrders
-  // (verrouillée à la permission "validateOrders", accessible au propriétaire
-  // ET au caissier autorisé, contrairement à getMerchantDashboardStats qui est
-  // verrouillée propriétaire et jamais appelée pour un caissier). Remplace
-  // l'ancien chargerNotifications() qui ne s'exécutait qu'UNE SEULE FOIS par
-  // chargement de page (variable commandesChargees jamais réinitialisée) : rouvrir
-  // le panneau après avoir accepté/refusé une commande affichait donc une liste
-  // périmée - un des symptômes de "l'actualisation ne marche pas"/"l'icône
-  // notification ne marche pas". Exposée publiquement (voir window.KADOSK_NAV)
-  // pour que orders.js puisse forcer un rafraîchissement immédiat après une
-  // action d'acceptation/refus, sans attendre une réouverture du panneau.
   let commandesEnAttenteEnCours = false;
   
 

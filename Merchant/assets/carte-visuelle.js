@@ -328,22 +328,12 @@ window.KADOSK_CARTE_VISUELLE = (function () {
     });
   }
 
-  // Placeholder de la zone QR (voir .kadosk-carte-apercu-qr-zone dans style.css) -
-  // même balisage que settings.html, réutilisé partout où une carte visuelle est
-  // construite dynamiquement (ex. mes-commandes.js) avant qu'un QR réel n'y soit
-  // inséré (voir remplacerZoneQrParImage/remplacerZoneQrParPlaceholder ci-dessous).
   const HTML_PLACEHOLDER_QR = `
     <div class="kadosk-carte-apercu-qr-zone-placeholder">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg>
       <span>QR</span>
     </div>`;
 
-  // Construit un élément .kadosk-carte-apercu complet et autonome (structure +
-  // design appliqué), pour les endroits qui affichent une carte en dehors de
-  // settings.html (dont le balisage HTML statique existe déjà) - typiquement
-  // mes-commandes.js ("Mes cartes" côté client). La zone QR est toujours créée
-  // vide (placeholder) : c'est à l'appelant d'y insérer le vrai bouton/QR selon
-  // le contexte (carte à soi, offerte, déjà utilisée...), voir zoneQr() ci-dessous.
   function creerElementCarte({
     businessName,
     cardName,

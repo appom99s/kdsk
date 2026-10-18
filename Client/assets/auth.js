@@ -340,11 +340,6 @@ const KADOSK_AUTH = (function () {
     window.location.href = cheminRedirectionPersonnalise || config().logoutRedirectPath;
   }
 
-  // Variante sans redirection : efface la session membre (et le cache associé) SANS
-  // naviguer vers logoutRedirectPath - utile pour un contexte qui n'a pas de page de
-  // connexion "de retour" dédiée dans config() (ex. mes-commandes.html, où le
-  // formulaire de connexion/inscription vit sur la page elle-même plutôt que sur une
-  // page login.html séparée comme côté marchand).
   function deconnecterSansRedirection() {
     effacerTokens();
   }

@@ -1,16 +1,3 @@
-// Facture d'ACHAT (marchand -> client), générée CÔTÉ NAVIGATEUR (jsPDF, voir la
-// balise <script> CDN dans mes-commandes.html) - même approche que invoice-pdf.js
-// et carte-cadeau-pdf.js, pour la même raison (le backend Velo classique ne
-// supporte pas de génération PDF fiable). Distincte de KADOSK_FACTURE_PDF
-// (invoice-pdf.js), qui couvre la facture de COMMISSION KADOSK -> marchand :
-// ici le vendeur est le MARCHAND et l'acheteur est le CLIENT final.
-// Le vendeur (businessName/RC/IF/adresse/logo) vient du modèle que le marchand
-// a lui-même renseigné dans settings.html (voir getInvoiceTemplateMarchand /
-// getCommandeParNumero côté backend) - jamais recalculé ici.
-// Pas de ventilation HT/TVA sur la valeur faciale de la carte cadeau : même
-// règle métier que la facture de commission (voir sa note "TVA appliquée sur la
-// commission KADOSK uniquement") - la carte cadeau elle-même n'est pas
-// considérée comme une vente taxable au moment de l'achat.
 const KADOSK_FACTURE_ACHAT_PDF = (function () {
   function formaterMontant(valeur) {
     if (valeur === undefined || valeur === null) return "0,00";
@@ -160,7 +147,7 @@ const KADOSK_FACTURE_ACHAT_PDF = (function () {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
       doc.setTextColor(paiementConfirme ? 20 : 160, paiementConfirme ? 128 : 90, paiementConfirme ? 94 : 20);
-      doc.text(paiementConfirme ? "REÇU - PAIEMENT CONFIRMÉ" : "PAIEMENT EN ATTENTE", 154, y + 1, { align: "center" });
+      doc.text(paiementConfirme ? "PAYÉ - DÉCLARÉ PAR LE MARCHAND" : facture.paymentStatus === "UNPAID" ? "NON PAYÉ - DÉCLARÉ" : "PAIEMENT NON RENSEIGNÉ", 154, y + 1, { align: "center" });
     }
 
     y += 16;

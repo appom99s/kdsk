@@ -23,7 +23,6 @@
   const blocCreationEmail = document.getElementById("blocCreationEmail");
   const blocCreationTelephone = document.getElementById("blocCreationTelephone");
   const canalEmail = document.getElementById("canalEmail");
-  const canalWhatsApp = document.getElementById("canalWhatsApp");
 
   if(ouvrirEmission)ouvrirEmission.hidden=true;
   document.addEventListener('kadosk:permissions',e=>{const owner=e.detail.role==='OWNER';if(ouvrirEmission)ouvrirEmission.hidden=!owner;if(!owner && modalEmission)modalEmission.style.display='none';});
@@ -152,7 +151,8 @@
       const f = d.fraud || { score: 0, niveau: "FAIBLE", signaux: {} };
       const couleur = f.niveau === "FORT" ? "#b02a37" : f.niveau === "MOYEN" ? "#c77700" : "#1f8a5b";
       const historique = (d.history || []).slice(0, 12).map((h) => '<li><strong>' + echapperHtml(h.action || "Action") + '</strong> — ' + echapperHtml(formaterDate(h.createdAt)) + (h.success === false ? ' · Échec' : '') + (h.attemptedAmount !== null && h.attemptedAmount !== undefined && Number.isFinite(Number(h.attemptedAmount)) ? ' · ' + echapperHtml(formaterMontant(h.attemptedAmount)) : '') + '</li>').join("") || "<li>Aucun événement</li>";
-      const boutons = d.status === "ACTIVE" ? '<button class="kadosk-bouton kadosk-bouton-secondaire" data-action-carte="SUSPEND">Suspendre</button><button class="kadosk-bouton kadosk-bouton-danger" data-action-carte="CANCEL">Annuler</button>' : d.status === "SUSPENDED" ? '<button class="kadosk-bouton" data-action-carte="REACTIVATE">Réactiver</button><button class="kadosk-bouton kadosk-bouton-danger" data-action-carte="CANCEL">Annuler</button>' : "";
+      const access = await KADOSK_NAV.chargerChromeInfo();
+      const boutons = access.role !== "OWNER" || d.fraudBlocked ? "" : d.status === "ACTIVE" ? '<button class="kadosk-bouton kadosk-bouton-secondaire" data-action-carte="SUSPEND">Suspendre</button><button class="kadosk-bouton kadosk-bouton-danger" data-action-carte="CANCEL">Annuler</button>' : d.status === "SUSPENDED" ? '<button class="kadosk-bouton" data-action-carte="REACTIVATE">Réactiver</button><button class="kadosk-bouton kadosk-bouton-danger" data-action-carte="CANCEL">Annuler</button>' : "";
       const signaux = [
         ["Solde dépassé", f.signaux.tentativesSoldeDepasse || 0],
         ["Échecs d’encaissement", f.signaux.echecsEncaissement || 0],
@@ -202,12 +202,10 @@
     }
   }
 
-  const partageWhatsApp = document.getElementById('creationPartagerWhatsApp');
   const creationEnvoyer = document.getElementById('creationEnvoyer');
   let issuanceRequest=null;
   async function creerCarte() {
-    const estWhatsApp = false;
-    const deliveryMode = estWhatsApp ? "WHATSAPP" : "EMAIL";
+    const deliveryMode = "EMAIL";
     const amount = Number(creationMontant.value);
     const recipientEmail = creationEmail.value.trim();
     const recipientPhone = creationTelephone.value.trim();
@@ -216,10 +214,7 @@
       creationStatut.textContent = "Nom et montant valide sont obligatoires.";
       return;
     }
-    if (estWhatsApp && !recipientPhone) {
-      creationStatut.textContent = "Le numéro WhatsApp du client est obligatoire.";
-      return;
-    }
+    
     if (!recipientEmail) {
       creationStatut.textContent = "L’e-mail du client est obligatoire.";
       return;
@@ -235,19 +230,12 @@
       issuanceRequest ||= {id:crypto.randomUUID(),fingerprint};
       const draft = await KADOSK_API.createMerchantGiftCardDraft(amount, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode, issuanceRequest.id, paymentStatus);
       const activated = await KADOSK_API.activateOrder(draft.orderItemId, recipientEmail, recipientName, creationMessage.value.trim(), deliveryMode, recipientPhone);
-      if (estWhatsApp) {
-        const carte = activated.whatsappCard || {};
-        const url = new URL('../Client/mes-commandes.html', location.href);
-        const message = 'Bonjour ' + recipientName + ', vous avez reçu une carte cadeau de ' + (carte.amount != null ? carte.amount + ' DH' : '') +
-          '. Retrouvez votre carte en vous connectant avec votre adresse e-mail : ' + url.href;
-        partageWhatsApp.href = 'https://wa.me/' + encodeURIComponent(carte.phone || recipientPhone) + '?text=' + encodeURIComponent(message);
-        partageWhatsApp.hidden = false;
-        creationStatut.style.color = "#1faa6c";
-        creationStatut.textContent = 'Carte créée. Cliquez sur « Envoyer la carte sur WhatsApp » pour l’ouvrir avec le message pré-rempli.';
-      } else {
+      {
         if (activated.emailSent === false) {
           creationStatut.style.color = "#b02a37";
-          creationStatut.textContent = "Carte créée, mais l’e-mail n’a pas été envoyé : " + (activated.emailError || "erreur Wix") + ".";
+          creationStatut.textContent = "Carte créée, envoi non confirmé : " + (activated.deliveryStatus || activated.emailError || "vérification nécessaire") + ". Ne créez pas une deuxième carte pour remplacer cet envoi.";
+          await chargerCartes();
+          return;
         } else {
           creationStatut.style.color = "#1faa6c";
           creationStatut.textContent = "Carte créée et envoyée au client par e-mail.";
@@ -274,7 +262,7 @@
         INVALID_INITIAL_BALANCE: "Le montant doit être compris entre 1 et 1 000 DH.",
         FORBIDDEN_ROLE: "Seul le propriétaire du compte peut créer une carte.",
         MERCHANT_ACCOUNT_BLOCKED: "Le compte marchand est bloqué.",
-        MISSING_PARAMETERS: estWhatsApp ? "Numéro WhatsApp invalide." : "E-mail invalide."
+        MISSING_PARAMETERS: "E-mail invalide."
       };
       creationStatut.textContent = messages[erreur.message] || "Création impossible : " + (erreur.message || "erreur inconnue");
     } finally {

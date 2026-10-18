@@ -1,12 +1,3 @@
-// Certificat cadeau PDF (section 4 de l'audit) - généré CÔTÉ NAVIGATEUR (jsPDF,
-// voir la balise <script> CDN dans mes-commandes.html), pour la même raison que
-// invoice-pdf.js : le backend Velo classique ne supporte pas de génération PDF
-// fiable. VOLONTAIREMENT décoratif : ne contient JAMAIS le code permanent de la
-// carte ni de QR d'encaissement - la vraie mécanique de rachat reste le QR
-// temporaire anti-rejeu (voir modalQr dans mes-commandes.js) ou le code reçu par
-// email à l'activation (activateGiftCardAndSend). Ce PDF sert uniquement de
-// support imprimable/partageable. Pour une émission directe explicitement choisie
-// par l'owner, carte.code est fourni une seule fois et imprimé dans le document.
 const KADOSK_CARTE_CADEAU_PDF = (function () {
   // Couleur d'accent : appuyée sur assets/carte-visuelle.js (même résolution
   // preset/hex que l'aperçu settings.html et la vignette catalogue) - le

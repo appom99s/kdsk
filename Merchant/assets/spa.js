@@ -128,7 +128,7 @@
         });
       };
     });
-    const mutations = ["redeemGiftCard", "redeemQrTemporaire", "activateOrder", "createMerchantGiftCardDraft", "changeGiftCardStatus", "refuseOrder", "saveOfferSettings", "saveInvoiceTemplate", "saveMerchantProfile", "saveNetworkPreferences", "inviteTeamMember", "removeTeamMember", "saveMerchantGrowth", "requestCardPlanChange"];
+    const mutations = ["redeemGiftCard", "activateOrder", "createMerchantGiftCardDraft", "changeGiftCardStatus", "saveOfferSettings", "saveInvoiceTemplate", "saveMerchantProfile", "saveNetworkPreferences", "inviteTeamMember", "removeTeamMember", "saveMerchantGrowth", "requestCardPlanChange"];
     mutations.forEach((nom) => {
       if (typeof api[nom] !== "function") return;
       const original = api[nom].bind(api);

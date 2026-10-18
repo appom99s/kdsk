@@ -21,13 +21,6 @@
   // fonctionnelle s'afficher.
   // ---------------------------------------------------------------------
   const PAGE_CASHIER = "cashier.html";
-  // Base (toujours autorisée pour un caissier) : cashier.html (encaissement +
-  // historique de ses propres transactions). Au-delà, chaque page n'est
-  // accessible que si l'owner a coché la permission correspondante pour CE
-  // caissier précis (checkboxes équipe.html) - voir permissions.validateOrders/
-  // viewGiftCards renvoyées par getMerchantChromeInfo. Toute autre page
-  // (dashboard, transactions, finance, business, settings, équipe...) reste
-  // strictement réservée au propriétaire.
   const ACCES_CASHIER_PAR_PAGE = {
     "cashier.html": () => true,
     "gift-cards.html": (permissions) => !!(permissions && permissions.viewGiftCards)
@@ -82,7 +75,9 @@
   // périodique retire en plus immédiatement l'interface et les données affichées.
   setInterval(async () => {
     try {
-      await KADOSK_NAV.chargerChromeInfo(true);
+      const {role,permissions}=await KADOSK_NAV.chargerChromeInfo(true);
+      const page=window.location.pathname.split('/').pop() || 'dashboard.html';
+      if(role==='CASHIER' && !ACCES_CASHIER_PAR_PAGE[page]?.(permissions)) window.location.replace(PAGE_CASHIER);
     } catch (erreur) {
       if (erreur && ERREURS_ACCES_REVOQUE.includes(erreur.message)) {
         KADOSK_AUTH.deconnecter();

@@ -2,7 +2,6 @@
   const champNom = document.getElementById("champNomEquipe");
   const champEmail = document.getElementById("champEmailEquipe");
   const champRole = document.getElementById("champRoleEquipe");
-  const champPeutValiderCommandes = ({checked:false});
   const champPeutVoirCartes = document.getElementById("champPeutVoirCartes");
   const boutonAjouter = document.getElementById("boutonAjouterEquipe");
   const messageStatut = document.getElementById("messageStatutEquipe");
@@ -32,7 +31,7 @@
   // l'encaissement (toujours inclus, jamais affiché ici pour ne pas alourdir).
   function libellesAcces(u) {
     const acces = [];
-    if (u.canValidateOrders) acces.push("Commandes");
+
     if (u.canViewGiftCards) acces.push("Cartes cadeaux");
     return acces.length ? acces.join(", ") : "Encaissement uniquement";
   }
@@ -160,12 +159,10 @@
         email,
         role,
         nom,
-        champPeutValiderCommandes.checked,
         champPeutVoirCartes.checked
       );
       champNom.value = "";
       champEmail.value = "";
-      champPeutValiderCommandes.checked = false;
       champPeutVoirCartes.checked = false;
       messageStatut.style.color = "#1faa6c";
       messageStatut.textContent = resultat && resultat.emailSent

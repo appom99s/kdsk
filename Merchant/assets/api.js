@@ -130,11 +130,8 @@ const KADOSK_API = (function () {
     getMerchantChromeInfo: () => appeler("chromeInfo", "GET"),
     checkGiftCard: (code) => appeler("checkGiftCard", "POST", { code }),
     redeemGiftCard: (code, amount) => appeler("redeemGiftCard", "POST", { code, amount }),
-    // QR temporaire (30s, anti-rejeu) scanné par le marchand en caisse - le payload
-    // scanné (KDSKQR1:...) n'est jamais le code permanent. Authentifié comme
-    // checkGiftCard/redeemGiftCard (token du marchand connecté, pas un appel public).
-    checkQrTemporaire: (payload) => appeler("qrTemporaireCheck", "POST", { payload }),
-    redeemQrTemporaire: (payload, amount) => appeler("qrTemporaireRedeem", "POST", { payload, amount }),
+    
+    
     
     activateOrder: (giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone) =>
       appeler("activateOrder", "POST", { giftCardId, buyerEmail, buyerName, message, deliveryMode, recipientPhone }),
@@ -148,8 +145,8 @@ const KADOSK_API = (function () {
     saveInvoiceTemplate: (parametres) => appeler("invoiceTemplate", "POST", parametres),
     getTeamMembers: () => appeler("teamMembers", "GET"),
     saveTeamAssignments: (teamId, locationIds) => appeler("teamAssignments", "POST", {teamId, locationIds}),
-    inviteTeamMember: (email, role, name, canValidateOrders, canViewGiftCards) =>
-      appeler("teamMemberInvite", "POST", { email, role, name, canValidateOrders, canViewGiftCards }),
+    inviteTeamMember: (email, role, name, canViewGiftCards) =>
+      appeler("teamMemberInvite", "POST", { email, role, name, canViewGiftCards }),
     removeTeamMember: (merchantUserId) => appeler("teamMemberRemove", "POST", { merchantUserId }),
     getTransactionLog: (giftCardId) => appeler("transactionLog?giftCardId=" + encodeURIComponent(giftCardId), "GET"),
     getRecentTransactions: (code, limit) => {
@@ -232,9 +229,6 @@ const KADOSK_API = (function () {
     verifyBiometricLogin: (clientDataJSON, authenticatorData, signature) =>
       appeler("verifyBiometricLogin", "POST", { clientDataJSON, authenticatorData, signature }),
 
-    // Boutique publique KADOSK (order.kadosk.com... en fait servie depuis ce même
-    // dossier - boutique.html/etape-2 à 5) : aucune connexion
-    // requise, appels publics avec token visiteur, comme forgotPassword ci-dessus.
     
     getGiftCardOffer: (merchantId) => appelerPublic("giftCardOffer?merchantId=" + encodeURIComponent(merchantId), "GET"),
     
@@ -243,29 +237,17 @@ const KADOSK_API = (function () {
     // revalidé côté serveur), relecture de confirmation, "Mes commandes" par email.
     
 
-    // Login "Mes commandes" par code reçu par email (remplace l'ancien modèle où
-    // l'email transitait tel quel dans l'URL) - voir assets/mes-commandes.js pour la
-    // gestion du jeton (stocké côté appareil uniquement, jamais de session serveur).
-    // Landing marchand (signup.html) : capture de demande d'essai gratuit -
-    // ne crée pas encore de compte marchand automatiquement, voir le
-    // commentaire au-dessus de soumettreDemandeEssaiMarchand côté backend.
     createSubscriptionCheckout: (planId) => appeler("subscriptionCheckout", "POST", { planId }),
     resendTeamInvitation: (merchantUserId) => appeler("teamInvitationResend", "POST", { merchantUserId }),
     
 
     demanderCodeCommandes: (buyerEmail) => appelerPublic("loginCodeRequest", "POST", { buyerEmail }),
-    // deviceId : identifiant d'appareil (voir mes-commandes.js :: obtenirOuCreerDeviceId)
-    // utilisé côté serveur pour appliquer "une seule session active par appareil"
-    // (giftCardSecurity.web.js :: enregistrerSessionAppareil).
     confirmerCodeCommandes: (buyerEmail, code, deviceId) =>
       appelerPublic("loginCodeConfirm", "POST", { buyerEmail, code, deviceId }),
 
     getOrderByNumber: (orderNumber, token) => appelerPublic("orderByNumber", "POST", { orderNumber, token }),
     getOrdersByEmail: (token) => appelerPublic("ordersByEmail", "POST", { token }),
 
-    // Onglet "Mes cartes" (client) : vue à plat de toutes les cartes cadeaux déjà
-    // acceptées par un marchand, tous achats confondus - voir mes-commandes.js et
-    // giftCardSecurity.web.js/getMesCartesParEmail.
     getMesCartesByEmail: (token) => appelerPublic("mesCartesByEmail", "POST", { token }),
 
     // Utilisé uniquement par le pont iframe Wix natif (wix-bridge.js) pour un visiteur
@@ -276,11 +258,7 @@ const KADOSK_API = (function () {
     getBuyerTokenFromMember: (deviceId) =>
       appeler("buyerTokenFromMember?deviceId=" + encodeURIComponent(deviceId || ""), "GET"),
 
-    // QR temporaire (30s, anti-rejeu) d'une carte précise, affiché par
-    // l'acheteur/destinataire depuis "Mes commandes" - voir mes-commandes.js et
-    // giftCardSecurity.web.js/genererCodeQRTemporaire pour le détail. orderItemId
-    // (pas un identifiant de carte - le client ne le connaît jamais) + jeton acheteur.
-    getQrTemporaire: (orderItemId, token) => appelerPublic("qrTemporaire", "POST", { orderItemId, token }),
+    
 
     // Coordonnées de paiement (RIB) d'un marchand pour une commande précise -
     // exige un jeton acheteur (connexion par code, voir demanderCodeCommandes/

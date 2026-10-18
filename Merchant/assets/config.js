@@ -6,5 +6,5 @@ window.KADOSK_CONFIG = {
   logoutRedirectPath: "/Merchant/login.html",
   AdminCallbackPath : "/Admin/admin-login-callback.html",
   boutiqueCallbackPath: "/Client/boutique-callback.html",
-  mesCommandesCallbackPath: "/Client/mes-commandes-callback.html"
+  mesCommandesCallbackPath: "/Client/index.html"
 };

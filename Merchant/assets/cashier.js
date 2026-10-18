@@ -72,15 +72,11 @@
   }
 
   let codeCarteActuelle = null;
-  // Rempli uniquement quand la carte affichée vient d'un QR temporaire (30s,
-  // anti-rejeu) plutôt que d'un code permanent scanné/saisi - voir boucleScan()
-  // et encaisser() plus bas. Jamais les deux en même temps que codeCarteActuelle.
-  let payloadQrActuel = null;
+
   // Copie UX du dernier solde renvoyé par la vérification. Elle sert uniquement à
   // bloquer une saisie manifestement trop élevée avant l'appel réseau ; le backend
   // refait obligatoirement le contrôle atomique sur le solde courant.
   let soldeAfficheActuel = null;
-  const PREFIXE_QR_TEMPORAIRE = "KDSKQR1:";
 
   const ongletScan = document.getElementById("ongletScan");
   const ongletManuel = document.getElementById("ongletManuel");
@@ -305,14 +301,8 @@
           if (codeDetecte) {
             messageStatutScan.textContent = "Code détecté, vérification en cours…";
             afficherEtatCameraArretee();
-            if (codeDetecte.startsWith(PREFIXE_QR_TEMPORAIRE)) {
-              // QR temporaire anti-rejeu (voir "Mes commandes" côté acheteur) : jamais
-              // le code permanent, jamais saisi manuellement - uniquement via ce scan.
-              rechercherCarteParQr(codeDetecte);
-            } else {
-              champCode.value = codeDetecte;
-              rechercherCarte();
-            }
+            champCode.value = codeDetecte;
+            rechercherCarte();
             return;
           }
         }
@@ -474,7 +464,7 @@
     blocBoutonEncaisser.style.display = "none";
     messageStatutEncaissement.textContent = "";
     codeCarteActuelle = null;
-    payloadQrActuel = null;
+
     soldeAfficheActuel = null;
     desactiverPaveNumerique();
   }
@@ -551,57 +541,9 @@
     }
   }
 
-  // Même rôle que rechercherCarte(), mais pour un QR temporaire anti-rejeu : le
-  // payload change toutes les 30s, donc pas de champ de saisie manuelle possible
-  // ici - uniquement déclenché depuis boucleScan() ci-dessus.
-  async function rechercherCarteParQr(payload) {
-    codeCarteActuelle = null;
-    payloadQrActuel = null;
-    messageStatutEncaissement.textContent = "";
-
-    carteInfo.style.display = "block";
-    carteInfo.textContent = "Vérification en cours...";
-    blocMontant.style.display = "none";
-    blocBoutonEncaisser.style.display = "none";
-
-    try {
-      const statut = await KADOSK_API.checkQrTemporaire(payload);
-
-      afficherDetailsCarte(statut);
-      jouerSonSucces();
-
-      payloadQrActuel = payload;
-      soldeAfficheActuel = Number(statut.remainingBalance);
-      champMontant.value = String(statut.remainingBalance).replace(".", ",");
-      blocMontant.style.display = "block";
-      blocBoutonEncaisser.style.display = "flex";
-      activerPaveNumeriqueSiMobile();
-    } catch (erreur) {
-      payloadQrActuel = null;
-      const codeErreur = erreur && erreur.message;
-      if (codeErreur === "QR_CODE_EXPIRE") {
-        carteInfo.textContent = "Ce QR a expiré (il se renouvelle toutes les 30s) — redemandez au client de le rafraîchir et rescannez.";
-      } else if (codeErreur === "GIFT_CARD_SUSPENDED") {
-        carteInfo.textContent = "Cette carte est suspendue temporairement. Contactez le support KADOSK.";
-      } else if (codeErreur === "GIFT_CARD_CANCELLED") {
-        carteInfo.textContent = "Cette carte a été annulée et ne peut plus être utilisée.";
-      } else if (codeErreur === "TROP_DE_TENTATIVES") {
-        carteInfo.textContent = "Trop de tentatives de vérification. Merci de réessayer plus tard.";
-      } else if (codeErreur === "MERCHANT_PLAN_NOT_ACTIVE") {
-        carteInfo.textContent = "Votre abonnement KADOSK n'est pas actif. Vérifiez la section Abonnement dans Mon entreprise.";
-      } else if (codeErreur === "NOT_AUTHENTICATED" || codeErreur === "MERCHANT_NOT_FOUND" || codeErreur === "MERCHANT_ROLE_NOT_ASSIGNED") {
-        carteInfo.textContent = "Session expirée. Merci de vous reconnecter.";
-      } else {
-        carteInfo.textContent = "Carte introuvable.";
-        jouerSonRejet();
-      }
-    }
-  }
-
-  let redemptionAttempt = null;
   async function encaisser() {
     if (boutonEncaisser.disabled) return;
-    if (!codeCarteActuelle && !payloadQrActuel) {
+    if (!codeCarteActuelle) {
       return;
     }
 
@@ -620,13 +562,9 @@
     boutonEncaisser.disabled = true;
 
     try {
-      // Le payload d'un QR temporaire expire ~30-60s après affichage : si le
-      // marchand tarde entre le scan et le clic "Encaisser", l'appel ci-dessous
-      // échoue avec QR_CODE_EXPIRE plutôt que d'encaisser sur un état obsolète -
-      // c'est le comportement voulu (anti-rejeu), pas un bug.
-      const attemptKey = [payloadQrActuel || codeCarteActuelle, montant, locationSelect.value].join('|');
+      const attemptKey = [codeCarteActuelle, montant, locationSelect.value].join('|');
       if (!redemptionAttempt || redemptionAttempt.key !== attemptKey) redemptionAttempt = {key:attemptKey,id:crypto.randomUUID()};
-      const resultat = await KADOSK_SECURE_UI.cashier({payload:payloadQrActuel,code:codeCarteActuelle,amount:montant,requestId:redemptionAttempt.id,locationId:locationSelect.value});
+      const resultat = await KADOSK_SECURE_UI.cashier({code:codeCarteActuelle,amount:montant,requestId:redemptionAttempt.id,locationId:locationSelect.value});
       redemptionAttempt = null;
 
       // reinitialiserFormulaire() vide messageStatutEncaissement (voir sa

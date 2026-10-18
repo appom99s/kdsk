@@ -24,7 +24,7 @@
       field(list, 'Cartes cadeaux', merchant.quantity + ' × ' + money(merchant.amount));
       field(list, 'Montant', money(merchant.subtotal));
       field(list, 'Paiement', detail.paymentStatus === 'PAID' ? 'Payé — déclaré par le marchand' : detail.paymentStatus === 'UNPAID' ? 'Non payé — déclaré par le marchand' : 'Non renseigné');
-      const button = document.createElement('button'); button.className = 'kadosk-bouton'; button.textContent = 'Télécharger la facture et le reçu';
+      const button = document.createElement('button'); button.className = 'kadosk-bouton'; button.textContent = 'Télécharger la facture';
       button.addEventListener('click', async () => {
         button.disabled = true;
         try {

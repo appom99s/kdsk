@@ -39,11 +39,11 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;">
           <div class="kadosk-champ"><label for="creationNom">Nom du client</label><input id="creationNom" maxlength="100" list="clientsMarchandNoms" autocomplete="off"><datalist id="clientsMarchandNoms"></datalist></div>
           <div class="kadosk-champ" id="blocCreationEmail"><label for="creationEmail">E-mail du client</label><input id="creationEmail" type="email" list="clientsMarchandEmails" autocomplete="off"><datalist id="clientsMarchandEmails"></datalist></div>
-          <div class="kadosk-champ" id="blocCreationTelephone" hidden><label for="creationTelephone">Numéro WhatsApp du client</label><input id="creationTelephone" type="tel" placeholder="06 12 34 56 78" list="clientsMarchandTelephones" autocomplete="off"><datalist id="clientsMarchandTelephones"></datalist></div>
+          <div class="kadosk-champ" id="blocCreationTelephone" hidden><label for="creationTelephone">Téléphone du client</label><input id="creationTelephone" type="tel" placeholder="06 12 34 56 78" list="clientsMarchandTelephones" autocomplete="off"><datalist id="clientsMarchandTelephones"></datalist></div>
           <div class="kadosk-champ"><label for="creationMontant">Montant (DH)</label><input id="creationMontant" type="number" min="1" max="1000" step="0.01"></div>
         </div>
         <div class="kadosk-champ"><label for="creationPaiement">Paiement du client (facultatif)</label><select id="creationPaiement"><option value="UNSPECIFIED">Non renseigné</option><option value="PAID">Payé</option><option value="UNPAID">Non payé</option></select><small>Déclaration informative. La carte sera créée et envoyée quel que soit ce choix.</small></div>
-        <div class="kadosk-champ"><label for="creationMessage">Message</label><textarea id="creationMessage" maxlength="250" rows="2"></textarea></div>
+        <input type="hidden" id="creationMessage" value="">
         <div class="kadosk-ligne-boutons">
           <button class="kadosk-bouton" id="creationEnvoyer">Créer et envoyer</button>
         </div>
@@ -98,7 +98,6 @@
   <script src="assets/spa.js"></script>
   <script src="assets/carte-visuelle.js"></script>
   <script src="assets/gift-cards.js"></script>
-  <script src="assets/gift-card-print.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>

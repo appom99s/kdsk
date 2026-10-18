@@ -15,8 +15,8 @@
    if(card.status==='ACTIVE'){
     const form=document.createElement('form'),label=document.createElement('label'),input=document.createElement('input'),button=document.createElement('button');
     input.id='pin-'+card.orderItemId;input.type='password';input.inputMode='numeric';input.pattern='[0-9]{6}';input.maxLength=6;input.required=true;input.autocomplete='new-password';label.htmlFor=input.id;label.textContent='Nouveau PIN à 6 chiffres';button.textContent='Réinitialiser le PIN';
-    form.append(label,input,button);form.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;
-     try{const current=KADOSK_BUYER_SESSION.lire();if(!current)throw Error();await KADOSK_API.setCardPin(card.orderItemId,current.token,input.value);input.value='';message('PIN modifié. L’ancien PIN ne fonctionne plus.');}
+    form.append(button);form.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;
+     try{const current=KADOSK_BUYER_SESSION.lire();if(!current)throw Error();await KADOSK_API.setCardPin(card.orderItemId,current.token,null);input.value='';message('Nouveau PIN envoyé par e-mail. L’ancien PIN ne fonctionne plus.');}
      catch(_){message('Modification impossible. Vérifiez votre session et le statut de la carte.');}finally{button.disabled=false;}});article.append(form);
    }
    $('cards').append(article);

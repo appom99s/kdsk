@@ -172,7 +172,7 @@
   const champMontantLibreMin = document.getElementById("champMontantLibreMin");
   const champMontantLibreMax = document.getElementById("champMontantLibreMax");
   const champExpiration = document.getElementById("champExpiration");
-  const champVisible = document.getElementById("champVisible");
+
   const boutonEnregistrer = document.getElementById("boutonEnregistrer");
   const messageStatutParametres = document.getElementById("messageStatutParametres");
   const lienReinitialiserLogo = document.getElementById("lienReinitialiserLogo");
@@ -532,12 +532,7 @@
       champMontantLibreMin.value = parametres.freeAmountMin || "";
       champMontantLibreMax.value = parametres.freeAmountMax || "";
       champExpiration.value = parametres.expirationMonths || 0;
-      // Garde défensive : si settings.html n'a pas encore été redéployé avec la
-      // case "Visible dans le catalogue public KADOSK" (#champVisible), ne pas
-      // planter tout le chargement du formulaire pour autant.
-      if (champVisible) {
-        champVisible.checked = parametres.visible !== false;
-      }
+
       logoEntrepriseParDefaut = parametres.businessLogoUrl || "";
 
       actualiserVisibilite();
@@ -594,10 +589,7 @@
         freeAmountMin: champMontantLibreMin.value ? Number(champMontantLibreMin.value) : null,
         freeAmountMax: champMontantLibreMax.value ? Number(champMontantLibreMax.value) : null,
         expirationMonths: Number(champExpiration.value) || 0,
-        // Idem : si l'élément n'existe pas encore côté HTML déployé, on envoie true
-        // (visible par défaut, comportement identique à celui du backend quand le
-        // paramètre est absent) plutôt que de faire planter tout l'enregistrement.
-        visible: champVisible ? champVisible.checked : true,
+
         ...(design || {})
       });
 
