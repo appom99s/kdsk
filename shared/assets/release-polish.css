@@ -1,0 +1,16 @@
+/* REV2 release: shared accessible finish; no external font or animation library. */
+:root{--release-ink:#132f2b;--release-accent:#176b5b;--release-paper:#f5f8f6}
+html{scroll-padding-top:80px}body{accent-color:var(--release-accent)}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid #20a788;outline-offset:3px}
+:where(button,input,select,textarea){font:inherit}button{touch-action:manipulation}button:disabled{cursor:wait;opacity:.65}
+.k2-carte{border:1px solid rgba(19,47,43,.08);box-shadow:0 8px 28px rgba(19,47,43,.045)}
+#carteEmail,#carteCode,#carteConnecte{border-radius:22px;padding:24px}
+#inputCode{font-variant-numeric:tabular-nums;min-height:54px;border-radius:12px}
+#carteEmail .k2-btn-primaire,#carteCode .k2-btn-primaire{min-height:48px;background:var(--release-ink);border-radius:12px}
+.security-panel{max-width:480px;margin:8vh auto;padding:32px;background:white;border:1px solid #dce7e1;border-radius:24px;box-shadow:0 16px 64px #132f2b10;font:16px/1.6 system-ui;color:var(--release-ink)}
+.security-panel input,.security-panel button{display:block;box-sizing:border-box;width:100%;min-height:48px;margin:12px 0;padding:12px;border:1px solid #b8cfc6;border-radius:12px}
+.security-panel button{background:var(--release-ink);color:white}.security-panel #secret{overflow-wrap:anywhere;background:#edf5f0;padding:16px}
+@media(max-width:560px){.security-panel{margin:24px 12px;padding:24px}#carteEmail,#carteCode,#carteConnecte{padding:20px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+[hidden]{display:none!important}

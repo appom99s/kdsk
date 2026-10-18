@@ -1,0 +1,191 @@
+/* Palette de marque KADOSK (voir audit section 19) - dédiée à l'espace Admin,
+   nouveau et distinct visuellement du dashboard marchand existant (qui garde
+   sa palette violette actuelle, non touchée par ce fichier). */
+:root {
+  --adm-primary: #7FB5AB;
+  --adm-secondary: #B7D6CF;
+  --adm-dark: #1F3A34;
+  --adm-bg: #F7FAF9;
+  --adm-beige: #EDEAE2;
+  --adm-blanc: #FFFFFF;
+  --adm-texte: #1F3A34;
+  --adm-texte-clair: #5B6E68;
+  --adm-bordure: #E1E8E5;
+  --adm-danger: #C0392B;
+  --adm-danger-tint: #FBEAE8;
+  --adm-succes: #2F7D6A;
+  --adm-succes-tint: #E7F3EF;
+  --adm-rayon: 12px;
+  --adm-rayon-sm: 8px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--adm-bg);
+  color: var(--adm-texte);
+}
+a { color: inherit; }
+
+.adm-app { display: flex; min-height: 100vh; }
+
+.adm-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--adm-dark);
+  color: var(--adm-blanc);
+  padding: 22px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.adm-sidebar-titre {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+  padding: 0 10px 18px;
+  color: var(--adm-blanc);
+}
+.adm-sidebar-titre span { color: var(--adm-primary); }
+.adm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--adm-rayon-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #CFE3DE;
+  text-decoration: none;
+}
+.adm-nav-item:hover { background: rgba(255,255,255,0.06); }
+.adm-nav-item.actif { background: var(--adm-primary); color: var(--adm-dark); }
+.adm-nav-section {
+  margin-top: 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #7C948D;
+  padding: 0 12px;
+}
+
+.adm-main { flex: 1; padding: 26px 32px; max-width: 1200px; }
+.adm-entete { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.adm-entete h1 { font-size: 21px; margin: 0; }
+.adm-badge-role {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--adm-secondary);
+  color: var(--adm-dark);
+}
+
+.adm-grille-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.adm-carte-kpi {
+  background: var(--adm-blanc);
+  border: 1px solid var(--adm-bordure);
+  border-radius: var(--adm-rayon);
+  padding: 16px;
+}
+.adm-kpi-label { font-size: 12px; color: var(--adm-texte-clair); font-weight: 600; margin-bottom: 6px; }
+.adm-kpi-valeur { font-size: 26px; font-weight: 800; color: var(--adm-dark); }
+
+.adm-panneau {
+  background: var(--adm-blanc);
+  border: 1px solid var(--adm-bordure);
+  border-radius: var(--adm-rayon);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.adm-panneau h2 { font-size: 15px; margin: 0 0 14px; }
+
+.adm-toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.adm-input, .adm-select {
+  padding: 9px 12px;
+  border: 1.5px solid var(--adm-bordure);
+  border-radius: var(--adm-rayon-sm);
+  font-size: 13.5px;
+  background: var(--adm-blanc);
+  color: var(--adm-texte);
+}
+.adm-input:focus, .adm-select:focus { outline: none; border-color: var(--adm-primary); }
+
+.adm-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.adm-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--adm-beige);
+  color: var(--adm-dark);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.adm-table td { padding: 10px 12px; border-bottom: 1px solid var(--adm-bordure); vertical-align: middle; }
+.adm-table tr:last-child td { border-bottom: none; }
+
+.adm-statut {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.adm-statut.ok { background: var(--adm-succes-tint); color: var(--adm-succes); }
+.adm-statut.attente { background: #FFF3E0; color: #B26A00; }
+.adm-statut.refuse { background: var(--adm-danger-tint); color: var(--adm-danger); }
+.adm-statut.neutre { background: var(--adm-beige); color: var(--adm-texte-clair); }
+
+.adm-bouton {
+  padding: 9px 16px;
+  border-radius: var(--adm-rayon-sm);
+  border: none;
+  background: var(--adm-primary);
+  color: var(--adm-dark);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.adm-bouton:hover { filter: brightness(0.96); }
+.adm-bouton.secondaire { background: var(--adm-blanc); border: 1.5px solid var(--adm-bordure); color: var(--adm-texte); }
+.adm-bouton.danger { background: var(--adm-danger); color: var(--adm-blanc); }
+.adm-bouton:disabled { opacity: 0.55; cursor: default; }
+
+.adm-lien-action { color: var(--adm-primary); font-weight: 700; cursor: pointer; font-size: 13px; text-decoration: none; }
+
+.adm-vide { padding: 30px; text-align: center; color: var(--adm-texte-clair); font-size: 13.5px; }
+
+.adm-page-connexion { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--adm-dark); }
+.adm-carte-connexion {
+  width: 380px;
+  background: var(--adm-blanc);
+  border-radius: var(--adm-rayon);
+  padding: 30px 28px;
+}
+.adm-champ { margin-bottom: 14px; }
+.adm-champ label { display: block; font-size: 12.5px; font-weight: 700; color: var(--adm-texte-clair); margin-bottom: 6px; }
+.adm-champ input {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: var(--adm-rayon-sm);
+  border: 1.5px solid var(--adm-bordure);
+  font-size: 14px;
+}
+.adm-message-erreur { color: var(--adm-danger); font-size: 12.5px; margin-top: 10px; min-height: 16px; }
+
+.adm-modal-fond {
+  position: fixed; inset: 0; background: rgba(31,58,52,0.45);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.adm-modal {
+  background: var(--adm-blanc); border-radius: var(--adm-rayon);
+  padding: 22px; width: 420px; max-width: 92vw;
+}
+.adm-modal h3 { margin: 0 0 14px; font-size: 16px; }
+.adm-modal textarea {
+  width: 100%; min-height: 80px; padding: 10px; border-radius: var(--adm-rayon-sm);
+  border: 1.5px solid var(--adm-bordure); font-family: inherit; font-size: 13.5px; resize: vertical;
+}
+.adm-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
