@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Centre de commande IA</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete"><h1>Centre de commande IA</h1><span class="adm-badge-role" id="admBadgeRole">—</span></div>
+      <p class="v6-sous-titre">Les agents analysent et recommandent. Ils ne valident aucun paiement, ne modifient aucun solde et n’accèdent ni au code ni à GitHub. Les règles de sécurité fonctionnent même sans IA.</p>
+      <div class="v6-onglets" role="tablist" id="iaOnglets">
+        <button role="tab" data-t="vue" aria-selected="true">Vue générale</button>
+        <button role="tab" data-t="CEO" aria-selected="false">CEO</button>
+        <button role="tab" data-t="CFO" aria-selected="false">CFO</button>
+        <button role="tab" data-t="SI" aria-selected="false">SI</button>
+        <button role="tab" data-t="incidents" aria-selected="false">Incidents</button>
+        <button role="tab" data-t="fraudes" aria-selected="false">Fraudes</button>
+        <button role="tab" data-t="approbations" aria-selected="false">Approbations</button>
+        <button role="tab" data-t="rapports" aria-selected="false">Rapports</button>
+      </div>
+      <div id="iaMessage" class="v6-message" hidden role="status"></div>
+      <div id="iaContenu" role="tabpanel"><p class="v6-vide">Chargement…</p></div>
+    </main>
+  </div>
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="../shared/assets/ui-system.js"></script>
+  <script src="../shared/assets/v6-client.js"></script>
+  <script src="assets/v6-admin-guard.js"></script>
+  <script src="assets/v6-admin-ia.js"></script>
+</body>
+</html>

@@ -82,7 +82,7 @@
       tdDate.textContent = formaterDate(entree.createdAt);
 
       const tdCarte = document.createElement("td");
-      tdCarte.textContent = "Carte " + codeMasque(entree.giftCardId) + (entree.redemptionReference ? " · Réf. " + entree.redemptionReference : "") + (entree.locationId ? " · Établissement " + entree.locationId : "");
+      tdCarte.textContent = "Carte " + codeMasque(entree.giftCardId);
 
       const tdAction = document.createElement("td");
       tdAction.textContent = LIBELLES_ACTION[entree.action] || entree.action;

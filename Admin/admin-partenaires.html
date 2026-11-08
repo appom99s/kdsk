@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Admin — Demandes partenaires</title>
+<link rel="stylesheet" href="assets/admin-style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+  <div class="adm-app">
+    <aside class="adm-sidebar" id="admSidebar"></aside>
+    <main class="adm-main">
+      <div class="adm-entete"><h1>Demandes partenaires</h1><span class="adm-badge-role" id="admBadgeRole">—</span></div>
+      <p class="v6-sous-titre">Vérifiez l’identité de l’entreprise (ICE, RC, pièces) avant d’approuver : le pays validé détermine le mode de paiement de l’abonnement (Maroc = virement, ailleurs = PayPal).</p>
+      <div id="paMessage" class="v6-message" hidden role="status"></div>
+      <div id="paListe"><p class="v6-vide">Chargement…</p></div>
+    </main>
+  </div>
+  <script src="assets/config.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/api.js"></script>
+  <script src="assets/admin-nav.js"></script>
+  <script src="../shared/assets/ui-system.js"></script>
+  <script src="../shared/assets/v6-client.js"></script>
+  <script src="assets/v6-admin-guard.js"></script>
+  <script>
+  (function () {
+    if (window.KADOSK_ADMIN_NAV) KADOSK_ADMIN_NAV.rendre('partenaires');
+    var $ = function (id) { return document.getElementById(id); };
+    var FORMES = { AUTO_ENTREPRENEUR: 'Auto-entrepreneur', PERSONNE_PHYSIQUE: 'Personne physique', SARLAU: 'SARL AU' };
+    function ligne(l, v) { return '<div class="v6-ligne"><span>' + l + '</span><strong>' + KD6.esc(v || '—') + '</strong></div>'; }
+    async function charger() {
+      try {
+        var liste = await KD6.appeler('admin.applications', { status: 'APPLICATION_SUBMITTED' });
+        $('paListe').innerHTML = liste.length ? liste.map(function (m) {
+          return '<article class="v6-carte" data-id="' + m.id + '"><h2>' + KD6.esc(m.business_name) + '</h2>' +
+            ligne('Forme juridique', FORMES[m.legal_form] || m.legal_form) + ligne('Pays déclaré', m.country_code) + ligne('ICE', m.ice) + ligne('RC', m.rc) +
+            ligne('Activité', m.activity) + ligne('Adresse', (m.address || '') + ', ' + (m.city || '')) + ligne('E-mail', m.contact_email) + ligne('Téléphone', m.contact_phone) +
+            ligne('Reçue le', KD6.date(m.created_at)) +
+            '<label class="v6-aide" style="display:flex;gap:8px;margin-top:10px"><input type="checkbox" data-f="pays" /> J’ai vérifié les pièces et confirme le pays « ' + KD6.esc(m.country_code) + ' ».</label>' +
+            '<div class="v6-actions"><button type="button" class="v6-bouton" data-a="APPROVE">Approuver</button><button type="button" class="v6-bouton v6-bouton-secondaire" data-a="REJECT">Refuser</button></div></article>';
+        }).join('') : '<p class="v6-vide">Aucune demande en attente.</p>';
+      } catch (e) { $('paListe').innerHTML = ''; KD6.afficher($('paMessage'), KD6.message(e), 'erreur'); }
+    }
+    $('paListe').addEventListener('click', async function (ev) {
+      var b = ev.target.closest('button[data-a]'); if (!b) return;
+      var art = b.closest('article');
+      var params = { merchantId: art.dataset.id, decision: b.dataset.a };
+      if (b.dataset.a === 'REJECT') { params.reason = window.prompt('Motif du refus (envoyé au demandeur) :'); if (!params.reason) return; }
+      else params.countryVerified = art.querySelector('[data-f="pays"]').checked;
+      b.disabled = true;
+      try {
+        await KD6.appeler('admin.review', params);
+        KD6.afficher($('paMessage'), b.dataset.a === 'APPROVE' ? 'Demande approuvée : e-mail d’activation envoyé.' : 'Demande refusée.', 'ok');
+        charger();
+      } catch (e) {
+        KD6.afficher($('paMessage'), e.message === 'COUNTRY_VERIFICATION_REQUIRED' ? 'Cochez la confirmation de vérification du pays.' : KD6.message(e), 'erreur');
+        b.disabled = false;
+      }
+    });
+    charger();
+  })();
+  </script>
+</body>
+</html>

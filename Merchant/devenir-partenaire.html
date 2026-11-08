@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Devenir partenaire — KADOSK</title>
+<meta name="description" content="Proposez des cartes cadeaux à vos clients, sans commission. Demande de partenariat KADOSK." />
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+<main class="v6-page-seule">
+  <div class="v6-marque">KADOSK</div><div class="v6-slogan">LE CADEAU, SIMPLEMENT.</div>
+  <h1 class="v6-titre" style="margin-top:20px">Devenir partenaire</h1>
+  <p class="v6-sous-titre">Cartes cadeaux pour votre commerce, 0 % de commission. Votre demande est étudiée par l’équipe KADOSK avant activation.</p>
+  <div id="dpMessage" class="v6-message" hidden role="status"></div>
+  <form id="dpForm" class="v6-carte" novalidate>
+    <h2>Votre entreprise</h2>
+    <div class="v6-champ"><label for="dpNom">Raison sociale / nom commercial *</label><input id="dpNom" required maxlength="120" autocomplete="organization" /></div>
+    <div class="v6-grille v6-grille-2">
+      <div class="v6-champ"><label for="dpForme">Forme juridique *</label>
+        <select id="dpForme" required>
+          <option value="">Choisir…</option><option value="SARL">SARL</option><option value="SARLAU">SARL AU</option><option value="SA">SA</option>
+          <option value="SAS">SAS</option><option value="SNC">SNC</option><option value="AUTO_ENTREPRENEUR">Auto-entrepreneur</option>
+          <option value="PERSONNE_PHYSIQUE">Personne physique</option><option value="ASSOCIATION">Association</option><option value="AUTRE">Autre</option>
+        </select></div>
+      <div class="v6-champ"><label for="dpPays">Pays *</label>
+        <select id="dpPays" required><option value="MA" selected>Maroc</option><option value="FR">France</option><option value="BE">Belgique</option>
+          <option value="ES">Espagne</option><option value="SN">Sénégal</option><option value="CI">Côte d’Ivoire</option><option value="TN">Tunisie</option><option value="CA">Canada</option></select></div>
+    </div>
+    <div class="v6-grille v6-grille-2" id="dpIdentifiants">
+      <div class="v6-champ"><label for="dpIce">ICE (15 chiffres)</label><input id="dpIce" inputmode="numeric" maxlength="15" /></div>
+      <div class="v6-champ"><label for="dpRc">Registre de commerce (RC)</label><input id="dpRc" maxlength="40" /></div>
+    </div>
+    <div class="v6-champ"><label for="dpActivite">Activité *</label><input id="dpActivite" required maxlength="120" placeholder="Restaurant, boutique, spa…" /></div>
+    <div class="v6-champ"><label for="dpAdresse">Adresse *</label><input id="dpAdresse" required maxlength="300" autocomplete="street-address" /></div>
+    <div class="v6-grille v6-grille-2">
+      <div class="v6-champ"><label for="dpVille">Ville *</label><input id="dpVille" required maxlength="80" autocomplete="address-level2" /></div>
+      <div class="v6-champ"><label for="dpPosition">Localisation</label><button type="button" class="v6-bouton v6-bouton-secondaire" id="dpPosition">Utiliser ma position</button>
+        <span class="v6-aide" id="dpPositionTexte"></span></div>
+    </div>
+    <h2>Contact</h2>
+    <div class="v6-grille v6-grille-2">
+      <div class="v6-champ"><label for="dpEmail">E-mail *</label><input id="dpEmail" type="email" required autocomplete="email" /></div>
+      <div class="v6-champ"><label for="dpTel">Téléphone *</label><input id="dpTel" type="tel" required autocomplete="tel" /></div>
+    </div>
+    <p class="v6-aide">Le logo pourra être ajouté depuis votre espace après validation.</p>
+    <label class="v6-aide" style="display:flex;gap:8px;align-items:flex-start;margin:10px 0"><input type="checkbox" id="dpCgu" />
+      <span>J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</a> et la <a href="../confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>. *</span></label>
+    <button type="submit" class="v6-bouton v6-bouton-plein" id="dpEnvoyer">Envoyer ma demande</button>
+  </form>
+</main>
+<script src="assets/config.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var pos = { latitude: null, longitude: null };
+  var ERREURS = { BUSINESS_NAME_INVALID: 'Nom de l’entreprise requis.', LEGAL_FORM_INVALID: 'Choisissez la forme juridique.', ICE_REQUIRED: 'ICE requis (15 chiffres) pour une société marocaine.',
+    ICE_INVALID: 'L’ICE comporte 15 chiffres.', RC_REQUIRED: 'Registre de commerce requis.', ACTIVITY_REQUIRED: 'Activité requise.', ADDRESS_REQUIRED: 'Adresse requise.',
+    CITY_REQUIRED: 'Ville requise.', EMAIL_INVALID: 'E-mail invalide.', PHONE_INVALID: 'Téléphone invalide.', TERMS_REQUIRED: 'Veuillez accepter les conditions.' };
+  $('dpPosition').addEventListener('click', function () {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(function (p) {
+      pos = { latitude: +p.coords.latitude.toFixed(6), longitude: +p.coords.longitude.toFixed(6) };
+      $('dpPositionTexte').textContent = 'Position enregistrée.';
+    }, function () { $('dpPositionTexte').textContent = 'Position non disponible.'; });
+  });
+  $('dpForm').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var b = $('dpEnvoyer'); b.disabled = true;
+    try {
+      await KD6.appelerPublic('partner.apply', {
+        businessName: $('dpNom').value, legalForm: $('dpForme').value, country: $('dpPays').value, ice: $('dpIce').value, rc: $('dpRc').value,
+        activity: $('dpActivite').value, address: $('dpAdresse').value, city: $('dpVille').value, email: $('dpEmail').value, phone: $('dpTel').value,
+        latitude: pos.latitude, longitude: pos.longitude, acceptTerms: $('dpCgu').checked });
+      $('dpForm').hidden = true;
+      KD6.afficher($('dpMessage'), 'Merci ! Votre demande est enregistrée. Vous recevrez un e-mail après son examen par l’équipe KADOSK.', 'ok');
+    } catch (e) {
+      KD6.afficher($('dpMessage'), ERREURS[e.message] || KD6.message(e), 'erreur');
+    } finally { b.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>

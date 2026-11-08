@@ -155,6 +155,8 @@ const KADOSK_API = (function () {
   return {
     viderCache,
     precharger,
+    // V6 : actions Supabase / abonnements / paiements / IA (voir backend/kadosk/router.js).
+    v6: (action, params) => appeler("kadoskV6", "POST", { action: action, params: params || {} }),
     getDashboardStats: () => appeler("dashboardStats", "GET"),
     // Habillage de page (nom/logo/palier/rôle) uniquement, sans aucune donnée
     // financière - c'est celui-ci que nav.js doit utiliser (accessible à OWNER

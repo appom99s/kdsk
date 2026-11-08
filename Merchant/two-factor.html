@@ -68,7 +68,7 @@
       const parametres = new URLSearchParams(window.location.search);
       const retour = parametres.get("retour");
       if (!retour || retour.includes("/") || retour.includes(":") || !/^[a-zA-Z0-9_-]+\.html$/.test(retour)) {
-        return "dashboard.html";
+        return "demarrage.html";
       }
       return retour;
     }

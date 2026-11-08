@@ -23,6 +23,7 @@
   const PAGE_CASHIER = "cashier.html";
   const ACCES_CASHIER_PAR_PAGE = {
     "cashier.html": () => true,
+    "scanner.html": () => true,
     "gift-cards.html": (permissions) => !!(permissions && permissions.viewGiftCards)
   };
   const ERREURS_ACCES_REVOQUE = [

@@ -183,6 +183,8 @@ const KADOSK_API = (function () {
   return {
     viderCache,
     precharger,
+    // V6 : actions Supabase / abonnements / paiements (voir backend/kadosk/router.js).
+    v6: (action, params) => appeler("kadoskV6", "POST", { action: action, params: params || {} }),
     getDashboardInitial: () => appeler("dashboardInitial", "GET"),
     
     beginRedemption: data => appeler("redemptionBegin", "POST", data),

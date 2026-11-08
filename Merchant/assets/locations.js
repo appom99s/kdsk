@@ -10,7 +10,7 @@
   const NOMINATIM = 'https://nominatim.openstreetmap.org/';
   const CENTRE_DEFAUT = [33.5731, -7.5898]; // Casablanca
   const MESSAGES = {
-    LOCATIONS_EXCEED_CASHIERS: 'Il faut au moins autant de caissiers actifs que de points de vente actifs. Invitez un caissier dans « Équipe » ou désactivez un point de vente.',
+    LOCATIONS_EXCEED_CASHIERS: 'Un point de vente est possible sans caissier ; au-delà, il faut un caissier actif par point de vente. Invitez un caissier dans « Équipe » ou désactivez un point de vente.',
     AT_LEAST_ONE_LOCATION_REQUIRED: 'Gardez au moins un point de vente actif.',
     LOCATION_INVALID: 'Nom, adresse et ville sont obligatoires ; latitude et longitude vont ensemble.',
     MAP_URL_INVALID: 'Lien de carte invalide.',
@@ -23,7 +23,7 @@
   host.className = 'kadosk-panneau-large';
   host.style.marginTop = '20px';
   host.innerHTML = `<form class="pv-form" novalidate>
-    <div class="pv-entete"><div><h2>Points de vente</h2><p class="kd-aide">Chaque point de vente doit avoir au moins un caissier attribué. Cliquez sur la carte pour placer l’établissement.</p></div>
+    <div class="pv-entete"><div><h2>Points de vente</h2><p class="kd-aide">Un premier point de vente sans caissier, puis un caissier par point de vente supplémentaire. Cliquez sur la carte pour placer l’établissement.</p></div>
     <span class="kd-statut" data-capacite></span></div>
     <div class="kd-champ"><label for="pvInstructions">Instructions d’utilisation de la carte</label><textarea id="pvInstructions" name="instructions" maxlength="2000" rows="3"></textarea></div>
     <div class="pv-liste"></div>
@@ -153,10 +153,12 @@
   function majCapacite() {
     const actifs = [...list.children].filter((b) => b.querySelector('[name=active]').checked).length;
     const pastille = form.querySelector('[data-capacite]');
-    pastille.textContent = actifs + ' point(s) de vente actif(s) / ' + caissiers.length + ' caissier(s)';
-    pastille.className = 'kd-statut ' + (actifs <= caissiers.length ? 'ok' : 'refuse');
-    form.querySelector('[data-add]').disabled = actifs >= caissiers.length;
-    form.querySelector('[data-add]').title = actifs >= caissiers.length ? 'Invitez un caissier supplémentaire pour ajouter un point de vente' : '';
+    // Même règle que le serveur : 1 point de vente sans caissier (le propriétaire encaisse), puis 1 par caissier.
+    const limite = Math.max(1, caissiers.length);
+    pastille.textContent = actifs + ' / ' + limite + ' point(s) de vente · ' + caissiers.length + ' caissier(s)';
+    pastille.className = 'kd-statut ' + (actifs <= limite ? 'ok' : 'refuse');
+    form.querySelector('[data-add]').disabled = actifs >= limite;
+    form.querySelector('[data-add]').title = actifs >= limite ? 'Invitez un caissier supplémentaire pour ajouter un point de vente' : '';
   }
 
   function afficher(data) {

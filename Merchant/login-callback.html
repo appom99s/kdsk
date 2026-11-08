@@ -81,7 +81,7 @@
             const reussi = await tenterConnexionBiometrique();
             if (reussi) {
               KADOSK_AUTH.marquerVerification2FA();
-              window.location.href = "dashboard.html";
+              window.location.href = "demarrage.html";
               return;
             }
           }
@@ -92,7 +92,7 @@
 
         // 2FA non activée : rien à vérifier pour cette session.
         KADOSK_AUTH.marquerVerification2FA();
-        window.location.href = "dashboard.html";
+        window.location.href = "demarrage.html";
       } catch (erreur) {
         console.error("Erreur callback KADOSK :", erreur);
         messageStatut.textContent = "La connexion a échoué. Merci de réessayer.";

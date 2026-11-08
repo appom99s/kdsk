@@ -189,3 +189,16 @@ a { color: inherit; }
   border: 1.5px solid var(--adm-bordure); font-family: inherit; font-size: 13.5px; resize: vertical;
 }
 .adm-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+/* V6 — administration utilisable sur smartphone (validation des virements en
+   mobilité). Ajout uniquement : l'affichage bureau (> 760 px) est inchangé. */
+@media (max-width: 760px) {
+  .adm-app { flex-direction: column; }
+  .adm-sidebar { width: auto; flex-direction: row; align-items: center; gap: 6px; padding: 10px 12px;
+    overflow-x: auto; position: sticky; top: 0; z-index: 20; scrollbar-width: thin; }
+  .adm-sidebar-titre { padding: 0 8px 0 0; font-size: 15px; white-space: nowrap; }
+  .adm-nav-section { display: none; }
+  .adm-nav-item { flex: 0 0 auto; white-space: nowrap; padding: 8px 10px; }
+  .adm-main { min-width: 0; padding: 16px; }
+  .adm-entete { flex-wrap: wrap; gap: 8px; }
+}

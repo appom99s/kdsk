@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Invitation caissier — KADOSK</title>
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+<main class="v6-page-seule">
+  <div class="v6-marque">KADOSK</div><div class="v6-slogan">LE CADEAU, SIMPLEMENT.</div>
+  <h1 class="v6-titre" style="margin-top:20px" id="acTitre">Activation de votre compte</h1>
+  <div class="v6-carte">
+    <ol class="v6-liste" style="color:inherit">
+      <li>Connectez-vous ou créez votre compte KADOSK <strong>avec l’adresse e-mail qui a reçu ce lien</strong>.</li>
+      <li>Revenez sur ce lien et cliquez sur « Activer ».</li>
+    </ol>
+    <div id="acMessage" class="v6-message" hidden role="status"></div>
+    <div class="v6-actions">
+      <button type="button" class="v6-bouton" id="acActiver">Activer</button>
+      <a class="v6-bouton v6-bouton-secondaire" id="acConnexion" href="login.html">Se connecter / créer un compte</a>
+    </div>
+  </div>
+</main>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  // Le jeton est dans le fragment (#) : il n'est jamais envoyé dans les journaux serveur web.
+  var params = new URLSearchParams(window.location.hash.slice(1));
+  var jeton = params.get('jeton') || sessionStorage.getItem('kd6_activation');
+  var caissier = /invitation-caissier/.test(window.location.pathname) || params.get('type') === 'caissier' || sessionStorage.getItem('kd6_activation_type') === 'caissier';
+  if (jeton) { sessionStorage.setItem('kd6_activation', jeton); sessionStorage.setItem('kd6_activation_type', caissier ? 'caissier' : 'proprietaire'); history.replaceState(null, '', window.location.pathname); }
+  if (caissier) $('acTitre').textContent = 'Rejoindre l’équipe de caisse';
+  if (!jeton) { KD6.afficher($('acMessage'), 'Lien incomplet : ouvrez le lien reçu par e-mail.', 'erreur'); $('acActiver').disabled = true; }
+  $('acActiver').addEventListener('click', async function () {
+    var b = this; b.disabled = true;
+    try {
+      await KD6.appeler(caissier ? 'cashier.acceptInvitation' : 'merchant.claimActivation', { token: jeton });
+      sessionStorage.removeItem('kd6_activation'); sessionStorage.removeItem('kd6_activation_type');
+      KD6.afficher($('acMessage'), 'Compte activé. Reconnectez-vous pour ouvrir votre espace' + (caissier ? ' de caisse.' : ' et démarrer la configuration.'), 'ok');
+      // Les droits de session sont recalculés à la prochaine connexion (2FA appliquée).
+      setTimeout(function () { if (window.KADOSK_AUTH && KADOSK_AUTH.deconnecter) KADOSK_AUTH.deconnecter(); else window.location.href = 'login.html'; }, 2500);
+    } catch (e) {
+      var m = { ACTIVATION_INVALID: 'Lien expiré ou déjà utilisé.', INVITATION_INVALID: 'Invitation expirée ou déjà utilisée.',
+        ACTIVATION_EMAIL_MISMATCH: 'Connectez-vous avec l’adresse e-mail qui a reçu le lien.', INVITATION_EMAIL_MISMATCH: 'Connectez-vous avec l’adresse e-mail qui a reçu l’invitation.',
+        ALREADY_MEMBER_ELSEWHERE: 'Ce compte est déjà rattaché à un autre commerce.', CASHIER_CAPACITY_EXCEEDED: 'Le nombre maximal de caissiers de ce commerce est atteint.' };
+      KD6.afficher($('acMessage'), m[e.message] || KD6.message(e), 'erreur');
+      b.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

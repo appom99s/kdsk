@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Scanner</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+<div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+<main class="kadosk-main">
+  <div class="kadosk-entete"><h1>Scanner</h1><div id="kadoskEnteteDroite"></div></div>
+  <div style="max-width:520px">
+    <div id="scMessage" class="v6-message" hidden role="status"></div>
+
+    <section class="v6-carte" id="scAppareil" hidden aria-labelledby="scAppareilTitre">
+      <h2 id="scAppareilTitre">Vérifier cet appareil</h2>
+      <p class="v6-aide">Un code à 6 chiffres vient d’être envoyé à votre adresse e-mail. La validation déconnectera votre ancien appareil.</p>
+      <div class="v6-champ"><label for="scCodeAppareil">Code reçu</label><input id="scCodeAppareil" inputmode="numeric" maxlength="6" autocomplete="one-time-code" class="v6-pin" /></div>
+      <button type="button" class="v6-bouton v6-bouton-plein" id="scValiderAppareil">Valider l’appareil</button>
+    </section>
+
+    <section class="v6-carte" id="scCaisse" aria-labelledby="scCaisseTitre">
+      <h2 id="scCaisseTitre">1. Carte du client</h2>
+      <div class="v6-champ"><label for="scLieu">Point de vente</label><select id="scLieu"></select></div>
+      <div class="v6-actions"><button type="button" class="v6-bouton" id="scDemarrer">Scanner le QR</button></div>
+      <div id="scZoneScan" hidden style="margin-top:12px">
+        <div class="v6-scan"><video id="scVideo" playsinline muted></video></div>
+        <div class="v6-actions" style="justify-content:center"><button type="button" class="v6-bouton v6-bouton-secondaire" id="scArreter">Fermer la caméra</button></div>
+      </div>
+      <div class="v6-champ" style="margin-top:12px"><label for="scCode">Ou saisissez le code de la carte</label>
+        <input id="scCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KDS1:…" /></div>
+      <button type="button" class="v6-bouton v6-bouton-secondaire" id="scRechercher">Rechercher</button>
+    </section>
+
+    <section class="v6-carte" id="scEncaissement" hidden aria-labelledby="scEncTitre">
+      <h2 id="scEncTitre">2. Montant et PIN</h2>
+      <div id="scCarteInfo"></div>
+      <div class="v6-champ"><label for="scMontant">Montant à encaisser</label><input id="scMontant" inputmode="decimal" autocomplete="off" /></div>
+      <div class="v6-champ"><label for="scPin">PIN du client (saisi par le client)</label>
+        <input id="scPin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" class="v6-pin" /></div>
+      <p class="v6-aide">Tendez l’appareil au client pour qu’il saisisse son PIN lui-même. Le PIN n’est jamais affiché ni conservé.</p>
+      <div class="v6-actions"><button type="button" class="v6-bouton" id="scEncaisser">Encaisser</button>
+        <button type="button" class="v6-bouton v6-bouton-secondaire" id="scNouvelle">Nouvelle carte</button></div>
+    </section>
+  </div>
+</main></div>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/cache.js"></script>
+<script src="assets/nav.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script src="assets/v6-guard.js"></script>
+<script src="assets/v6-scanner.js"></script>
+</body>
+</html>

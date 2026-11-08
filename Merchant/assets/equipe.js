@@ -23,7 +23,14 @@
     TEAM_MEMBER_ALREADY_ADDED: "Cette personne fait déjà partie de votre équipe.",
     TEAM_MEMBER_NOT_FOUND: "Membre introuvable.",
     MERCHANT_PLAN_NOT_ACTIVE: "Votre abonnement doit être actif pour gérer votre équipe.",
-    CASHIER_PLAN_LIMIT_REACHED: "La limite de caissiers de votre abonnement est atteinte. Passez à la formule supérieure pour ajouter cette personne."
+    CASHIER_PLAN_LIMIT_REACHED: "La limite de caissiers de votre abonnement est atteinte. Passez à la formule supérieure pour ajouter cette personne.",
+    CANNOT_INVITE_OWNER: "Cet e-mail est celui d’un propriétaire de commerce : utilisez une autre adresse.",
+    ECHEC_VERIFICATION_ABONNEMENT: "Abonnement momentanément illisible. Réessayez dans un instant.",
+    ECHEC_ASSIGNATION_BADGE: "Le rôle caissier n’a pas pu être attribué (badge Wix). Contactez KADOSK.",
+    ECHEC_CREATION_MEMBRE_CIBLE: "Le compte du caissier n’a pas pu être créé. Vérifiez l’e-mail puis réessayez.",
+    ECHEC_RECHERCHE_MEMBRE_CIBLE: "Recherche du compte impossible. Réessayez dans un instant.",
+    ECHEC_ENREGISTREMENT_EQUIPE: "Enregistrement du caissier impossible. Réessayez.",
+    TWO_FACTOR_REQUIRED: "Validez la double authentification puis réessayez."
   };
 
   // Petits badges texte pour la colonne "Accès" du tableau équipe - résume
@@ -166,9 +173,13 @@
       const utilises = Number(abonnement.activeCashiers) || 0;
       const limite = Number(abonnement.cashierLimit) || 0;
       valeur.textContent = utilises + " / " + limite + " caissier" + (limite > 1 ? "s" : "");
-      detail.textContent = abonnement.remainingCashierSlots > 0
-        ? abonnement.remainingCashierSlots + " place(s) disponible(s)"
-        : "Limite atteinte — formule supérieure nécessaire";
+      // Abonnement réellement détecté côté serveur : explique un éventuel blocage.
+      const d = abonnement.planDetection || {};
+      const formule = d.active ? "Abonnement détecté : " + (d.planName || "formule active") + "." : "";
+      if (d.readError) detail.textContent = "Abonnement momentanément illisible (Pricing Plans). Actualisez dans un instant.";
+      else if (!d.active && limite <= 0) detail.textContent = "Aucun abonnement actif détecté pour ce compte : souscrivez une formule pour ajouter des caissiers.";
+      else if (limite <= 0) detail.textContent = formule + " Cette formule n’inclut pas de caissier.";
+      else detail.textContent = formule + " " + (abonnement.remainingCashierSlots > 0 ? abonnement.remainingCashierSlots + " place(s) disponible(s)." : "Limite atteinte — formule supérieure nécessaire.");
       boutonAjouter.disabled = abonnement.remainingCashierSlots <= 0;
     } catch (erreur) {
       valeur.textContent = "Quota indisponible";

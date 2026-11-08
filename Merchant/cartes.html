@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Cartes (QR)</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+<div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+<main class="kadosk-main">
+  <div class="kadosk-entete"><h1>Cartes cadeaux (QR)</h1><div id="kadoskEnteteDroite"></div></div>
+  <div style="max-width:760px">
+    <div id="caMessage" class="v6-message" hidden role="status"></div>
+
+    <section class="v6-carte" aria-labelledby="caEmettreTitre">
+      <h2 id="caEmettreTitre">Émettre une carte</h2>
+      <p class="v6-aide">Une carte à la fois. Le client reçoit la carte par e-mail, SMS ou les deux et crée lui-même son PIN secret : vous ne le voyez jamais. 0 % de commission.</p>
+      <div class="v6-segment" role="group" aria-label="Montant" id="caMontants"></div>
+      <div class="v6-champ" id="caLibreChamp"><label for="caMontant">Montant</label><input id="caMontant" inputmode="decimal" autocomplete="off" /><span class="v6-aide" id="caFourchette"></span></div>
+      <div class="v6-grille v6-grille-2">
+        <div class="v6-champ"><label for="caEmail">E-mail du bénéficiaire</label><input id="caEmail" type="email" autocomplete="off" /></div>
+        <div class="v6-champ"><label for="caNom">Nom du bénéficiaire</label><input id="caNom" maxlength="120" autocomplete="off" /></div>
+      </div>
+      <div class="v6-grille v6-grille-2">
+        <div class="v6-champ"><label for="caCanal">Envoyer par</label><select id="caCanal"><option value="EMAIL">E-mail</option><option value="SMS">SMS</option><option value="BOTH">E-mail et SMS</option></select></div>
+        <div class="v6-champ"><label for="caTelephone">Téléphone du bénéficiaire (format international)</label><input type="tel" id="caTelephone" placeholder="+212600000000" /></div>
+      </div>
+      <div class="v6-champ"><label for="caDe">De la part de</label><input id="caDe" maxlength="120" /></div>
+      <div class="v6-champ"><label for="caMessageClient">Message personnalisé</label><textarea id="caMessageClient" rows="2" maxlength="500"></textarea></div>
+      <div class="v6-grille v6-grille-2">
+        <div class="v6-champ"><label for="caEnvoi">Envoi programmé (facultatif)</label><input id="caEnvoi" type="datetime-local" /></div>
+        <div class="v6-champ"><label for="caExpiration">Date d’expiration (facultatif)</label><input id="caExpiration" type="date" /></div>
+      </div>
+      <button type="button" class="v6-bouton v6-bouton-plein" id="caEmettre">Émettre et envoyer</button>
+    </section>
+
+    <section class="v6-carte" aria-labelledby="caListeTitre">
+      <h2 id="caListeTitre">Cartes émises</h2>
+      <div class="v6-champ" style="max-width:260px"><label for="caFiltre">Statut</label>
+        <select id="caFiltre"><option value="">Toutes</option><option value="ACTIVE">Actives</option><option value="PENDING_ACTIVATION">En attente du client</option>
+          <option value="SUSPENDED">Suspendues</option><option value="REDEEMED">Utilisées</option><option value="EXPIRED">Expirées</option><option value="CANCELLED">Annulées</option></select></div>
+      <div id="caListe"><p class="v6-vide">Chargement…</p></div>
+      <div class="v6-ligne"><button type="button" class="v6-bouton" id="caPrecedent">Précédent</button><span id="caPage" aria-live="polite"></span><button type="button" class="v6-bouton" id="caSuivant">Suivant</button></div>
+    </section>
+  </div>
+</main></div>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/cache.js"></script>
+<script src="assets/nav.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script src="assets/v6-guard.js"></script>
+<script src="assets/v6-cartes.js"></script>
+</body>
+</html>

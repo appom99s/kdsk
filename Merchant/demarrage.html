@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK Marchand — Démarrage</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+<div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+<main class="kadosk-main">
+  <div class="kadosk-entete"><h1>Démarrage</h1><div id="kadoskEnteteDroite"></div></div>
+  <div style="max-width:680px">
+    <div id="deMessage" class="v6-message" hidden role="status"></div>
+
+    <section class="v6-carte">
+      <h2 id="deTitre">Configurez votre espace</h2>
+      <p class="v6-aide" id="deResume"></p>
+      <div class="v6-jauge" aria-hidden="true"><i id="deJauge" style="width:0%"></i></div>
+      <ul class="v6-etapes" id="deEtapes"></ul>
+    </section>
+
+    <section class="v6-carte" id="deProfil" aria-labelledby="deProfilTitre">
+      <h2 id="deProfilTitre">Profil de l’entreprise</h2>
+      <p class="v6-aide">Raison sociale, pays, ICE et RC sont vérifiés par KADOSK : contactez le support pour les modifier.</p>
+      <div class="v6-champ"><label for="dePfAdresse">Adresse</label><input id="dePfAdresse" maxlength="300" autocomplete="street-address" /></div>
+      <div class="v6-grille v6-grille-2">
+        <div class="v6-champ"><label for="dePfVille">Ville</label><input id="dePfVille" maxlength="80" /></div>
+        <div class="v6-champ"><label for="dePfTel">Téléphone</label><input id="dePfTel" type="tel" maxlength="20" /></div>
+      </div>
+      <div class="v6-champ"><label for="dePfActivite">Activité</label><input id="dePfActivite" maxlength="120" /></div>
+      <div class="v6-champ"><label for="deLogo">Logo (PNG, JPEG ou WebP, 2 Mo maximum)</label><input type="file" id="deLogo" accept="image/png,image/jpeg,image/webp"><button type="button" class="v6-bouton" id="deEnvoyerLogo">Enregistrer le logo</button><img id="deLogoApercu" alt="Logo du commerce" hidden style="max-width:120px;max-height:100px"></div>
+      <button type="button" class="v6-bouton" id="deEnregistrerProfil">Enregistrer le profil</button>
+    </section>
+
+    <section class="v6-carte" id="deLieux" aria-labelledby="deLieuxTitre">
+      <h2 id="deLieuxTitre">Points de vente</h2>
+      <div id="deListeLieux"></div>
+      <div class="v6-grille v6-grille-2" style="margin-top:10px">
+        <div class="v6-champ"><label for="deLieuNom">Nom du point de vente</label><input id="deLieuNom" maxlength="80" placeholder="Boutique centre-ville" /></div>
+        <div class="v6-champ"><label for="deLieuVille">Ville</label><input id="deLieuVille" maxlength="80" /></div>
+      </div>
+      <div class="v6-champ"><label for="deLieuAdresse">Adresse</label><input id="deLieuAdresse" maxlength="300" /></div>
+      <button type="button" class="v6-bouton" id="deAjouterLieu">Ajouter le point de vente</button><button type="button" class="v6-bouton" id="deAnnulerLieu" hidden>Annuler la modification</button>
+    </section>
+
+    <section class="v6-carte" id="deCaissiers" aria-labelledby="deCaissiersTitre">
+      <h2 id="deCaissiersTitre">Caissiers</h2>
+      <p class="v6-aide" id="deCapacite"></p>
+      <div id="deListeCaissiers"></div>
+      <div class="v6-champ" style="margin-top:10px"><label for="deCaissierEmail">Inviter par e-mail</label><input id="deCaissierEmail" type="email" autocomplete="off" /></div>
+      <div class="v6-champ"><label for="deCaissierLieu">Point de vente attribué</label><select id="deCaissierLieu"></select></div>
+      <button type="button" class="v6-bouton" id="deInviter">Envoyer l’invitation</button>
+      <p class="v6-aide">Chaque caissier crée son propre compte avec l’adresse invitée. Vous ne comptez pas comme caissier.</p>
+    </section>
+
+    <section class="v6-carte" id="deOffre" aria-labelledby="deOffreTitre">
+      <h2 id="deOffreTitre">Montants des cartes cadeaux</h2>
+      <div class="v6-champ"><label for="deMontants">Montants fixes (séparés par des virgules)</label><input id="deMontants" placeholder="100, 200, 500" inputmode="decimal" /></div>
+      <label class="v6-aide" style="display:flex;gap:8px;margin-bottom:10px"><input type="checkbox" id="deLibre" checked /> Autoriser un montant libre</label>
+      <div class="v6-grille v6-grille-2">
+        <div class="v6-champ"><label for="deMin">Montant libre minimum</label><input id="deMin" inputmode="decimal" value="50" /></div>
+        <div class="v6-champ"><label for="deMax">Montant libre maximum</label><input id="deMax" inputmode="decimal" value="5000" /></div>
+      </div>
+      <div class="v6-champ"><label for="deValidite">Validité par défaut (mois, facultatif)</label><input id="deValidite" inputmode="numeric" placeholder="12" /></div>
+      <div class="v6-champ"><label for="deCouleur">Couleur de la carte</label><input id="deCouleur" type="color" value="#1F3A34" style="max-width:120px" /></div>
+      <button type="button" class="v6-bouton" id="deEnregistrerOffre">Enregistrer les montants</button>
+    </section>
+  </div>
+</main></div>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/cache.js"></script>
+<script src="assets/nav.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script src="assets/v6-guard.js"></script>
+<script src="assets/v6-demarrage.js"></script>
+</body>
+</html>

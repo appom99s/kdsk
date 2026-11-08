@@ -58,7 +58,7 @@
     },
     {
       titre: "Encaisser",
-      items: [{ fichier: "cashier.html", libelle: "Encaisser une carte", icone: "encaisser" }]
+      items: [{ fichier: "scanner.html", libelle: "Scanner (QR + PIN)", icone: "encaisser" }, { fichier: "cashier.html", libelle: "Encaisser une carte (V3)", icone: "encaisser" }]
     },
 
     {
@@ -67,7 +67,7 @@
     },
     {
       titre: "Cartes cadeaux",
-      items: [{ fichier: "gift-cards.html", libelle: "Cartes cadeaux", icone: "cartes" }]
+      items: [{ fichier: "gift-cards.html", libelle: "Cartes cadeaux", icone: "cartes" }, { fichier: "cartes.html", libelle: "Cartes QR (V6)", icone: "cartes" }]
     },
     {
       titre: "Finances",
@@ -76,6 +76,8 @@
     {
       titre: "Paramètres",
       items: [
+        { fichier: "demarrage.html", libelle: "Démarrage", icone: "dashboard" },
+        { fichier: "abonnement.html", libelle: "Abonnement", icone: "finances" },
         { fichier: "business.html", libelle: "Mon entreprise", icone: "entreprise" },
         { fichier: "settings.html", libelle: "Offre carte cadeau", icone: "parametres" },
         { fichier: "invoice-settings.html", libelle: "Personnalisation facture", icone: "finances" },
@@ -89,6 +91,10 @@
     return segments[segments.length - 1] || "dashboard.html";
   }
   function filtrerGroupesPourRole(role, permissions) {
+    if (permissions && permissions.v6Only) {
+      const pages = role === 'OWNER' ? ['demarrage.html', 'abonnement.html', 'cartes.html', 'scanner.html'] : ['scanner.html'];
+      return GROUPES.map(g => ({ ...g, items: g.items.filter(i => pages.includes(i.fichier)) })).filter(g => g.items.length);
+    }
     if (role === "OWNER") return GROUPES;
     const acces = permissions || {};
     return GROUPES.filter((groupe) => {
@@ -100,7 +106,7 @@
 
   function pageAutoriseePourCaissier(fichier, permissions) {
     const acces = permissions || {};
-    if (fichier === "cashier.html") return true;
+    if (fichier === "cashier.html" || fichier === "scanner.html") return true;
     if (fichier === "gift-cards.html") return !!acces.viewGiftCards;
     return false;
   }
@@ -180,9 +186,9 @@
 
     const actuelle = pageActuelle();
     const items = [
-      { fichier: "dashboard.html", libelle: "Accueil", icone: "dashboard" },
-      { fichier: "gift-cards.html", libelle: "Cartes", icone: "cartes" },
-      { fichier: "cashier.html", libelle: "Encaisser", icone: "encaisser" },
+      { fichier: (permissionsCourantes && permissionsCourantes.v6Only) ? "demarrage.html" : "dashboard.html", libelle: "Accueil", icone: "dashboard" },
+      { fichier: (permissionsCourantes && permissionsCourantes.v6Only) ? "cartes.html" : "gift-cards.html", libelle: "Cartes", icone: "cartes" },
+      { fichier: "scanner.html", libelle: "Scanner", icone: "encaisser" },
       { fichier: "__menu__", libelle: "Menu", icone: "menu" }
     ];
 
@@ -441,9 +447,19 @@
 
   window.KADOSK_ICONES = ICONES;
   window.KADOSK_MASQUER_ID = masquerIdentifiantCarte;
+  // V6 : rôle fourni par le serveur V6 (me.context) pour les écrans qui n'utilisent pas chromeInfo.
+  // Affichage uniquement : chaque action reste contrôlée côté serveur.
+  function definirRole(role, permissions) {
+    roleCourant = role === "OWNER" ? "OWNER" : "CASHIER";
+    permissionsCourantes = permissions || null;
+    const mobile = document.getElementById("kadoskBarreMobile"); if (mobile) mobile.remove();
+    rendreBarreLaterale("kadoskSidebar", roleCourant, permissionsCourantes);
+  }
+
   window.KADOSK_NAV = {
     rendreBarreLaterale,
     rendreEnteteDroite,
-    chargerChromeInfo
+    chargerChromeInfo,
+    definirRole
   };
 })();
