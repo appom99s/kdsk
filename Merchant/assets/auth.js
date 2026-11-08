@@ -323,7 +323,7 @@ const KADOSK_AUTH = (function () {
   async function renouvelerAccessToken() { return ""; }
 
   function estConnecte() {
-    return lireCookie(SESSION_HINT) === "1";
+    return Boolean(lireSessionBridge());
   }
 
   // La déconnexion est gérée entièrement côté client : ce site n'a pas de session Wix
@@ -380,3 +380,6 @@ const KADOSK_AUTH = (function () {
     ,lireSessionBridge
   };
 })();
+
+// Les scripts des pages V6 consultent aussi cette API via window.
+window.KADOSK_AUTH = KADOSK_AUTH;
