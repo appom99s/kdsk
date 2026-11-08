@@ -64,7 +64,7 @@
     finally { button.disabled = false; }
   });
   document.getElementById('invoiceChangeEmail').addEventListener('click', () => { login.hidden = false; codeForm.hidden = true; document.getElementById('invoiceCode').value = ''; });
-  if (!order || order.length > 120) { login.hidden = true; status.textContent = 'Lien incomplet. Ouvrez la facture depuis Factures et sécurité.'; return; }
+  if (!order || order.length > 120) { login.hidden = true; status.textContent = 'Lien incomplet. Utilisez le lien de facture reçu avec votre commande.'; return; }
   // The reference in the URL grants no access; the server checks the buyer token.
   const session = KADOSK_BUYER_SESSION.lire();
   if (session) display(session.token).catch((erreur) => { login.hidden = false; status.textContent = messageErreur(erreur); });

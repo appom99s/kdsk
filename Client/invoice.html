@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="../shared/assets/ui-system.css">
 <link rel="stylesheet" href="../shared/assets/release-polish.css">
 </head>
-<body><main><a href="index.html">← Factures et sécurité</a><h1>Votre facture</h1><p>Vérifiez votre adresse e-mail pour consulter la facture de votre commande.</p><p id="invoiceStatus" role="status"></p>
+<body><main><a href="reset-card.html">← Réinitialiser une carte</a><h1>Votre facture</h1><p>Vérifiez votre adresse e-mail pour consulter la facture de votre commande.</p><p id="invoiceStatus" role="status"></p>
 <form id="invoiceLogin"><label for="invoiceEmail">E-mail du bénéficiaire</label><input id="invoiceEmail" type="email" autocomplete="email" required><button class="kadosk-bouton">Recevoir un code</button></form>
 <form id="invoiceCodeForm" hidden><label for="invoiceCode">Code reçu par e-mail</label><input id="invoiceCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required><button class="kadosk-bouton">Consulter la facture</button><button type="button" id="invoiceChangeEmail">Changer d’e-mail</button></form>
 <section id="invoiceContent" hidden></section></main>
