@@ -50,7 +50,7 @@ window.KADOSK_GC_EDITOR = (function () {
   function gabarit() {
     return `
 <header class="kd-ed__header">
-  <div class="kd-ed__title"><div class="kadosk-section-numero">2</div><div><h2>Design de la carte</h2><p>Choisissez un thème puis ajustez couleurs, motif et typographie. L’aperçu est la carte exacte envoyée par e-mail à vos clients.</p></div></div>
+  <div class="kd-ed__title"><div><h2>Design de la carte</h2><p>Choisissez un thème puis ajustez couleurs, motif et typographie. L’aperçu est la carte exacte envoyée par e-mail à vos clients.</p></div></div>
   <div class="kd-ed__history">
     <button type="button" class="kd-ed__icon-btn" data-action="undo" aria-label="Annuler" title="Annuler">${ICONES.undo}</button>
     <button type="button" class="kd-ed__icon-btn" data-action="redo" aria-label="Rétablir" title="Rétablir">${ICONES.redo}</button>
@@ -61,7 +61,7 @@ window.KADOSK_GC_EDITOR = (function () {
     <div class="kd-ed__preview-meta"><span class="kd-ed__badge">Aperçu en direct</span><div class="kd-ed__amounts" data-role="amounts"></div></div>
     <div class="kd-ed__stage" data-role="stage"></div>
     <p class="kd-ed__notice" data-role="notice" role="status" aria-live="polite"></p>
-    <div class="kd-ed__locked">${ICONES.lock}<span>Forme identique à l’e-mail « Votre carte cadeau ». Le code, le PIN et le lien de facture sont ajoutés de façon sécurisée dans l’e-mail, jamais sur l’aperçu. La mention « Géré par KADOSK » est toujours affichée.</span></div>
+    <div class="kd-ed__locked">${ICONES.lock}<span>Forme identique à l’e-mail « Votre carte cadeau ». Le QR personnel est ajouté dans l’e-mail. Le bénéficiaire choisit son PIN à l’activation. La mention « Géré par KADOSK » est toujours affichée.</span></div>
   </div>
   <div class="kd-ed__controls">
     <div class="kd-ed__group">
@@ -527,15 +527,16 @@ window.KADOSK_GC_EDITOR = (function () {
       bouton.textContent = "Envoi…";
       // Nom neutre : le nom de fichier d'origine n'est jamais transmis.
       const nom = "fond-carte-" + Date.now() + ".jpg";
-      const { uploadUrl } = await KADOSK_API.getMediaUploadUrl(nom, "image/jpeg", blob.size);
-      const reponse = await fetch(uploadUrl + "?filename=" + encodeURIComponent(nom), {
+      const { uploadUrl, fileName } = await KD6.appeler('merchant.logoUploadUrl', { mimeType: 'image/jpeg', sizeInBytes: blob.size });
+      const reponse = await fetch(uploadUrl + (uploadUrl.includes("?") ? "&" : "?") + "filename=" + encodeURIComponent(fileName), {
         method: "PUT",
         headers: { "Content-Type": "image/jpeg" },
         body: blob
       });
       if (!reponse.ok) throw new Error("ECHEC_UPLOAD");
       const resultat = await reponse.json();
-      const urlFinale = resultat && resultat.file && resultat.file.url;
+      const uploaded = (resultat.files && resultat.files[0]) || resultat.file || resultat;
+      const urlFinale = uploaded.url;
       if (!urlFinale || !/^https:\/\//i.test(urlFinale)) throw new Error("REPONSE_UPLOAD_INATTENDUE");
       modifier({ backgroundType: "image", backgroundImageUrl: urlFinale });
       msgUpload("Image prête. Cliquez sur « Utiliser ce design » pour l’appliquer.", "ok");

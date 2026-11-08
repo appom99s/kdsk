@@ -23,7 +23,7 @@
     try {
       await KD6.appelerPublic('card.setPin', { token, pin: $('pin1').value });
       $('pin1').value = $('pin2').value = ''; token = null; $('pinForm').hidden = true;
-      KD6.afficher($('pinMessage'), 'Votre PIN est enregistré. Conservez le QR reçu par e-mail ou le code reçu par SMS pour payer en caisse. Une suspension décidée par le commerce reste applicable.', 'ok');
+      KD6.afficher($('pinMessage'), 'Votre PIN est enregistré. Conservez le QR reçu par e-mail pour payer en caisse. Une suspension décidée par le commerce reste applicable.', 'ok');
     } catch (error) {
       KD6.afficher($('pinMessage'), KD6.message(error), 'erreur');
       if (error.message === 'TOKEN_INVALID') $('resetRequest').hidden = false;

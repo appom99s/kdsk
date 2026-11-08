@@ -55,7 +55,6 @@
       $('deMin').value = Number(s.custom_min_minor) / 100;
       $('deMax').value = Number(s.custom_max_minor) / 100;
       $('deValidite').value = s.default_validity_months || '';
-      if (s.design && /^#[0-9a-fA-F]{6}$/.test(s.design.color || '')) $('deCouleur').value = s.design.color;
     }
   }
 
@@ -96,7 +95,7 @@
     var validite = parseInt($('deValidite').value, 10);
     KD6.appeler('cardSettings.save', { denominations: montants, allowCustomAmount: $('deLibre').checked,
       customMinMinor: cents($('deMin').value) || 5000, customMaxMinor: cents($('deMax').value) || 500000,
-      defaultValidityMonths: Number.isFinite(validite) ? validite : null, design: { color: $('deCouleur').value } })
+      defaultValidityMonths: Number.isFinite(validite) ? validite : null })
       .then(function () { ok('Montants enregistrés.'); etapes(); }).catch(ko);
   });
 

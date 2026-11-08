@@ -79,7 +79,7 @@
         { fichier: "demarrage.html", libelle: "Démarrage", icone: "dashboard" },
         { fichier: "abonnement.html", libelle: "Abonnement", icone: "finances" },
         { fichier: "business.html", libelle: "Mon entreprise", icone: "entreprise" },
-        { fichier: "settings.html", libelle: "Offre carte cadeau", icone: "parametres" },
+        { fichier: "settings.html", libelle: "Design de l’e-mail cadeau", icone: "parametres" },
         { fichier: "invoice-settings.html", libelle: "Personnalisation facture", icone: "finances" },
         { fichier: "equipe.html", libelle: "Équipe", icone: "equipe" }
       ]
@@ -92,7 +92,7 @@
   }
   function filtrerGroupesPourRole(role, permissions) {
     if (permissions && permissions.v6Only) {
-      const pages = role === 'OWNER' ? ['demarrage.html', 'abonnement.html', 'cartes.html', 'scanner.html'] : ['scanner.html'];
+      const pages = role === 'OWNER' ? ['demarrage.html', 'abonnement.html', 'cartes.html', 'settings.html', 'scanner.html'] : ['scanner.html'];
       return GROUPES.map(g => ({ ...g, items: g.items.filter(i => pages.includes(i.fichier)) })).filter(g => g.items.length);
     }
     if (role === "OWNER") return GROUPES;

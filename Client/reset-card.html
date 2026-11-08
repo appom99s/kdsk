@@ -2,11 +2,11 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Définir ou réinitialiser le PIN — KADOSK</title><link rel="stylesheet" href="../shared/assets/v6.css"></head>
 <body class="v6-page"><main class="v6-page-seule">
 <div class="v6-marque">KADOSK</div><h1>Définir ou réinitialiser le PIN</h1>
-<p>Votre carte est dans le message reçu par e-mail ou SMS. Cette page permet uniquement de créer ou de réinitialiser son PIN.</p>
+<p>Votre carte est dans le message reçu par e-mail. Cette page permet uniquement de créer ou de réinitialiser son PIN.</p>
 <p id="pinMessage" class="v6-message" role="status" hidden></p>
 <form id="resetRequest" class="v6-carte">
 <div class="v6-champ"><label for="cardCode">Code de carte reçu</label><input id="cardCode" maxlength="80" required autocomplete="off" placeholder="KDS1:…"></div>
-<div class="v6-champ"><label for="contact">E-mail ou téléphone du bénéficiaire</label><input id="contact" maxlength="254" required autocomplete="off" placeholder="E-mail ou +212…"></div>
+<div class="v6-champ"><label for="contact">E-mail du bénéficiaire</label><input id="contact" maxlength="254" required autocomplete="off" type="email" placeholder="nom@exemple.ma"></div>
 <button class="v6-bouton" type="submit">Recevoir un lien sécurisé</button>
 <p class="v6-aide">Le lien sera envoyé uniquement aux coordonnées enregistrées sur la carte.</p></form>
 <form id="pinForm" class="v6-carte" hidden>

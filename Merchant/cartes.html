@@ -18,16 +18,12 @@
 
     <section class="v6-carte" aria-labelledby="caEmettreTitre">
       <h2 id="caEmettreTitre">Émettre une carte</h2>
-      <p class="v6-aide">Une carte à la fois. Le client reçoit la carte par e-mail, SMS ou les deux et crée lui-même son PIN secret : vous ne le voyez jamais. 0 % de commission.</p>
+      <p class="v6-aide">Une carte à la fois. Le client reçoit la carte par e-mail et crée lui-même son PIN secret : vous ne le voyez jamais. 0 % de commission.</p>
       <div class="v6-segment" role="group" aria-label="Montant" id="caMontants"></div>
       <div class="v6-champ" id="caLibreChamp"><label for="caMontant">Montant</label><input id="caMontant" inputmode="decimal" autocomplete="off" /><span class="v6-aide" id="caFourchette"></span></div>
       <div class="v6-grille v6-grille-2">
-        <div class="v6-champ"><label for="caEmail">E-mail du bénéficiaire</label><input id="caEmail" type="email" autocomplete="off" /></div>
+        <div class="v6-champ"><label for="caEmail">E-mail du bénéficiaire</label><input id="caEmail" type="email" required autocomplete="off" /></div>
         <div class="v6-champ"><label for="caNom">Nom du bénéficiaire</label><input id="caNom" maxlength="120" autocomplete="off" /></div>
-      </div>
-      <div class="v6-grille v6-grille-2">
-        <div class="v6-champ"><label for="caCanal">Envoyer par</label><select id="caCanal"><option value="">Automatique : e-mail, avec SMS si un téléphone est renseigné</option><option value="EMAIL">E-mail</option><option value="SMS">SMS</option><option value="BOTH">E-mail et SMS</option></select></div>
-        <div class="v6-champ"><label for="caTelephone">Téléphone du bénéficiaire (format international)</label><input type="tel" id="caTelephone" placeholder="+212600000000" /></div>
       </div>
       <div class="v6-champ"><label for="caDe">De la part de</label><input id="caDe" maxlength="120" /></div>
       <div class="v6-champ"><label for="caMessageClient">Message personnalisé</label><textarea id="caMessageClient" rows="2" maxlength="500"></textarea></div>

@@ -80,11 +80,11 @@
     try {
       var envoi = $('caEnvoi').value ? new Date($('caEnvoi').value).toISOString() : null;
       var exp = $('caExpiration').value ? new Date($('caExpiration').value + 'T23:59:59').toISOString() : null;
-      var r = await KD6.appeler('cards.issue', { amount: montant, recipientEmail: $('caEmail').value, recipientPhone: $('caTelephone').value, deliveryChannel: $('caCanal').value, recipientName: $('caNom').value,
+      var r = await KD6.appeler('cards.issue', { amount: montant, recipientEmail: $('caEmail').value, deliveryChannel: 'EMAIL', recipientName: $('caNom').value,
         senderName: $('caDe').value, message: $('caMessageClient').value, scheduledDeliveryAt: envoi, expiresAt: exp, idempotencyKey: cle });
       KD6.afficher(msg, r.scheduledDeliveryAt ? 'Carte créée : envoi programmé le ' + KD6.date(r.scheduledDeliveryAt) + '.' : (r.deliveryStatus === 'SENT' ? 'Carte créée : envoi accepté par Brevo.' : 'Carte créée. Envoi en attente ; reprise automatique prévue.'), 'ok');
       cle = KD6.cle(); // nouvelle émission = nouvelle clé
-      ['caEmail', 'caTelephone', 'caNom', 'caDe', 'caMessageClient', 'caEnvoi', 'caExpiration', 'caMontant'].forEach(function (id) { $(id).value = ''; });
+      ['caEmail', 'caNom', 'caDe', 'caMessageClient', 'caEnvoi', 'caExpiration', 'caMontant'].forEach(function (id) { $(id).value = ''; });
       lister();
     } catch (e) {
       var m = { RECIPIENT_EMAIL_INVALID: 'E-mail du bénéficiaire invalide.', INVALID_DELIVERY_SCHEDULE: 'Date d’envoi invalide (dans le futur, moins d’un an).',
