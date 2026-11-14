@@ -12,7 +12,7 @@
   <div class="kadosk-page-connexion">
     <div class="kadosk-carte-connexion" style="text-align:center;">
       <img src="assets/logo.png" alt="KADOSK" style="height:30px; display:block; margin:0 auto 18px;" />
-      <div class="kadosk-message-info" id="messageStatut">Connexion en cours...</div>
+      <div class="kadosk-message-info" id="messageStatut">Connexion en cours...</div><a id="reprendre" href="login.html" hidden>Recommencer la connexion</a>
     </div>
   </div>
 
@@ -68,9 +68,11 @@
         try {
           etat2FA = await KADOSK_API.need2FA();
         } catch (erreur2FA) {
-          console.error("Vérification besoin 2FA indisponible :", erreur2FA);
+          if (erreur2FA.message === "MERCHANT_NOT_FOUND") throw erreur2FA;
+          throw new Error("VERIFICATION_INDISPONIBLE");
         }
 
+        if (!etat2FA || typeof etat2FA.enabled !== "boolean" || typeof etat2FA.required !== "boolean") throw new Error("VERIFICATION_INDISPONIBLE");
         if (etat2FA && (etat2FA.enrollmentRequired || (etat2FA.enabled && etat2FA.required))) {
           if (etat2FA.enrollmentRequired) {
             window.location.href = "two-factor.html";
@@ -94,16 +96,20 @@
         KADOSK_AUTH.marquerVerification2FA();
         window.location.href = "demarrage.html";
       } catch (erreur) {
-        console.error("Erreur callback KADOSK :", erreur);
-        messageStatut.textContent = "La connexion a échoué. Merci de réessayer.";
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 2500);
+        const messages = {
+          MERCHANT_NOT_FOUND: "Compte Wix connecté. Impossible de retrouver le commerce associé. Si vous avez reçu une invitation ou un lien d’activation, ouvrez-le avec le compte invité. Sinon, contactez KADOSK pour vérifier le rattachement.",
+          SESSION_INVALIDE: "Session de connexion expirée ou ouverte sur un autre domaine. Recommencez depuis la page de connexion marchand.",
+          AUTORISATION_REFUSEE: "Wix a refusé l’autorisation de connexion.",
+          VERIFICATION_INDISPONIBLE: "Impossible de vérifier la double authentification auprès du backend Wix."
+        };
+        messageStatut.textContent = messages[erreur.message] || "Impossible de terminer l’ouverture de session auprès de Wix.";
+        document.getElementById("reprendre").hidden = false;
       }
     })();
   </script>
 <script src="../shared/assets/ui-system.js"></script>
 </body>
 </html>
+
 
 
