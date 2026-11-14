@@ -9,7 +9,7 @@ const KADOSK_ADMIN_NAV = (function () {
     { id: "giftcards", href: "admin-giftcards.html", label: "Gift Cards" },
     { id: "transaction360", href: "admin-transaction-360.html", label: "Transaction 360°" },
     { id: "finance", href: "admin-finance.html", label: "Finance" },
-    { id: "paiements", href: "admin-paiements.html", label: "Abonnements Wix" },
+    { id: "paiements", href: "admin-paiements.html", label: "Prix et quotas" },
     { id: "partenaires", href: "admin-partenaires.html", label: "Partenaires" },
     { id: "ia", href: "admin-ia.html", label: "Centre IA" }
   ];

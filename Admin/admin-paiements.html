@@ -8,13 +8,17 @@
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="../shared/assets/release-polish.css">
 <link rel="stylesheet" href="../shared/assets/v6.css" />
+<style>#plans label{display:block;margin:12px 0}#plans input{display:block;width:100%;max-width:280px;margin-top:6px;padding:10px;border:1px solid #b7ccc5;border-radius:8px}</style>
 </head>
 <body class="v6-page">
   <div class="adm-app">
     <aside class="adm-sidebar" id="admSidebar"></aside>
     <main class="adm-main">
-      <div class="adm-entete"><h1>Abonnements Wix</h1><span class="adm-badge-role" id="admBadgeRole">—</span></div>
-      <section class="v6-carte"><p>Les abonnements, paiements et renouvellements se gèrent dans Wix Pricing Plans.</p><p>La validation de paiement depuis cet ancien écran V6 est désactivée.</p></section>
+      <div class="adm-entete"><h1>Prix et quotas des abonnements</h1><span class="adm-badge-role" id="admBadgeRole">—</span></div>
+      <p>Abonnements et paiements gérés par Wix. Les quotas définissent les droits des boutiques dans KADOSK.</p>
+      <p id="planMessage" class="v6-message" role="status" hidden></p>
+      <button id="reloadPlans" class="v6-bouton">Recharger les formules</button>
+      <div id="plans"></div>
     </main>
   </div>
   <script src="assets/config.js"></script>
@@ -25,5 +29,6 @@
   <script src="../shared/assets/v6-client.js"></script>
   <script src="assets/v6-admin-guard.js"></script>
   <script src="assets/wix-billing-nav.js"></script>
+<script src="assets/v6-admin-plans.js"></script>
 </body>
 </html>
