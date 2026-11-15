@@ -12,6 +12,19 @@ const KADOSK_AUTH = (function () {
   const STATE_STORAGE_KEY = "kadosk_oauth_state";
   const SESSION_HINT = "kadosk_session_hint";
   const SESSION_BRIDGE = "kadosk_session_epoch";
+  const SESSION_TOKEN_KEY = "kadosk_session_header_v1";
+  function lireJetonSession() {
+    try {
+      const value = JSON.parse(sessionStorage.getItem(SESSION_TOKEN_KEY) || 'null');
+      if (value && /^[A-Za-z0-9_-]{40,80}$/.test(value.token) && Number.isFinite(value.expiresAt) && value.expiresAt > Date.now()) return value.token;
+      sessionStorage.removeItem(SESSION_TOKEN_KEY);
+    } catch (_) { /* Storage unavailable: require login, never use an old cookie. */ }
+    return '';
+  }
+  function stockerSession(session) {
+    if (!session.success || !/^[A-Za-z0-9_-]{40,80}$/.test(session.sessionToken || '')) throw new Error('SESSION_SERVEUR_INDISPONIBLE');
+    sessionStorage.setItem(SESSION_TOKEN_KEY, JSON.stringify({token:session.sessionToken, expiresAt:Date.now()+12*60*60*1000}));
+  }
   let tokensTemporaires = null;
   document.cookie = "__Host-kadosk_session_bridge_v2=; Path=/; Max-Age=0; Secure; SameSite=Strict";
 
@@ -24,7 +37,7 @@ const KADOSK_AUTH = (function () {
     const partie = document.cookie.split(";").map((v) => v.trim()).find((v) => v.startsWith(prefixe));
     return partie ? decodeURIComponent(partie.slice(prefixe.length)) : "";
   }
-  function lireSessionBridge() { return lireCookie(SESSION_BRIDGE); }
+  function lireSessionBridge() { return lireJetonSession() ? lireCookie(SESSION_BRIDGE) : ""; }
 
   // Marqueur (sessionStorage, donc effacé à la fermeture de l'onglet/navigateur)
   // indiquant que la double authentification (TOTP ou biométrie) a déjà été
@@ -108,7 +121,7 @@ const KADOSK_AUTH = (function () {
       dialog.querySelector('form').onsubmit=async event=>{
         event.preventDefault(); const form=event.target,button=form.querySelector('[type=submit]');button.disabled=true;
         try {
-          const response=await fetch(config().siteBaseUrl+'/_functions/sessionApproveDevice',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeToken,code:form.elements.code.value})});
+          const response=await fetch((config().siteBaseUrl + '/_functions') + '/sessionApproveDevice',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','X-Kadosk-Session-Transport':'header'},body:JSON.stringify({challengeToken,code:form.elements.code.value})});
           const result=await response.json();form.elements.code.value='';
           if(!response.ok || !result.success) throw new Error(result.error || 'DEVICE_APPROVAL_INVALID');
           close();resolve(result);
@@ -122,10 +135,10 @@ const KADOSK_AUTH = (function () {
   async function ecrireTokens(tokens) {
     ecrireCookieTemporaire(VERIF_2FA_STORAGE_KEY, "", 0);
     tokensTemporaires = tokens;
-    const reponse = await fetch(config().siteBaseUrl + "/_functions/sessionStart", {
+    const reponse = await fetch((config().siteBaseUrl + "/_functions") + "/sessionStart", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json", "X-Kadosk-Device-Id": appareilPersistant() },
+      headers: { "Content-Type": "application/json", "X-Kadosk-Device-Id": appareilPersistant(), "X-Kadosk-Session-Transport": "header" },
       body: JSON.stringify({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token, expiresIn: tokens.expires_in, clientId: config().clientId })
     });
     if (!reponse.ok) {
@@ -135,7 +148,7 @@ const KADOSK_AUTH = (function () {
     }
     let session = await reponse.json().catch(() => ({}));
     if (session.approvalRequired) session = await confirmerNouvelAppareil(session.challengeToken);
-    if (!session.success) throw new Error("SESSION_SERVEUR_INDISPONIBLE");
+    stockerSession(session);
     tokensTemporaires = null;
     ecrireCookieTemporaire(SESSION_BRIDGE, genererChaineAleatoire(24), 12 * 60 * 60);
     ecrireCookieTemporaire(SESSION_HINT, "1", 12 * 60 * 60);
@@ -160,13 +173,14 @@ const KADOSK_AUTH = (function () {
   }
 
   async function effacerTokens() {
-    const sessionBridge = lireCookie(SESSION_BRIDGE);
+    const sessionBridge = lireJetonSession();
     tokensTemporaires = null;
     ecrireCookieTemporaire(PKCE_STORAGE_KEY, "", 0);
     ecrireCookieTemporaire(STATE_STORAGE_KEY, "", 0);
     ecrireCookieTemporaire(SESSION_HINT, "", 0);
     ecrireCookieTemporaire(SESSION_BRIDGE, "", 0);
-    await fetch(config().siteBaseUrl + "/_functions/sessionEnd", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }).catch(() => {});
+    try { sessionStorage.removeItem(SESSION_TOKEN_KEY); } catch (_) {}
+    await fetch((config().siteBaseUrl + "/_functions") + "/sessionEnd", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json", ...(sessionBridge ? { "X-Kadosk-Session": sessionBridge } : {}) } }).catch(() => {});
     effacerVerification2FA();
     effacerCacheKadosk();
   }
@@ -373,6 +387,7 @@ const KADOSK_AUTH = (function () {
     renouvelerAccessToken,
     obtenirTokenVisiteur,
     estConnecte,
+    lireJetonSession,
     deconnecter,
     deconnecterSansRedirection,
     marquerVerification2FA,

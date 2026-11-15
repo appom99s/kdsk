@@ -13,10 +13,10 @@ const KADOSK_API = (function () {
     if (!estPublic) {
       let reponseSession;
       try {
-        reponseSession = await fetch(KADOSK_CONFIG.siteBaseUrl + "/_functions/sessionInvoke", {
+        reponseSession = await fetch((KADOSK_CONFIG.siteBaseUrl + "/_functions") + "/sessionInvoke", {
           method: "POST",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Kadosk-Session": KADOSK_AUTH.lireJetonSession() },
           body: JSON.stringify({ name: nom, method: methode, body: corps })
         });
       } catch (erreurReseau) {
