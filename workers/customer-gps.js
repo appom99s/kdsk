@@ -24,13 +24,13 @@ export default {async fetch(request,env){
   const line=[new Date().toISOString(),session,lat.toFixed(6),lon.toFixed(6),Math.round(accuracy)].join("\t")+"\n";
   for(let i=0;i<3;i++){
    const get=await fetch(url+"?ref="+encodeURIComponent(branch),{headers});
-   if(!get.ok&&get.status!==404)throw Error("GITHUB_READ_FAILED");
+   if(!get.ok&&get.status!==404){console.error("GitHub read failed",get.status);throw Error(get.status===401?"GITHUB_AUTH_FAILED":get.status===403?"GITHUB_ACCESS_DENIED":get.status===404?"GITHUB_NOT_FOUND":"GITHUB_READ_FAILED");}
    const old=get.status===404?null:await get.json();
    const current=old?dec(old.content):"timestamp_utc\tsession_id\tlatitude\tlongitude\taccuracy_m\n";
    const put=await fetch(url,{method:"PUT",headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify({message:"Record consented GPS location",branch,content:enc(current+line),...(old?{sha:old.sha}:{})})});
    if(put.ok)return reply({ok:true},200,origin);
-   if(put.status!==409&&put.status!==422)throw Error("GITHUB_WRITE_FAILED");
+   if(put.status!==409&&put.status!==422){console.error("GitHub write failed",put.status);throw Error(put.status===401?"GITHUB_AUTH_FAILED":put.status===403?"GITHUB_ACCESS_DENIED":put.status===404?"GITHUB_NOT_FOUND":"GITHUB_WRITE_FAILED");}
   }
   throw Error("GITHUB_CONFLICT");
- }catch(e){const invalid=/^(CONSENT_REQUIRED|INVALID_GPS|INVALID_SESSION|INVALID_REQUEST)$/.test(e.message);return reply({ok:false,error:invalid?e.message:"SAVE_UNAVAILABLE"},invalid?400:503,origin);}
+ }catch(e){const invalid=/^(CONSENT_REQUIRED|INVALID_GPS|INVALID_SESSION|INVALID_REQUEST)$/.test(e.message);const known=/^(NOT_CONFIGURED|GITHUB_AUTH_FAILED|GITHUB_ACCESS_DENIED|GITHUB_NOT_FOUND|GITHUB_READ_FAILED|GITHUB_WRITE_FAILED|GITHUB_CONFLICT)$/.test(e.message);console.error("GPS save failure",known||invalid?e.message:"UNEXPECTED_ERROR");return reply({ok:false,error:invalid?e.message:"SAVE_UNAVAILABLE"},invalid?400:503,origin);}
 }};
