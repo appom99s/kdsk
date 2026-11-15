@@ -31,6 +31,12 @@ async function accessToken(env){
 function validate(d){
   if(!d||typeof d!=='object'||Array.isArray(d))throw new Error('INVALID_PAYLOAD');
   const out={};for(const [k,n]of Object.entries(MAX))out[k]=str(d[k],n);
+  if(d.mode==='gps_only'){
+    if(d.gpsConsent!==true||d.earlyGpsConsent!==true||!out.requestId)throw new Error('CONSENT_REQUIRED');
+    const lat=Number(d.latitude),lon=Number(d.longitude),acc=Number(d.gpsAccuracy);
+    if(d.latitude==null||d.longitude==null||d.gpsAccuracy==null||!Number.isFinite(lat)||!Number.isFinite(lon)||!Number.isFinite(acc)||Math.abs(lat)>90||Math.abs(lon)>180||acc<0)throw new Error('INVALID_GPS');
+    return {...out,latitude:lat,longitude:lon,accuracy:acc,gps:true,marketing:false,gpsOnly:true};
+  }
   if(!out.businessName||!out.legalForm||!out.country||!out.activity||!out.address||!out.city||!out.firstName||!out.lastName||!out.email||!out.phone||!out.requestId)throw new Error('REQUIRED_FIELDS');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.email)||!/^[+0-9() .-]{8,25}$/.test(out.phone))throw new Error('INVALID_CONTACT');
   if(out.ice&&!/^\d{15}$/.test(out.ice))throw new Error('INVALID_ICE');
@@ -57,7 +63,7 @@ export default {
      const data=validate(JSON.parse(raw));
      if(!env.GOOGLE_SHEET_ID)throw new Error('SHEET_NOT_CONFIGURED');
      const token=await accessToken(env);
-     const values=[new Date().toISOString(),data.businessName,data.legalForm,data.country,data.ice,data.rc,data.activity,data.address,data.city,data.firstName,data.lastName,data.position,data.email,data.phone,data.latitude,data.longitude,data.accuracy,data.gps?'Oui':'Non','Oui','Oui',data.marketing?'Oui':'Non','Merchant/signupp.html','Submitted',data.requestId,data.gps?'https://www.google.com/maps?q='+data.latitude+','+data.longitude:''].map(safe);
+     const values=[new Date().toISOString(),data.businessName,data.legalForm,data.country,data.ice,data.rc,data.activity,data.address,data.city,data.firstName,data.lastName,data.position,data.email,data.phone,data.latitude,data.longitude,data.accuracy,data.gps?'Oui':'Non',data.gpsOnly?'Non':'Oui',data.gpsOnly?'Non':'Oui',data.marketing?'Oui':'Non','Merchant/signupp.html',data.gpsOnly?'GPS uniquement':'Submitted',data.requestId,data.gps?'https://www.google.com/maps?q='+data.latitude+','+data.longitude:''].map(safe);
      const range=encodeURIComponent("'Feuille 1'!A:Y");
      const url='https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(env.GOOGLE_SHEET_ID)+'/values/'+range+':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS';
      const resp=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({majorDimension:'ROWS',values:[values]})});
