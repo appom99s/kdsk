@@ -3,4 +3,4 @@
 window.KADOSK_SIGNUPP_ENDPOINT = "";
 
 // URL HTTPS du Worker GitHub customer.txt (ne jamais exposer le token GitHub).
-window.KADOSK_CUSTOMER_GPS_ENDPOINT = "";
+window.KADOSK_CUSTOMER_GPS_ENDPOINT = "https://kadoskgp.kadosk.workers.dev";
