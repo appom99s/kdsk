@@ -165,7 +165,7 @@ const KADOSK_AUTH = (function () {
     ecrireCookie(STATE_STORAGE_KEY, "", 0);
     ecrireCookie(SESSION_HINT, "", 0, "Strict");
     ecrireCookie(SESSION_BRIDGE, "", 0, "Strict");
-    fetch(config().siteBaseUrl + "/_functions/sessionEnd", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }).catch(() => {});
+    await fetch(config().siteBaseUrl + "/_functions/sessionEnd", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }).catch(() => {});
     effacerVerification2FA();
     effacerCacheKadosk();
   }
@@ -342,7 +342,7 @@ const KADOSK_AUTH = (function () {
   }
 
   function deconnecterSansRedirection() {
-    effacerTokens();
+    return effacerTokens();
   }
 
   // Variante dédiée à la boutique publique intégrée en HTML sur le site Wix : utilise
