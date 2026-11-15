@@ -1,1 +1,2 @@
 timestamp_utc	session_id	latitude	longitude	accuracy_m
+2026-11-15T23:49:50.131Z	bdc6629e-36e1-4d1a-ba9c-621a8eafebb0	33.279838	-7.585666	202
