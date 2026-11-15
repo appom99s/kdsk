@@ -47,8 +47,7 @@
     <div class="kd-champ plein"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="kd-champ plein"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="kd-champ plein"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
-    <label class="signup-consent plein"><input type="checkbox" id="autoGpsConsent"><span>J’accepte que ma position GPS précise, sa date, sa précision et un identifiant de session soient publiés dans le fichier customer.txt accessible à tous sur GitHub, une seule fois lorsque je coche cette case, même sans soumettre le formulaire. Je peux retirer mon accord avant l’envoi.</span></label>
-    <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Pour publier une seule position GPS dans customer.txt, cochez le consentement facultatif. Les coordonnées seront publiques.</p>
+    <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">Votre navigateur peut demander votre autorisation de localisation afin de préremplir l’adresse et la ville. Vous pouvez refuser et les saisir manuellement. Aucune coordonnée GPS précise n’est publiée.</p>
    </div>
    <p class="signup-section">Responsable du compte</p>
    <div class="signup-grid">
@@ -97,7 +96,6 @@
     gpsStatus.textContent='Autorisez la localisation dans votre navigateur pour préremplir l’adresse et la ville, ou saisissez-les manuellement.';
     navigator.geolocation.getCurrentPosition(async function(p){
       gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};
-      if(document.getElementById("autoGpsConsent").checked)logPublicGps();
       gpsStatus.textContent='Position autorisée. Recherche de votre adresse…';
       try{
         var result=await reverseGeocode(gps.latitude,gps.longitude);
@@ -117,27 +115,7 @@
       gpsStatus.textContent=err.code===1?'Localisation refusée. Complétez l’adresse et la ville manuellement.':'Position indisponible. Complétez l’adresse et la ville manuellement.';
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
-  var gpsSent=false, gpsBusy=false;
-  async function logPublicGps(){
-    if(gpsSent||gpsBusy||!gps||!document.getElementById('autoGpsConsent').checked)return;
-    var endpoint=String(window.KADOSK_CUSTOMER_GPS_ENDPOINT||'').trim();
-    if(!/^https:\/\//i.test(endpoint)){gpsStatus.textContent='Serveur GPS non configuré. Aucune position publiée.';return;}
-    gpsBusy=true;
-    try{
-      var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'gps_public',consent:true,publicLogConsent:true,sessionId:requestId,latitude:gps.latitude,longitude:gps.longitude,accuracy:gps.accuracy})});
-      var result=await response.json().catch(function(){return {};});
-      if(!response.ok||result.ok!==true)throw new Error('SAVE_UNAVAILABLE');
-      gpsSent=true;
-      gpsStatus.textContent='Une position publiée dans customer.txt à '+new Date().toLocaleTimeString('fr-FR')+'. Aucun autre relevé ne sera transmis depuis cette page.';
-    }catch(err){gpsStatus.textContent='Enregistrement GPS non confirmé. Vérifiez la configuration du serveur.';}
-    finally{gpsBusy=false;}
-  }
-  document.getElementById('autoGpsConsent').addEventListener('change',function(){
-    if(this.checked){if(gps)logPublicGps();else detectLocation();}
-    else if(!gpsSent)gpsStatus.textContent='Consentement retiré : aucune position ne sera transmise.';
-  });
-  // Localisation demandée au chargement pour le préremplissage, transmission unique seulement après consentement.
-  detectLocation();
+  // La localisation sert uniquement au préremplissage, sans publication publique.\n  detectLocation();
   form.addEventListener('submit',async function(e){
     e.preventDefault();status.textContent='';
     if(!form.reportValidity())return;
