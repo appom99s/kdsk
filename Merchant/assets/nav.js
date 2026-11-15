@@ -54,11 +54,11 @@
   const GROUPES = [
     {
       titre: null,
-      items: [{ fichier: "dashboard.html", libelle: "Dashboard", icone: "dashboard" }]
+      items: [{ fichier: "statistiques.html", libelle: "Statistiques des points de vente", icone: "dashboard" }]
     },
     {
       titre: "Encaisser",
-      items: [{ fichier: "scanner.html", libelle: "Scanner (QR + PIN)", icone: "encaisser" }, { fichier: "cashier.html", libelle: "Encaisser une carte (V3)", icone: "encaisser" }]
+      items: [{ fichier: "scanner.html", libelle: "Encaisser une carte", icone: "encaisser" }]
     },
 
     {
@@ -67,7 +67,7 @@
     },
     {
       titre: "Cartes cadeaux",
-      items: [{ fichier: "gift-cards.html", libelle: "Cartes cadeaux", icone: "cartes" }, { fichier: "cartes.html", libelle: "Cartes QR (V6)", icone: "cartes" }]
+      items: [{ fichier: "cartes.html", libelle: "Créer et gérer les cartes", icone: "cartes" }]
     },
     {
       titre: "Finances",
@@ -92,7 +92,7 @@
   }
   function filtrerGroupesPourRole(role, permissions) {
     if (permissions && permissions.v6Only) {
-      const pages = role === 'OWNER' ? ['demarrage.html', 'abonnement.html', 'cartes.html', 'settings.html', 'scanner.html'] : ['scanner.html'];
+      const pages = role === 'OWNER' ? ['demarrage.html', 'abonnement.html', 'cartes.html', 'settings.html', 'scanner.html', 'statistiques.html'] : ['scanner.html'];
       return GROUPES.map(g => ({ ...g, items: g.items.filter(i => pages.includes(i.fichier)) })).filter(g => g.items.length);
     }
     if (role === "OWNER") return GROUPES;
@@ -187,7 +187,7 @@
     const actuelle = pageActuelle();
     const items = [
       { fichier: (permissionsCourantes && permissionsCourantes.v6Only) ? "demarrage.html" : "dashboard.html", libelle: "Accueil", icone: "dashboard" },
-      { fichier: (permissionsCourantes && permissionsCourantes.v6Only) ? "cartes.html" : "gift-cards.html", libelle: "Cartes", icone: "cartes" },
+      { fichier: "cartes.html", libelle: "Cartes", icone: "cartes" },
       { fichier: "scanner.html", libelle: "Scanner", icone: "encaisser" },
       { fichier: "__menu__", libelle: "Menu", icone: "menu" }
     ];

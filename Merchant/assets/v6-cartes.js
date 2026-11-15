@@ -39,7 +39,7 @@
             (['ACTIVE', 'PENDING_ACTIVATION', 'SUSPENDED'].indexOf(c.status) >= 0 ? '<button type="button" class="v6-copier" data-resend="' + c.id + '">Renvoyer</button>' : '') + '<button type="button" class="v6-copier" data-h="' + c.id + '">Historique</button>';
           return '<tr><td data-label="Carte">…' + KD6.esc(c.display_suffix) + '</td><td data-label="Montant">' + KD6.argent(c.initial_amount_minor, c.currency) + '</td>' +
             '<td data-label="Solde">' + KD6.argent(c.balance_minor, c.currency) + '</td><td data-label="Statut"><span class="v6-pastille v6-pastille-' + st[1] + '">' + st[0] + '</span></td>' +
-            '<td data-label="Bénéficiaire">' + KD6.esc([c.recipient_email, c.recipient_phone].filter(Boolean).join(' / ') || '—') + '<br><small>' + (c.delivered_at ? 'Accepté par Brevo' : 'Envoi en attente ou à reprendre') + '</small>' + '</td><td data-label="Actions">' + actions + '</td></tr>' +
+            '<td data-label="Bénéficiaire">' + KD6.esc([c.recipient_email, c.recipient_phone].filter(Boolean).join(' / ') || '—') + '<br><small>' + (c.forward_pending ? 'À offrir : destinataire final à choisir' : c.delivered_at ? 'Accepté par Brevo' : 'Envoi en attente ou à reprendre') + '</small>' + '</td><td data-label="Actions">' + actions + '</td></tr>' +
             '<tr hidden data-hist="' + c.id + '"><td colspan="6"></td></tr>';
         }).join('') + '</tbody></table>' : '<p class="v6-vide">Aucune carte.</p>';
     } catch (e) { $('caListe').innerHTML = ''; KD6.afficher(msg, KD6.message(e), 'erreur'); }
@@ -81,8 +81,14 @@
       var envoi = $('caEnvoi').value ? new Date($('caEnvoi').value).toISOString() : null;
       var exp = $('caExpiration').value ? new Date($('caExpiration').value + 'T23:59:59').toISOString() : null;
       var r = await KD6.appeler('cards.issue', { amount: montant, recipientEmail: $('caEmail').value, deliveryChannel: 'EMAIL', recipientName: $('caNom').value,
-        senderName: $('caDe').value, message: $('caMessageClient').value, scheduledDeliveryAt: envoi, expiresAt: exp, idempotencyKey: cle });
+        forwardGift: $('caOffrir').checked, senderName: $('caDe').value, message: $('caMessageClient').value, scheduledDeliveryAt: envoi, expiresAt: exp, idempotencyKey: cle });
       KD6.afficher(msg, r.scheduledDeliveryAt ? 'Carte créée : envoi programmé le ' + KD6.date(r.scheduledDeliveryAt) + '.' : (r.deliveryStatus === 'SENT' ? 'Carte créée : envoi accepté par Brevo.' : 'Carte créée. Envoi en attente ; reprise automatique prévue.'), 'ok');
+      if (!r.scheduledDeliveryAt) {
+        KD6.appeler('cards.deliver', { cardId: r.id }).then(function (delivery) {
+          KD6.afficher(msg, delivery.status === 'SENT' ? (r.forwardGift ? 'Invitation à offrir acceptée par Brevo.' : 'Carte envoyée : email accepté par Brevo.') : 'Carte créée. Envoi en attente de reprise automatique.', 'ok');
+          lister();
+        }).catch(function () { KD6.afficher(msg, 'Carte créée. L’envoi sera repris automatiquement.', 'attente'); });
+      }
       cle = KD6.cle(); // nouvelle émission = nouvelle clé
       ['caEmail', 'caNom', 'caDe', 'caMessageClient', 'caEnvoi', 'caExpiration', 'caMontant'].forEach(function (id) { $(id).value = ''; });
       lister();
@@ -93,6 +99,11 @@
     } finally { b.disabled = false; }
   });
 
+  $('caOffrir').addEventListener('change', function () {
+    document.querySelector('label[for=caEmail]').textContent = this.checked ? 'E-mail du premier destinataire (qui offrira le cadeau)' : 'E-mail du bénéficiaire';
+    $('caMessageClient').closest('.v6-champ').hidden = this.checked;
+    if (this.checked) $('caMessageClient').value = '';
+  });
   $('caFiltre').addEventListener('change', function () { page = 0; lister(); });
   $('caPrecedent').addEventListener('click', function () { if (page > 0) { page--; lister(); } });
   $('caSuivant').addEventListener('click', function () { page++; lister(); });

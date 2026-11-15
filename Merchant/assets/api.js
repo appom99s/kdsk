@@ -16,7 +16,7 @@ const KADOSK_API = (function () {
         reponseSession = await fetch(KADOSK_CONFIG.siteBaseUrl + "/_functions/sessionInvoke", {
           method: "POST",
           credentials: "include",
-          headers: { "Content-Type": "application/json", "X-Kadosk-Session": KADOSK_AUTH.lireSessionBridge() },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: nom, method: methode, body: corps })
         });
       } catch (erreurReseau) {

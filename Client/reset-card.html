@@ -1,17 +1,19 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Définir ou réinitialiser le PIN — KADOSK</title><link rel="stylesheet" href="../shared/assets/v6.css"></head>
+<html lang="fr"><head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.kadosk.com https://kadosk.com; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'" />
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Définir ou réinitialiser le PIN — KADOSK</title><link rel="stylesheet" href="../shared/assets/v6.css"></head>
 <body class="v6-page"><main class="v6-page-seule">
 <div class="v6-marque">KADOSK</div><h1>Définir ou réinitialiser le PIN</h1>
 <p>Votre carte est dans le message reçu par e-mail. Cette page permet uniquement de créer ou de réinitialiser son PIN.</p>
 <p id="pinMessage" class="v6-message" role="status" hidden></p>
 <form id="resetRequest" class="v6-carte">
-<div class="v6-champ"><label for="cardCode">Code de carte reçu</label><input id="cardCode" maxlength="80" required autocomplete="off" placeholder="KDS1:…"></div>
+<div class="v6-champ"><label for="cardCode">Code de carte reçu</label><input id="cardCode" maxlength="80" required autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX"></div>
 <div class="v6-champ"><label for="contact">E-mail du bénéficiaire</label><input id="contact" maxlength="254" required autocomplete="off" type="email" placeholder="nom@exemple.ma"></div>
 <button class="v6-bouton" type="submit">Recevoir un lien sécurisé</button>
 <p class="v6-aide">Le lien sera envoyé uniquement aux coordonnées enregistrées sur la carte.</p></form>
 <form id="pinForm" class="v6-carte" hidden>
-<div class="v6-champ"><label for="pin1">Nouveau PIN à 6 chiffres</label><input id="pin1" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="new-password" required></div>
-<div class="v6-champ"><label for="pin2">Confirmer le PIN</label><input id="pin2" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="new-password" required></div>
+<div class="v6-champ"><label for="pin1">Nouveau PIN à 4 chiffres</label><input id="pin1" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></div>
+<div class="v6-champ"><label for="pin2">Confirmer le PIN</label><input id="pin2" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required></div>
 <p>Évitez les suites et les chiffres répétés. Gardez ce PIN secret.</p>
 <button id="pinEnvoyer" class="v6-bouton" type="submit">Enregistrer mon PIN</button></form>
 <details class="v6-carte" id="ancienne-carte"><summary>Débloquer une ancienne carte après un blocage de sécurité</summary>
@@ -20,4 +22,4 @@
 <div class="v6-champ"><label for="pin">PIN à 6 chiffres</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" pattern="[0-9]{6}" maxlength="6" required></div><button class="v6-bouton" id="request">Recevoir le code de réactivation</button>
 <div id="confirmation" hidden><div class="v6-champ"><label for="otp">Code reçu par e-mail</label><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button class="v6-bouton" type="button" id="confirm">Confirmer la réactivation</button></div></form><p id="status" role="status"></p></details>
 <p><a href="invoice.html">Consulter une facture</a></p>
-</main><script src="assets/config.js"></script><script src="assets/auth.js"></script><script src="assets/api.js"></script><script src="../shared/assets/v6-client.js"></script><script src="assets/v6-reset-card.js"></script><script src="assets/reactivation.js"></script></body></html>
+</main><script src="assets/config.js"></script><script src="assets/auth.js"></script><script src="assets/api.js"></script><script src="../shared/assets/loading.js"></script><script src="../shared/assets/v6-client.js"></script><script src="assets/v6-reset-card.js"></script><script src="assets/reactivation.js"></script></body></html>

@@ -4,6 +4,15 @@
   'use strict';
 
   var MESSAGES = {
+    FORWARD_BUSY: 'Un envoi est déjà en cours. Attendez quelques minutes avant de vérifier à nouveau.',
+    FORWARD_ALREADY_SENT: 'Ce cadeau a déjà été envoyé au destinataire final.',
+    FORWARD_RECIPIENT_LOCKED: 'Un envoi a déjà été tenté pour une autre adresse. Contactez le commerce.',
+    DELIVERY_FAILED: 'L’envoi n’a pas été confirmé. Réessayez avec la même adresse.',
+    PIN_MIGRATION_REQUIRED: 'Cette carte nécessite une réinitialisation vers un PIN à 4 chiffres.',
+    GATEWAY_EXPIRED: 'Session de paiement expirée ou épuisée. Recommencez depuis le montant.',
+    GATEWAY_INVALID: 'Session de paiement invalide.',
+    GATEWAY_CARD_BOUND: 'Cette session est déjà liée à une autre carte.',
+    DELIVERY_UNCERTAIN: 'La réponse du service d’envoi est incertaine. Vérifiez votre e-mail avant de réessayer.',
     RECIPIENT_PHONE_INVALID: 'Indiquez un numéro international, par exemple +212600000000.',
     RECIPIENT_EMAIL_INVALID: 'Indiquez une adresse e-mail valide.',
     CONFIG_MISSING: 'Le service attend sa configuration. Contactez KADOSK.',
@@ -30,9 +39,9 @@
     CARD_NOT_FOUND: 'Carte introuvable pour ce commerce.',
     INVALID_CARD_CODE: 'Code de carte illisible.',
     PIN_INVALID: 'PIN incorrect.',
-    PIN_LOCKED: 'Carte temporairement verrouillée après plusieurs PIN incorrects.',
+    PIN_LOCKED: 'Carte verrouillée après trois erreurs. Le client doit réinitialiser son PIN par e-mail.',
     PIN_SETUP_REQUIRED: 'Le client n’a pas encore activé sa carte (PIN non créé).',
-    PIN_FORMAT_INVALID: 'Le PIN comporte 6 chiffres.',
+    PIN_FORMAT_INVALID: 'Le PIN comporte 4 chiffres.',
     PIN_TOO_WEAK: 'PIN trop simple : évitez les suites et chiffres répétés.',
     INSUFFICIENT_BALANCE: 'Solde insuffisant.',
     INVALID_AMOUNT: 'Montant invalide.',
@@ -89,12 +98,25 @@
   }
 
   // Appel authentifié (passerelle de session V3 → kadoskV6).
-  async function appeler(action, params) {
+  async function callRaw(action, params) {
     if (!global.KADOSK_API || typeof global.KADOSK_API.v6 !== 'function') throw new Error('ERREUR_SERVEUR');
     var r = await global.KADOSK_API.v6(action, params || {});
     return r && Object.prototype.hasOwnProperty.call(r, 'data') ? r.data : r;
   }
 
+  var pendingReads = new Map();
+  var READS = new Set(['me.context','cardSettings.get','cards.list','cashier.locations','locations.list','locations.stats']);
+  function tracked(fn) {
+    if (global.KD_LOADING) global.KD_LOADING.start();
+    return Promise.resolve().then(fn).finally(function () { if (global.KD_LOADING) global.KD_LOADING.end(); });
+  }
+  function appeler(action, params) {
+    var key = READS.has(action) ? action + JSON.stringify(params || {}) : null;
+    if (key && pendingReads.has(key)) return pendingReads.get(key);
+    var task = tracked(function () { return callRaw(action, params); }).finally(function () { if (key) pendingReads.delete(key); });
+    if (key) pendingReads.set(key, task);
+    return task;
+  }
   // Appel public (demande partenaire, PIN client) : pas de session membre.
   async function appelerPublic(action, params) {
     var base = (global.KADOSK_CONFIG && global.KADOSK_CONFIG.siteBaseUrl) || 'https://www.kadosk.com';
@@ -111,5 +133,5 @@
 
   var PERIODES = { MONTHLY: 'Mensuel', QUARTERLY: 'Trimestriel', YEARLY: 'Annuel' };
 
-  global.KD6 = { appeler: appeler, appelerPublic: appelerPublic, message: message, cle: cle, argent: argent, date: date, esc: esc, afficher: afficher, PERIODES: PERIODES };
+  global.KD6 = { appeler: appeler, appelerPublic: function (action, params) { return tracked(function () { return appelerPublic(action, params); }); }, message: message, cle: cle, argent: argent, date: date, esc: esc, afficher: afficher, PERIODES: PERIODES };
 })(window);

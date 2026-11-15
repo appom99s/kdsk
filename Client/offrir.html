@@ -1,0 +1,12 @@
+<!doctype html><html lang="fr"><head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.kadosk.com https://kadosk.com; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'" />
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Offrir votre carte cadeau</title><link rel="stylesheet" href="../shared/assets/v6.css"></head>
+<body class="v6-page"><main class="v6-page-seule"><img src="../shared/assets/logo.png" alt="KADOSK" width="100"><h1>À qui souhaitez-vous offrir ce cadeau ?</h1><p>Votre destinataire recevra la carte de la boutique et créera son propre PIN.</p>
+<p id="forwardStatus" class="v6-message" role="status" hidden></p>
+<form id="forwardForm" class="v6-carte" autocomplete="off">
+<div class="v6-champ"><label for="finalEmail">E-mail du destinataire final</label><input id="finalEmail" type="email" maxlength="254" required autocomplete="off"></div>
+<div class="v6-champ"><label for="confirmEmail">Confirmer son e-mail</label><input id="confirmEmail" type="email" maxlength="254" required autocomplete="off"></div>
+<div class="v6-champ"><label for="finalName">Son nom</label><input id="finalName" maxlength="120" autocomplete="off"></div>
+<div class="v6-champ"><label for="personalMessage">Votre message personnel</label><textarea id="personalMessage" maxlength="500" rows="4" autocomplete="off"></textarea><p class="v6-aide">Ce message est utilisé uniquement pour composer l’e-mail. Il n’est pas conservé dans la base KADOSK. L’e-mail reste chez le destinataire et peut être conservé par Brevo.</p></div>
+<p>Vérifiez l’adresse : après une première tentative d’envoi, le destinataire ne pourra plus être changé depuis ce lien.</p><button id="forwardSend" class="v6-bouton" type="submit">Envoyer mon cadeau</button></form></main>
+<script src="assets/config.js"></script><script src="../shared/assets/loading.js"></script><script src="../shared/assets/v6-client.js"></script><script src="assets/v6-forward.js"></script></body></html>

@@ -1,115 +1,78 @@
-// KADOSK V6 — caisse : scan QR + PIN. Tous les contrôles (rôle, marchand,
-// point de vente, appareil, PIN, solde, double débit) sont faits côté serveur.
 (function () {
   'use strict';
-  var $ = function (id) { return document.getElementById(id); };
-  var msg = $('scMessage');
-  var flux = null, boucle = null, detecteur = null, code = null, cle = null;
-  var JSQR_URL = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-
-  function vider() { code = null; cle = null; $('scEncaissement').hidden = true; $('scPin').value = ''; $('scMontant').value = ''; }
-
-  async function preparer() {
-    try {
-      var dev = await KD6.appeler('cashier.device.start');
-      if (dev && dev.status === 'VERIFICATION_REQUIRED') { $('scAppareil').hidden = false; $('scCaisse').hidden = true; return; }
-      var lieux = await KD6.appeler('cashier.locations');
-      $('scLieu').innerHTML = lieux.length ? lieux.map(function (l) { return '<option value="' + l.id + '">' + KD6.esc(l.name + (l.city ? ' — ' + l.city : '')) + '</option>'; }).join('')
-        : '<option value="">Aucun point de vente attribué</option>';
-      if (!lieux.length) KD6.afficher(msg, 'Aucun point de vente ne vous est attribué : contactez le responsable du commerce.', 'erreur');
-    } catch (e) { KD6.afficher(msg, KD6.message(e), 'erreur'); }
-  }
-
-  async function validerAppareil() {
-    try {
-      await KD6.appeler('cashier.device.verify', { code: $('scCodeAppareil').value.trim() });
-      $('scAppareil').hidden = true; $('scCaisse').hidden = false;
-      KD6.afficher(msg, 'Appareil vérifié.', 'ok');
-      preparer();
-    } catch (e) { KD6.afficher(msg, KD6.message(e), 'erreur'); }
-  }
-
-  function chargerJsqr() {
-    return new Promise(function (ok, ko) {
-      if (window.jsQR) return ok();
-      var s = document.createElement('script'); s.src = JSQR_URL; s.onload = ok; s.onerror = ko; document.head.appendChild(s);
+  var $ = id => document.getElementById(id), amountDigits = '', gateway = null, busy = false, stream = null, loop = null, scanning = false;
+  var shop = '', codeBound = false;
+  document.addEventListener('kd6:contexte', e => { shop = e.detail.businessName || ''; });
+  function message(text, type) { KD6.afficher(gateway ? $('scGatewayStatus') : $('scMessage'), text, type); }
+  function amount() { return (Number(amountDigits || 0) / 100).toFixed(2); }
+  function clearPin() { $('scPin').value = ''; }
+  function pad(id, handle) {
+    ['1','2','3','4','5','6','7','8','9','Effacer','0','⌫'].forEach(value => {
+      var b = document.createElement('button'); b.type='button'; b.textContent=value; b.setAttribute('aria-label', value==='⌫'?'Supprimer le dernier chiffre':value);
+      b.addEventListener('click', () => { if (!busy) handle(value); }); $(id).appendChild(b);
     });
   }
-
-  async function demarrer() {
-    if (flux) return;
+  function amountKey(v) { if (gateway) return; amountDigits=v==='Effacer'?'':v==='⌫'?amountDigits.slice(0,-1):(amountDigits+v).replace(/^0+/,'').slice(0,8); $('scMontant').value=amount().replace('.',','); }
+  function pinKey(v) { $('scPin').value=v==='Effacer'?'':v==='⌫'?$('scPin').value.slice(0,-1):($('scPin').value+v).slice(0,4); }
+  pad('scAmountPad',amountKey); pad('scPinPad',pinKey);
+  for (var [id,handler] of [['scMontant',amountKey],['scPin',pinKey]]) {
+    (function(id,handler){$(id).addEventListener('keydown', e=>{if(busy)return; if(/^\d$/.test(e.key)){e.preventDefault();handler(e.key);}else if(e.key==='Backspace'){e.preventDefault();handler('⌫');}});})(id,handler);
+  }
+  async function prepare() {
+    $('scOuvrir').disabled=true;
     try {
-      flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-    } catch (_) { flux = null; KD6.afficher(msg, 'Caméra indisponible ou refusée : saisissez le code manuellement.', 'erreur'); return; }
-    var video = $('scVideo'); video.srcObject = flux; $('scZoneScan').hidden = false;
-    video.play().catch(function () {});
-    if ('BarcodeDetector' in window) { try { detecteur = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (_) { detecteur = null; } }
-    if (!detecteur) { try { await chargerJsqr(); } catch (_) { arreter(); KD6.afficher(msg, 'Lecteur QR indisponible : saisissez le code.', 'erreur'); return; } }
-    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d', { willReadFrequently: true });
-    boucle = setInterval(async function () {
-      if (!flux || video.readyState < 2) return;
-      try {
-        var valeur = null;
-        if (detecteur) { var r = await detecteur.detect(video); valeur = r && r[0] && r[0].rawValue; }
-        else {
-          canvas.width = video.videoWidth; canvas.height = video.videoHeight; ctx.drawImage(video, 0, 0);
-          var img = ctx.getImageData(0, 0, canvas.width, canvas.height); var q = window.jsQR(img.data, img.width, img.height);
-          valeur = q && q.data;
-        }
-        if (valeur) { arreter(); $('scCode').value = valeur; rechercher(); }
-      } catch (_) { /* image suivante */ }
-    }, 250);
+      var [device,locations]=await Promise.all([KD6.appeler('cashier.device.start'),KD6.appeler('cashier.locations')]);
+      if(device.status==='VERIFICATION_REQUIRED'){$('scAppareil').hidden=false;$('scCaisse').hidden=true;return;}
+      $('scAppareil').hidden=true;$('scCaisse').hidden=false;
+      $('scLieu').replaceChildren(); locations.forEach(l=>{var option=document.createElement('option');option.value=l.id;option.textContent=l.name+(l.city?' — '+l.city:'');$('scLieu').appendChild(option);});
+      $('scLieu').disabled=locations.length<=1;$('scOuvrir').disabled=!locations.length;
+      if(!locations.length)message('Aucun point de vente attribué. Contactez votre responsable.','erreur');
+    }catch(e){message(KD6.message(e),'erreur');}
   }
-
-  function arreter() {
-    if (boucle) clearInterval(boucle); boucle = null;
-    if (flux) flux.getTracks().forEach(function (t) { t.stop(); }); flux = null;
-    $('scZoneScan').hidden = true;
+  $('scValiderAppareil').addEventListener('click',async()=>{try{await KD6.appeler('cashier.device.verify',{code:$('scCodeAppareil').value.trim()});$('scCodeAppareil').value='';await prepare();}catch(e){message(KD6.message(e),'erreur');}});
+  $('scOuvrir').addEventListener('click',async()=>{
+    if(busy)return;if(Number(amount())<=0){message('Saisissez un montant.','erreur');return;}busy=true;$('scOuvrir').disabled=true;
+    try{
+      gateway=await KD6.appeler('redeem.start',{amount:amount(),locationId:$('scLieu').value});codeBound=false;
+      $('scGatewayAmount').textContent=KD6.argent(gateway.amountMinor,gateway.currency);$('scGatewayShop').textContent=shop || document.querySelector('[data-marchand-nom]')?.textContent || '';
+      $('scCardStage').hidden=false;$('scEncaissement').hidden=true;$('scCode').value='';clearPin();KD6.afficher($('scGatewayStatus'),'','info');
+      $('scGateway').showModal();$('scCode').focus();
+    }catch(e){gateway=null;message(KD6.message(e),'erreur');}finally{busy=false;$('scOuvrir').disabled=false;}
+  });
+  async function lookup(){
+    if(busy||!gateway)return;busy=true;$('scRechercher').disabled=true;
+    try{var r=await KD6.appeler('redeem.lookup',{gatewayToken:gateway.gatewayToken,code:$('scCode').value.trim()});
+      codeBound=true;stop();$('scCode').value='';$('scCarteInfo').textContent='Carte se terminant par '+r.displaySuffix;
+      $('scGatewayAmount').textContent=KD6.argent(r.amountMinor,r.currency);$('scCardStage').hidden=true;$('scEncaissement').hidden=false;clearPin();$('scPin').focus();message('','info');
+    }catch(e){message(KD6.message(e),'erreur');}finally{busy=false;$('scRechercher').disabled=false;}
   }
-
-  async function rechercher() {
-    var saisi = $('scCode').value.trim();
-    // Carte V3 (code permanent KDSK-…) : traitée par l'écran d'encaissement V3.
-    if (/^KDSK-/i.test(saisi)) { window.location.href = 'cashier.html#code=' + encodeURIComponent(saisi); return; }
-    try {
-      var info = await KD6.appeler('redeem.lookup', { code: saisi, locationId: $('scLieu').value });
-      code = saisi; cle = KD6.cle();
-      var statuts = { ACTIVE: 'Active', PENDING_ACTIVATION: 'En attente d’activation par le client', SUSPENDED: 'Suspendue', CANCELLED: 'Annulée', EXPIRED: 'Expirée', REDEEMED: 'Entièrement utilisée' };
-      $('scCarteInfo').innerHTML = '<div class="v6-ligne"><span>Carte</span><strong>…' + KD6.esc(info.displaySuffix) + '</strong></div>' +
-        '<div class="v6-ligne"><span>Statut</span><strong>' + KD6.esc(statuts[info.status] || info.status) + '</strong></div>' +
-        (info.expiresAt ? '<div class="v6-ligne"><span>Validité</span><strong>' + KD6.date(info.expiresAt) + '</strong></div>' : '');
-      $('scEncaissement').hidden = false;
-      KD6.afficher(msg, info.status === 'ACTIVE' ? '' : 'Cette carte ne peut pas être encaissée en l’état.', info.status === 'ACTIVE' ? 'info' : 'attente');
-      $('scMontant').focus();
-    } catch (e) { vider(); KD6.afficher(msg, KD6.message(e), 'erreur'); }
-  }
-
-  async function encaisser() {
-    var b = $('scEncaisser'); b.disabled = true;
-    var pin = $('scPin').value;
-    $('scPin').value = ''; // effacé dès l'envoi
-    try {
-      // Même clé en cas de nouvel essai (coupure réseau) : jamais deux débits.
-      var r = await KD6.appeler('redeem.confirm', { code: code, amount: $('scMontant').value, pin: pin, locationId: $('scLieu').value, idempotencyKey: cle });
-      var montant = r.currency ? KD6.argent(r.amountMinor, r.currency) : ((r.amountMinor / 100).toFixed(2).replace('.', ','));
-      KD6.afficher(msg, (r.result === 'ALREADY_REDEEMED' ? 'Déjà encaissé : ' : 'Encaissé : ') + montant + '. Le client reçoit son nouveau solde par e-mail.', 'ok');
-      vider();
-    } catch (e) {
-      var txt = KD6.message(e);
-      if (e.message === 'PIN_INVALID') txt += ' Le client peut réessayer.';
-      // Un refus métier n'a rien débité : nouvelle clé pour la tentative suivante.
-      if (['PIN_INVALID', 'INSUFFICIENT_BALANCE', 'INVALID_AMOUNT'].indexOf(e.message) >= 0) cle = KD6.cle();
-      KD6.afficher(msg, txt, 'erreur');
-    } finally { b.disabled = false; }
-  }
-
-  $('scDemarrer').addEventListener('click', demarrer);
-  $('scArreter').addEventListener('click', arreter);
-  $('scRechercher').addEventListener('click', rechercher);
-  $('scEncaisser').addEventListener('click', encaisser);
-  $('scNouvelle').addEventListener('click', function () { vider(); $('scCode').value = ''; KD6.afficher(msg, '', 'info'); });
-  $('scValiderAppareil').addEventListener('click', validerAppareil);
-  document.addEventListener('visibilitychange', function () { if (document.hidden) arreter(); });
-  window.addEventListener('pagehide', arreter);
-  preparer();
+  $('scRechercher').addEventListener('click',lookup);
+  $('scEncaisser').addEventListener('click',async()=>{
+    if(busy||!gateway||!codeBound)return;
+    var pin=$('scPin').value;clearPin();if(!/^\d{4}$/.test(pin)){message('Saisissez les 4 chiffres du PIN.','erreur');return;}
+    busy=true;$('scEncaisser').disabled=true;
+    try{var r=await KD6.appeler('redeem.confirm',{gatewayToken:gateway.gatewayToken,pin:pin});pin='';
+      $('scGateway').close();gateway=null;codeBound=false;amountDigits='';$('scMontant').value='0,00';message((r.result==='ALREADY_REDEEMED'?'Paiement déjà confirmé : ':'Paiement confirmé : ')+KD6.argent(r.amountMinor,r.currency),'ok');
+    }catch(e){message(KD6.message(e),'erreur');}finally{pin='';busy=false;$('scEncaisser').disabled=false;}
+  });
+  function cancel(){if(busy)return;stop();clearPin();$('scCode').value='';if(gateway)KD6.appeler('redeem.cancel',{gatewayToken:gateway.gatewayToken}).catch(()=>{});gateway=null;codeBound=false;$('scGateway').close();$('scOuvrir').focus();}
+  $('scNouvelle').addEventListener('click',cancel);$('scGateway').addEventListener('cancel',e=>{e.preventDefault();cancel();});
+  async function localQr(){if(window.jsQR)return;await new Promise((resolve,reject)=>{var s=document.createElement('script');s.src='../shared/vendor/jsQR-1.4.0.min.js';s.onload=resolve;s.onerror=reject;document.head.appendChild(s);});}
+  function stop(){if(loop)clearInterval(loop);loop=null;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('scZoneScan').hidden=true;}
+  $('scDemarrer').addEventListener('click',async()=>{
+    if(stream||!gateway||busy)return;
+    try{var detector=null;if('BarcodeDetector' in window){try{detector=new BarcodeDetector({formats:['qr_code']});}catch(_){}}
+      if(!detector)await localQr();stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+      $('scVideo').srcObject=stream;$('scZoneScan').hidden=false;await $('scVideo').play();
+      var canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+      loop=setInterval(async()=>{if(scanning||!stream||$('scVideo').readyState<2)return;scanning=true;
+        try{var value=null;if(detector){var matches=await detector.detect($('scVideo'));value=matches[0]?.rawValue;}else{canvas.width=$('scVideo').videoWidth;canvas.height=$('scVideo').videoHeight;ctx.drawImage($('scVideo'),0,0);var img=ctx.getImageData(0,0,canvas.width,canvas.height);value=window.jsQR(img.data,img.width,img.height)?.data;}
+          if(value&&stream){stop();$('scCode').value=value;await lookup();}
+        }catch(_){ /* Next frame, without exposing camera data. */ }finally{scanning=false;}
+      },300);
+    }catch(_){stop();message('Caméra indisponible. Saisissez le code de la carte.','erreur');}
+  });
+  $('scArreter').addEventListener('click',stop);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();clearPin();}});
+  window.addEventListener('pagehide',()=>{stop();clearPin();gateway=null;});prepare();
 })();

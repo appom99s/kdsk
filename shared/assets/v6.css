@@ -116,3 +116,6 @@
 .v6-etapes li::before { content: "○"; color: var(--v6-texte-doux); font-weight: 700; }
 .v6-etapes li.fait::before { content: "✓"; color: var(--v6-ok); }
 @media (prefers-reduced-motion: no-preference) { .v6-bouton, .v6-formule { transition: transform .12s ease, box-shadow .12s ease; } .v6-bouton:active { transform: scale(.98); } }
+
+#kdLoading{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);width:max-content;background:#fff;color:#1f3a34;border:1px solid #dce8e3;border-radius:16px;padding:12px 18px;box-shadow:0 8px 36px #173c3026;font-size:14px;pointer-events:none}
+#kdLoading[hidden]{display:none}#kdLoading img{object-fit:contain;animation:kdPulse 1.4s ease-in-out infinite}@keyframes kdPulse{50%{opacity:.45}}@media(prefers-reduced-motion:reduce){#kdLoading img{animation:none}}
