@@ -1,18 +1,20 @@
 <!doctype html>
 <html lang="fr">
 <head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.kadosk.com https://kadosk.com; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'" />
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KADOSK Marchand — Scanner</title>
 <link rel="stylesheet" href="assets/style.css" />
 <link rel="stylesheet" href="../shared/assets/ui-system.css" />
 <link rel="stylesheet" href="../shared/assets/release-polish.css">
-<link rel="stylesheet" href="../shared/assets/v6.css" />
+<link rel="stylesheet" href="../shared/assets/v6.css" /><link rel="stylesheet" href="assets/tpe.css">
 </head>
 <body class="v6-page">
 <div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
 <main class="kadosk-main">
-  <div class="kadosk-entete"><h1>Scanner</h1><div id="kadoskEnteteDroite"></div></div>
+  <div class="kadosk-entete"><h1>Encaisser</h1><div id="kadoskEnteteDroite"></div></div>
   <div style="max-width:520px">
     <div id="scMessage" class="v6-message" hidden role="status"></div>
 
@@ -24,28 +26,31 @@
     </section>
 
     <section class="v6-carte" id="scCaisse" aria-labelledby="scCaisseTitre">
-      <h2 id="scCaisseTitre">1. Carte du client</h2>
+      <h2 id="scCaisseTitre">1. Montant à encaisser</h2>
       <div class="v6-champ"><label for="scLieu">Point de vente</label><select id="scLieu"></select></div>
-      <div class="v6-actions"><button type="button" class="v6-bouton" id="scDemarrer">Scanner le QR</button></div>
-      <div id="scZoneScan" hidden style="margin-top:12px">
-        <div class="v6-scan"><video id="scVideo" playsinline muted></video></div>
-        <div class="v6-actions" style="justify-content:center"><button type="button" class="v6-bouton v6-bouton-secondaire" id="scArreter">Fermer la caméra</button></div>
-      </div>
-      <div class="v6-champ" style="margin-top:12px"><label for="scCode">Ou saisissez le code de la carte</label>
-        <input id="scCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KDS1:…" /></div>
-      <button type="button" class="v6-bouton v6-bouton-secondaire" id="scRechercher">Rechercher</button>
+      <div class="v6-champ"><label for="scMontant">Montant (les deux derniers chiffres sont les centimes)</label><input id="scMontant" readonly inputmode="none" value="0,00" aria-describedby="scMontantAide"></div>
+      <p id="scMontantAide" class="v6-aide">Saisissez le montant, puis ouvrez la passerelle. Il ne pourra plus être modifié dans cette session.</p>
+      <div id="scAmountPad" class="tpe-pad" aria-label="Pavé du montant"></div>
+      <button id="scOuvrir" class="v6-bouton tpe-wide" type="button">Continuer vers la carte</button>
     </section>
-
-    <section class="v6-carte" id="scEncaissement" hidden aria-labelledby="scEncTitre">
-      <h2 id="scEncTitre">2. Montant et PIN</h2>
-      <div id="scCarteInfo"></div>
-      <div class="v6-champ"><label for="scMontant">Montant à encaisser</label><input id="scMontant" inputmode="decimal" autocomplete="off" /></div>
-      <div class="v6-champ"><label for="scPin">PIN du client (saisi par le client)</label>
-        <input id="scPin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" class="v6-pin" /></div>
-      <p class="v6-aide">Tendez l’appareil au client pour qu’il saisisse son PIN lui-même. Le PIN n’est jamais affiché ni conservé.</p>
-      <div class="v6-actions"><button type="button" class="v6-bouton" id="scEncaisser">Encaisser</button>
-        <button type="button" class="v6-bouton v6-bouton-secondaire" id="scNouvelle">Nouvelle carte</button></div>
-    </section>
+    <dialog id="scGateway" class="tpe-gateway" aria-labelledby="scGatewayTitle">
+      <h2 id="scGatewayTitle">Paiement par carte cadeau</h2>
+      <p id="scGatewayAmount" class="tpe-total"></p><p id="scGatewayShop"></p>
+      <p id="scGatewayStatus" class="v6-message" role="status" hidden></p>
+      <section id="scCardStage"><h3>2. Scanner ou saisir la carte</h3>
+        <button type="button" class="v6-bouton" id="scDemarrer">Scanner le QR</button>
+        <div id="scZoneScan" hidden><div class="v6-scan"><video id="scVideo" playsinline muted></video></div><button type="button" class="v6-bouton" id="scArreter">Fermer la caméra</button></div>
+        <div class="v6-champ"><label for="scCode">Code de la carte</label><input id="scCode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX"></div>
+        <button id="scRechercher" type="button" class="v6-bouton tpe-wide">Valider la carte</button>
+      </section>
+      <section id="scEncaissement" hidden><h3>3. Au client de saisir son PIN</h3>
+        <p id="scCarteInfo"></p><p>Tendez l’appareil au client. Vérifiez le montant affiché avant de valider.</p>
+        <div class="v6-champ"><label for="scPin">PIN à 4 chiffres</label><input id="scPin" type="password" readonly inputmode="none" maxlength="4" autocomplete="off" class="v6-pin"></div>
+        <div id="scPinPad" class="tpe-pad" aria-label="Pavé du PIN client"></div>
+        <button id="scEncaisser" type="button" class="v6-bouton tpe-wide">Confirmer le paiement</button>
+      </section>
+      <button id="scNouvelle" type="button" class="v6-bouton v6-bouton-secondaire tpe-wide">Annuler et revenir au montant</button>
+    </dialog>
   </div>
 </main></div>
 <script src="assets/config.js"></script>
@@ -54,7 +59,7 @@
 <script src="assets/cache.js"></script>
 <script src="assets/nav.js"></script>
 <script src="../shared/assets/ui-system.js"></script>
-<script src="../shared/assets/v6-client.js"></script>
+<script src="../shared/assets/loading.js"></script><script src="../shared/assets/v6-client.js"></script>
 <script src="assets/v6-guard.js"></script>
 <script src="assets/v6-scanner.js"></script>
 </body>

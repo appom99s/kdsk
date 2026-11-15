@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KADOSK — Statistiques</title>
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="../shared/assets/ui-system.css" />
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
+<link rel="stylesheet" href="../shared/assets/v6.css" />
+</head>
+<body class="v6-page">
+<div class="kadosk-app"><aside class="kadosk-sidebar" id="kadoskSidebar"></aside>
+<main class="kadosk-main">
+  <div class="kadosk-entete"><h1>Statistiques des points de vente</h1><div id="kadoskEnteteDroite"></div></div>
+  <section class="v6-carte"><p>Encaissements par point de vente, calculés sur les opérations enregistrées. Les devises sont affichées séparément.</p>
+<form id="statsForm" class="v6-grille v6-grille-2"><div class="v6-champ"><label for="statsFrom">Du</label><input id="statsFrom" type="date" required></div><div class="v6-champ"><label for="statsTo">Au (inclus)</label><input id="statsTo" type="date" required></div><button class="v6-bouton" type="submit">Actualiser</button></form>
+<p id="statsMessage" class="v6-message" hidden role="status"></p><div id="statsResults" aria-live="polite"></div></section>
+</main></div>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/cache.js"></script>
+<script src="assets/nav.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
+<script src="../shared/assets/loading.js"></script><script src="../shared/assets/v6-client.js"></script>
+<script src="assets/v6-guard.js"></script>
+<script src="assets/v6-stats.js"></script>
+</body>
+</html>
