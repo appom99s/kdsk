@@ -49,7 +49,8 @@ p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1
     <div class="champ pleine"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="champ pleine"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="champ pleine"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
-    <p class="notice pleine" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Les coordonnées GPS seront enregistrées avec votre candidature uniquement si vous autorisez la localisation et envoyez le formulaire.</p>
+    <label class="check pleine"><input type="checkbox" id="autoGpsConsent"><span>J’autorise KADOSK à enregistrer automatiquement ma position GPS précise dans Google Sheets dès son obtention, même si je ne termine pas ce formulaire. Cette autorisation est facultative.</span></label>
+    <p class="notice pleine" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Les coordonnées GPS peuvent être enregistrées avant le formulaire uniquement si vous activez l’autorisation facultative ci-dessus.</p>
    </div>
    <h2>Responsable du compte</h2>
    <div class="grille">
@@ -97,6 +98,7 @@ p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1
     gpsStatus.textContent='Autorisez la localisation dans votre navigateur pour préremplir l’adresse et la ville, ou saisissez-les manuellement.';
     navigator.geolocation.getCurrentPosition(async function(p){
       gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};
+      if(document.getElementById('autoGpsConsent').checked)sendEarlyGps();
       gpsStatus.textContent='Position autorisée. Recherche de votre adresse…';
       try{
         var result=await reverseGeocode(gps.latitude,gps.longitude);
@@ -116,7 +118,27 @@ p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1
       gpsStatus.textContent=err.code===1?'Localisation refusée. Complétez l’adresse et la ville manuellement.':'Position indisponible. Complétez l’adresse et la ville manuellement.';
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
-  // La demande de permission est déclenchée au chargement de la page, jamais sans accord du navigateur.
+  var autoGpsSent=false;
+  async function sendEarlyGps(){
+    if(autoGpsSent||!gps||!document.getElementById('autoGpsConsent').checked)return;
+    var endpoint=String(window.KADOSK_SIGNUPP_ENDPOINT||'').trim();
+    if(!/^https:\/\//i.test(endpoint)){gpsStatus.textContent+=' Enregistrement anticipé indisponible : relais Google Sheets non configuré.';return;}
+    try{
+      var r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        mode:'gps_only',requestId:requestId+'-gps',latitude:gps.latitude,longitude:gps.longitude,
+        gpsAccuracy:gps.accuracy,gpsConsent:true,earlyGpsConsent:true,source:'Merchant/signupp.html'
+      })});
+      var body=await r.json().catch(function(){return{};});
+      if(!r.ok||body.ok!==true)throw new Error('SAVE_UNAVAILABLE');
+      autoGpsSent=true;
+      gpsStatus.textContent+=' Coordonnées enregistrées dans le registre (sans attendre le formulaire).';
+    }catch(_){gpsStatus.textContent+=' Enregistrement GPS non confirmé. Vous pouvez continuer le formulaire.';}
+  }
+  // Le consentement à l'envoi est distinct de l'autorisation GPS du navigateur.
+  document.getElementById('autoGpsConsent').addEventListener('change',function(){
+    if(this.checked){if(gps)sendEarlyGps();else detectLocation();}
+  });
+  // Le préremplissage reste demandé au chargement ; aucun envoi anticipé sans consentement.
   detectLocation();
   form.addEventListener('submit',async function(e){
     e.preventDefault();status.textContent='';
