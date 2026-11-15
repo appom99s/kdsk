@@ -7,70 +7,69 @@
 <meta name="robots" content="noindex">
 <title>Inscription marchand avec localisation — KADOSK</title>
 <link rel="icon" href="assets/logo.png">
-<link rel="stylesheet" href="../shared/assets/v6.css">
+<link rel="stylesheet" href="../shared/assets/ui-system.css">
+<link rel="stylesheet" href="assets/landing.css">
 <style>
-:root{color-scheme:light}body{background:#f7faf9;color:#1f3a34}
-.inscription{width:min(760px,calc(100% - 24px));margin:32px auto 64px}
-.entete{display:flex;align-items:center;gap:14px;margin-bottom:20px}
-.entete img{width:44px;height:44px;object-fit:contain}
-.carte{background:white;border:1px solid #dce6e3;padding:clamp(18px,4vw,34px);border-radius:22px;box-shadow:0 12px 35px #1f3a340b}
-h1{font-size:clamp(24px,4vw,32px);margin:0 0 12px}h2{font-size:17px;margin:28px 0 13px}
-p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.champ{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.champ label{font-weight:650;font-size:14px}
-.champ input,.champ select{box-sizing:border-box;width:100%;min-height:46px;border:1px solid #bfceca;border-radius:10px;padding:10px 12px;background:white;color:#1f3a34;font:inherit}
-.champ input:focus-visible,.champ select:focus-visible,button:focus-visible{outline:3px solid #7fb5ab;outline-offset:2px}
-.bouton{padding:12px 16px;min-height:46px;border-radius:12px;border:1px solid #1f3a34;background:#1f3a34;color:white;font:inherit;font-weight:700;cursor:pointer}
-.bouton.secondaire{background:white;color:#1f3a34}
-.bouton:disabled{opacity:.6;cursor:wait}
-.notice{font-size:13px;color:#50635d}
-.check{display:flex;align-items:flex-start;gap:10px;margin:12px 0;font-size:14px;line-height:1.5}
-.check input{flex:0 0 18px;width:18px;height:18px;margin-top:2px;accent-color:#1f3a34}
+.signup-wrap{min-height:calc(100vh - 84px);padding:40px 20px;display:flex;justify-content:center;align-items:flex-start}
+.signup-card{width:100%;max-width:720px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:32px;box-sizing:border-box}
+.signup-card h1{font-size:28px;margin:0 0 12px}
+.signup-intro{line-height:1.6;margin:0 0 24px}
+.signup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+.signup-grid .kd-champ{margin:0}
+.signup-grid .plein{grid-column:1/-1}
+.signup-section{margin:26px 0 12px;font-size:15px;font-weight:800;color:var(--ink)}
+.signup-consent{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:14px;line-height:1.5;color:var(--muted)}
+.signup-consent input{width:18px;height:18px;min-height:0;margin-top:2px;flex:0 0 18px;accent-color:#1f3a34}
+.signup-consent a,.signup-note a{text-decoration:underline;text-underline-offset:3px}
+.signup-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:22px}
+.signup-note{font-size:14px;line-height:1.6;margin:20px 0 0}
+.signup-done{padding:22px;border-radius:16px;background:#e7f3ef;color:#1f3a34}
+.signup-done h2{margin:0 0 8px;font-size:20px}
 #status:not(:empty){padding:12px;border-radius:10px;background:#fff0e9;color:#79381c;margin:14px 0}
-#done{padding:20px;border-radius:14px;background:#e7f3ef;color:#1f3a34}
-.pleine{grid-column:1/-1}
-@media(max-width:600px){.grille{grid-template-columns:1fr}.inscription{margin-top:18px}.pleine{grid-column:auto}}
+@media(max-width:600px){.signup-wrap{padding:20px 10px}.signup-card{padding:20px 14px;border-radius:20px}.signup-card h1{font-size:24px}.signup-grid{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="../shared/assets/release-polish.css">
 </head>
 <body>
-<main class="inscription">
- <div class="entete"><img src="assets/logo.png" alt=""><strong>KADOSK</strong><a href="index.html" style="margin-left:auto">Accueil</a></div>
- <section class="carte">
-  <h1>Inscription marchand</h1>
-  <p>Envoyez votre candidature à KADOSK. Une demande crée une nouvelle ligne dans le registre de candidatures après confirmation par le serveur. Les champs * sont obligatoires.</p>
+<header class="header"><div class="bar"><a class="brand" href="index.html" aria-label="KADOSK, accueil"><img src="assets/logo.png" alt="" width="39" height="39">KADOSK</a><div style="margin-left:auto"><a class="btn login" href="login.html">Se connecter</a></div></div></header>
+<main class="signup-wrap">
+<section class="signup-card">
+  <h1>Devenir partenaire KADOSK</h1>
+  <p class="signup-intro">Présentez votre entreprise : votre dossier est étudié par l’équipe KADOSK, qui vous contacte avant toute activation. Les champs marqués <span class="kd-requis">*</span> sont obligatoires.</p>
   <form id="merchantForm">
-   <h2>Votre entreprise</h2>
-   <div class="grille">
-    <div class="champ pleine"><label for="businessName">Raison sociale / Nom commercial *</label><input id="businessName" name="businessName" maxlength="120" autocomplete="organization" required></div>
-    <div class="champ"><label for="legalForm">Forme juridique *</label><select id="legalForm" name="legalForm" required><option value="">Choisir…</option><option>SARL</option><option>SARL AU</option><option>SA</option><option>SAS</option><option>SNC</option><option>Auto-entrepreneur</option><option>Personne physique</option><option>Association</option><option>Autre</option></select></div>
-    <div class="champ"><label for="country">Pays *</label><select id="country" name="country" required><option value="MA">Maroc</option><option value="FR">France</option><option value="BE">Belgique</option><option value="ES">Espagne</option><option value="SN">Sénégal</option><option value="CI">Côte d’Ivoire</option><option value="TN">Tunisie</option><option value="CA">Canada</option></select></div>
-    <div class="champ"><label for="ice">ICE (si applicable)</label><input id="ice" name="ice" maxlength="15" inputmode="numeric" pattern="[0-9]{15}" title="L’ICE comporte 15 chiffres."></div>
-    <div class="champ"><label for="rc">Registre de commerce (RC)</label><input id="rc" name="rc" maxlength="40"></div>
-    <div class="champ pleine"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
-    <div class="champ pleine"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
-    <div class="champ pleine"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
-    <label class="check pleine"><input type="checkbox" id="autoGpsConsent"><span>J’accepte que ma position GPS précise, sa date, sa précision et un identifiant de session soient publiés dans le fichier customer.txt accessible à tous sur GitHub, une seule fois lorsque je coche cette case, même sans soumettre le formulaire. Je peux retirer mon accord avant l’envoi.</span></label>
-    <p class="notice pleine" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Pour publier une seule position GPS dans customer.txt, cochez le consentement facultatif. Les coordonnées seront publiques.</p>
+   <p class="signup-section">Entreprise</p>
+   <div class="signup-grid">
+    <div class="kd-champ plein"><label for="businessName">Raison sociale / Nom commercial *</label><input id="businessName" name="businessName" maxlength="120" autocomplete="organization" required></div>
+    <div class="kd-champ"><label for="legalForm">Forme juridique *</label><select id="legalForm" name="legalForm" required><option value="">Choisir…</option><option>SARL</option><option>SARL AU</option><option>SA</option><option>SAS</option><option>SNC</option><option>Auto-entrepreneur</option><option>Personne physique</option><option>Association</option><option>Autre</option></select></div>
+    <div class="kd-champ"><label for="country">Pays *</label><select id="country" name="country" required><option value="MA">Maroc</option><option value="FR">France</option><option value="BE">Belgique</option><option value="ES">Espagne</option><option value="SN">Sénégal</option><option value="CI">Côte d’Ivoire</option><option value="TN">Tunisie</option><option value="CA">Canada</option></select></div>
+    <div class="kd-champ"><label for="ice">ICE (si applicable)</label><input id="ice" name="ice" maxlength="15" inputmode="numeric" pattern="[0-9]{15}" title="L’ICE comporte 15 chiffres."></div>
+    <div class="kd-champ"><label for="rc">Registre de commerce (RC)</label><input id="rc" name="rc" maxlength="40"></div>
+    <div class="kd-champ plein"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
+    <div class="kd-champ plein"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
+    <div class="kd-champ plein"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
+    <label class="signup-consent plein"><input type="checkbox" id="autoGpsConsent"><span>J’accepte que ma position GPS précise, sa date, sa précision et un identifiant de session soient publiés dans le fichier customer.txt accessible à tous sur GitHub, une seule fois lorsque je coche cette case, même sans soumettre le formulaire. Je peux retirer mon accord avant l’envoi.</span></label>
+    <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Pour publier une seule position GPS dans customer.txt, cochez le consentement facultatif. Les coordonnées seront publiques.</p>
    </div>
-   <h2>Responsable du compte</h2>
-   <div class="grille">
-    <div class="champ"><label for="firstName">Prénom *</label><input id="firstName" name="firstName" maxlength="80" autocomplete="given-name" required></div>
-    <div class="champ"><label for="lastName">Nom *</label><input id="lastName" name="lastName" maxlength="80" autocomplete="family-name" required></div>
-    <div class="champ pleine"><label for="position">Fonction</label><input id="position" name="position" maxlength="100" autocomplete="organization-title"></div>
-    <div class="champ"><label for="email">E-mail professionnel *</label><input id="email" name="email" type="email" maxlength="190" autocomplete="email" required></div>
-    <div class="champ"><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" maxlength="25" autocomplete="tel" required></div>
+   <p class="signup-section">Responsable du compte</p>
+   <div class="signup-grid">
+    <div class="kd-champ"><label for="firstName">Prénom *</label><input id="firstName" name="firstName" maxlength="80" autocomplete="given-name" required></div>
+    <div class="kd-champ"><label for="lastName">Nom *</label><input id="lastName" name="lastName" maxlength="80" autocomplete="family-name" required></div>
+    <div class="kd-champ plein"><label for="position">Fonction</label><input id="position" name="position" maxlength="100" autocomplete="organization-title"></div>
+    <div class="kd-champ"><label for="email">E-mail professionnel *</label><input id="email" name="email" type="email" maxlength="190" autocomplete="email" required></div>
+    <div class="kd-champ"><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" maxlength="25" autocomplete="tel" required></div>
    </div>
-   <label class="check"><input type="checkbox" id="terms" required><span>J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</a>. *</span></label>
-   <label class="check"><input type="checkbox" id="privacy" required><span>J’accepte le traitement de mes données suivant la <a href="../confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>. *</span></label>
-   <label class="check"><input type="checkbox" id="marketing"><span>J’accepte de recevoir des informations commerciales KADOSK (facultatif).</span></label>
+   <label class="signup-consent"><input type="checkbox" id="terms" required><span>J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</a>. *</span></label>
+   <label class="signup-consent"><input type="checkbox" id="privacy" required><span>J’accepte le traitement de mes données suivant la <a href="../confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>. *</span></label>
+   <label class="signup-consent"><input type="checkbox" id="marketing"><span>J’accepte de recevoir des informations commerciales KADOSK (facultatif).</span></label>
    <p id="status" role="alert" aria-live="assertive"></p>
-   <button type="submit" class="bouton" id="submit">Envoyer ma candidature</button>
+   <div class="signup-actions"><button type="submit" class="kd-bouton" id="submit">Envoyer ma demande</button></div>
   </form>
-  <div id="done" hidden tabindex="-1" role="status"><h2>Demande envoyée</h2><p>Votre inscription a été reçue par le service d'enregistrement. L’équipe KADOSK examinera votre dossier.</p></div>
-  <p class="notice"><a href="../confidentialite.html">Confidentialité</a> · <a href="../conditions-partenaires.html">Conditions partenaires</a></p>
+  <div class="signup-done" id="done" hidden tabindex="-1" role="status"><h2>Demande envoyée</h2><p>Votre inscription a été reçue par le service d'enregistrement. L’équipe KADOSK examinera votre dossier.</p></div>
+  <p class="signup-note"><a href="../confidentialite.html">Confidentialité</a> · <a href="../conditions-partenaires.html">Conditions partenaires</a></p>
  </section>
 </main>
 <script src="assets/signupp-config.js"></script>
+<script src="../shared/assets/ui-system.js"></script>
 <script>
 (function () {
   'use strict';
