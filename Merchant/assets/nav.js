@@ -344,6 +344,11 @@
     const abonnementActif = !!(stats && stats.subscriptionActive);
     const nomOffre = (stats && stats.subscriptionPlanName) || (palier && LIBELLES_PALIER[palier]) || "";
     document.querySelectorAll("[data-marchand-abonnement]").forEach((badge) => {
+      if (stats && stats.subscriptionActive === null) {
+        badge.textContent = "Abonnement géré par Wix";
+        badge.style.color = "inherit";
+        return;
+      }
       // GRATUIT couvre à la fois l'essai en cours ET l'essai expiré (voir
       // resoudreQuotaCartesMarchand, backend) - seul subscriptionActive distingue
       // les deux, jamais le palier seul.
