@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7FAF9">
+<meta name="robots" content="noindex">
+<title>Inscription marchand avec localisation — KADOSK</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="../shared/assets/v6.css">
+<style>
+:root{color-scheme:light}body{background:#f7faf9;color:#1f3a34}
+.inscription{width:min(760px,calc(100% - 24px));margin:32px auto 64px}
+.entete{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.entete img{width:44px;height:44px;object-fit:contain}
+.carte{background:white;border:1px solid #dce6e3;padding:clamp(18px,4vw,34px);border-radius:22px;box-shadow:0 12px 35px #1f3a340b}
+h1{font-size:clamp(24px,4vw,32px);margin:0 0 12px}h2{font-size:17px;margin:28px 0 13px}
+p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.champ{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.champ label{font-weight:650;font-size:14px}
+.champ input,.champ select{box-sizing:border-box;width:100%;min-height:46px;border:1px solid #bfceca;border-radius:10px;padding:10px 12px;background:white;color:#1f3a34;font:inherit}
+.champ input:focus-visible,.champ select:focus-visible,button:focus-visible{outline:3px solid #7fb5ab;outline-offset:2px}
+.bouton{padding:12px 16px;min-height:46px;border-radius:12px;border:1px solid #1f3a34;background:#1f3a34;color:white;font:inherit;font-weight:700;cursor:pointer}
+.bouton.secondaire{background:white;color:#1f3a34}
+.bouton:disabled{opacity:.6;cursor:wait}
+.gps{background:#edf5f2;border:1px solid #b7d6cf;padding:17px;border-radius:14px;margin:18px 0}
+.gps-actions{display:flex;gap:10px;flex-wrap:wrap}
+.notice{font-size:13px;color:#50635d}
+.check{display:flex;align-items:flex-start;gap:10px;margin:12px 0;font-size:14px;line-height:1.5}
+.check input{flex:0 0 18px;width:18px;height:18px;margin-top:2px;accent-color:#1f3a34}
+#status:not(:empty){padding:12px;border-radius:10px;background:#fff0e9;color:#79381c;margin:14px 0}
+#done{padding:20px;border-radius:14px;background:#e7f3ef;color:#1f3a34}
+.pleine{grid-column:1/-1}
+@media(max-width:600px){.grille{grid-template-columns:1fr}.inscription{margin-top:18px}.pleine{grid-column:auto}}
+</style>
+</head>
+<body>
+<main class="inscription">
+ <div class="entete"><img src="assets/logo.png" alt=""><strong>KADOSK</strong><a href="index.html" style="margin-left:auto">Accueil</a></div>
+ <section class="carte">
+  <h1>Inscription marchand</h1>
+  <p>Envoyez votre candidature à KADOSK. Une demande crée une nouvelle ligne dans le registre de candidatures après confirmation par le serveur. Les champs * sont obligatoires.</p>
+  <form id="merchantForm">
+   <h2>Votre entreprise</h2>
+   <div class="grille">
+    <div class="champ pleine"><label for="businessName">Raison sociale / Nom commercial *</label><input id="businessName" name="businessName" maxlength="120" autocomplete="organization" required></div>
+    <div class="champ"><label for="legalForm">Forme juridique *</label><select id="legalForm" name="legalForm" required><option value="">Choisir…</option><option>SARL</option><option>SARL AU</option><option>SA</option><option>SAS</option><option>SNC</option><option>Auto-entrepreneur</option><option>Personne physique</option><option>Association</option><option>Autre</option></select></div>
+    <div class="champ"><label for="country">Pays *</label><select id="country" name="country" required><option value="MA">Maroc</option><option value="FR">France</option><option value="BE">Belgique</option><option value="ES">Espagne</option><option value="SN">Sénégal</option><option value="CI">Côte d’Ivoire</option><option value="TN">Tunisie</option><option value="CA">Canada</option></select></div>
+    <div class="champ"><label for="ice">ICE (si applicable)</label><input id="ice" name="ice" maxlength="15" inputmode="numeric" pattern="[0-9]{15}" title="L’ICE comporte 15 chiffres."></div>
+    <div class="champ"><label for="rc">Registre de commerce (RC)</label><input id="rc" name="rc" maxlength="40"></div>
+    <div class="champ pleine"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
+    <div class="champ pleine"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
+    <div class="champ pleine"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
+   </div>
+   <div class="gps">
+    <h2 style="margin-top:0">Position GPS du point de vente</h2>
+    <p>Pour enregistrer les coordonnées du commerce, placez-vous sur le lieu concerné et cliquez ci-dessous. Votre navigateur vous demandera l’autorisation. La position de l’appareil n’est pas forcément celle du commerce et sa précision dépend du GPS, du réseau et de l’environnement.</p>
+    <div class="gps-actions"><button type="button" class="bouton secondaire" id="locate">Obtenir ma position GPS</button><button type="button" class="bouton secondaire" id="clearLocation" hidden>Effacer la position</button></div>
+    <p id="gpsStatus" role="status" aria-live="polite">Position non relevée.</p>
+    <label class="check"><input type="checkbox" id="gpsConsent"><span>J’autorise l’enregistrement de mes coordonnées GPS précises et de leur précision dans le registre de candidatures KADOSK. Je peux retirer cette autorisation avant l’envoi en effaçant la position.</span></label>
+    <p class="notice">La géolocalisation nécessite HTTPS et votre accord. Vous pouvez envoyer le formulaire sans GPS si vous refusez cette collecte.</p>
+   </div>
+   <h2>Responsable du compte</h2>
+   <div class="grille">
+    <div class="champ"><label for="firstName">Prénom *</label><input id="firstName" name="firstName" maxlength="80" autocomplete="given-name" required></div>
+    <div class="champ"><label for="lastName">Nom *</label><input id="lastName" name="lastName" maxlength="80" autocomplete="family-name" required></div>
+    <div class="champ pleine"><label for="position">Fonction</label><input id="position" name="position" maxlength="100" autocomplete="organization-title"></div>
+    <div class="champ"><label for="email">E-mail professionnel *</label><input id="email" name="email" type="email" maxlength="190" autocomplete="email" required></div>
+    <div class="champ"><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" maxlength="25" autocomplete="tel" required></div>
+   </div>
+   <label class="check"><input type="checkbox" id="terms" required><span>J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</a>. *</span></label>
+   <label class="check"><input type="checkbox" id="privacy" required><span>J’accepte le traitement de mes données suivant la <a href="../confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>. *</span></label>
+   <label class="check"><input type="checkbox" id="marketing"><span>J’accepte de recevoir des informations commerciales KADOSK (facultatif).</span></label>
+   <p id="status" role="alert" aria-live="assertive"></p>
+   <button type="submit" class="bouton" id="submit">Envoyer ma candidature</button>
+  </form>
+  <div id="done" hidden tabindex="-1" role="status"><h2>Demande envoyée</h2><p>Votre inscription a été reçue par le service d'enregistrement. L’équipe KADOSK examinera votre dossier.</p></div>
+  <p class="notice"><a href="../confidentialite.html">Confidentialité</a> · <a href="../conditions-partenaires.html">Conditions partenaires</a></p>
+ </section>
+</main>
+<script src="assets/signupp-config.js"></script>
+<script>
+(function () {
+  'use strict';
+  var form=document.getElementById('merchantForm'), status=document.getElementById('status');
+  var gpsStatus=document.getElementById('gpsStatus'), locate=document.getElementById('locate');
+  var clear=document.getElementById('clearLocation'), submit=document.getElementById('submit');
+  var gps=null, requestId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
+  function val(name){return String(form.elements.namedItem(name).value||'').trim();}
+  function resetGps(){gps=null;clear.hidden=true;gpsStatus.textContent='Position non relevée.';}
+  clear.addEventListener('click',function(){resetGps();});
+  document.getElementById('gpsConsent').addEventListener('change',function(){if(!this.checked)resetGps();});
+  locate.addEventListener('click',function(){
+    if(!document.getElementById('gpsConsent').checked){gpsStatus.textContent='Cochez d’abord la case autorisant l’enregistrement des coordonnées GPS.';return;}
+    if(!isSecureContext||!navigator.geolocation){gpsStatus.textContent='GPS indisponible : utilisez une connexion HTTPS et autorisez la localisation.';return;}
+    locate.disabled=true;gpsStatus.textContent='Recherche de votre position en cours…';
+    navigator.geolocation.getCurrentPosition(function(p){
+      locate.disabled=false;
+      if(!document.getElementById('gpsConsent').checked){resetGps();return;}
+      gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};
+      gpsStatus.textContent='Position obtenue : '+gps.latitude.toFixed(7)+', '+gps.longitude.toFixed(7)+' (précision estimée ±'+Math.round(gps.accuracy)+' m).';
+      clear.hidden=false;
+    },function(err){
+      locate.disabled=false;resetGps();
+      gpsStatus.textContent=err.code===1?'Permission GPS refusée. Vous pouvez continuer sans localisation.':err.code===3?'Délai GPS dépassé. Réessayez dehors ou près d’une fenêtre.':'Position GPS indisponible. Vous pouvez continuer sans localisation.';
+    },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  });
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();status.textContent='';
+    if(!form.reportValidity())return;
+    var endpoint=String(window.KADOSK_SIGNUPP_ENDPOINT||'').trim();
+    if(!/^https:\/\//i.test(endpoint)){status.textContent='Enregistrement non configuré. L’administrateur doit définir l’URL HTTPS du relais Google Sheets dans assets/signupp-config.js.';return;}
+    if(!document.getElementById('gpsConsent').checked)gps=null;
+    var payload={requestId:requestId,businessName:val('businessName'),legalForm:val('legalForm'),country:val('country'),ice:val('ice'),rc:val('rc'),activity:val('activity'),address:val('address'),city:val('city'),firstName:val('firstName'),lastName:val('lastName'),position:val('position'),email:val('email').toLowerCase(),phone:val('phone'),latitude:gps?gps.latitude:null,longitude:gps?gps.longitude:null,gpsAccuracy:gps?gps.accuracy:null,gpsConsent:!!(gps&&document.getElementById('gpsConsent').checked),acceptedTerms:true,privacyConsent:true,marketingConsent:document.getElementById('marketing').checked,source:'Merchant/signupp.html'};
+    submit.disabled=true;submit.textContent='Envoi en cours…';
+    try{
+      var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      var result=await response.json().catch(function(){return{};});
+      if(!response.ok||result.ok!==true)throw new Error(result.error||'Le service n’a pas confirmé l’enregistrement.');
+      form.hidden=true;document.getElementById('done').hidden=false;document.getElementById('done').focus();
+    }catch(err){status.textContent='Enregistrement non confirmé : '+err.message+' Réessayez sans modifier les informations.';}
+    finally{submit.disabled=false;submit.textContent='Envoyer ma candidature';}
+  });
+})();
+</script>
+</body>
+</html>
