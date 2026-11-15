@@ -11,7 +11,7 @@ const KADOSK_API = (function () {
 
   async function executerAppel(nom, methode, corps, accessToken, dejaReessaye, estPublic) {
     if (!estPublic) {
-      const reponseSession = await fetch(KADOSK_CONFIG.siteBaseUrl + "/_functions/sessionInvoke", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json", "X-Kadosk-Session": KADOSK_AUTH.lireSessionBridge() }, body: JSON.stringify({ name: nom, method: methode, body: corps }) });
+      const reponseSession = await fetch(KADOSK_CONFIG.siteBaseUrl + "/_functions/sessionInvoke", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: nom, method: methode, body: corps }) });
       const donneesSession = await reponseSession.json().catch(() => ({}));
       if (!reponseSession.ok) { const erreur = new Error(donneesSession.error || "ERREUR_SERVEUR"); erreur.status = reponseSession.status; throw erreur; }
       return donneesSession;

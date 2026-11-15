@@ -11,8 +11,9 @@ const KADOSK_AUTH = (function () {
   const PKCE_STORAGE_KEY = "kadosk_pkce_verifier";
   const STATE_STORAGE_KEY = "kadosk_oauth_state";
   const SESSION_HINT = "kadosk_session_hint";
-  const SESSION_BRIDGE = "__Host-kadosk_session_bridge_v2";
+  const SESSION_BRIDGE = "kadosk_session_epoch";
   let tokensTemporaires = null;
+  document.cookie = "__Host-kadosk_session_bridge_v2=; Path=/; Max-Age=0; Secure; SameSite=Strict";
   function ecrireCookie(nom, valeur, maxAge, sameSite) { document.cookie = nom + "=" + encodeURIComponent(valeur || "") + "; Path=/; Max-Age=" + maxAge + "; Secure; SameSite=" + (sameSite || "Lax"); }
   function lireCookie(nom) { const p = nom + "="; const v = document.cookie.split(";").map((x) => x.trim()).find((x) => x.startsWith(p)); return v ? decodeURIComponent(v.slice(p.length)) : ""; }
   function lireSessionBridge() { return lireCookie(SESSION_BRIDGE); }
@@ -105,7 +106,7 @@ const KADOSK_AUTH = (function () {
         try {
           const response=await fetch(config().siteBaseUrl+'/_functions/sessionApproveDevice',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeToken,code:form.elements.code.value})});
           const result=await response.json();form.elements.code.value='';
-          if(!response.ok || !result.sessionToken) throw new Error(result.error || 'DEVICE_APPROVAL_INVALID');
+          if(!response.ok || !result.success) throw new Error(result.error || 'DEVICE_APPROVAL_INVALID');
           close();resolve(result);
         } catch(error) {form.querySelector('[role=status]').textContent=error.message==='DEVICE_APPROVAL_EXPIRED'?'Code expiré ou tentatives épuisées. Recommencez la connexion.':'Validation impossible. Vérifiez le code reçu.';}
         finally{button.disabled=false;}
@@ -119,8 +120,8 @@ const KADOSK_AUTH = (function () {
     const reponse = await fetch(config().siteBaseUrl + "/_functions/sessionStart", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json", "X-Kadosk-Device-Id": appareilPersistant() }, body: JSON.stringify({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token, expiresIn: tokens.expires_in, clientId: config().clientId }) });
     if (!reponse.ok) { const erreurSession = await reponse.json().catch(() => ({})); tokensTemporaires = null; throw new Error(erreurSession.error || "SESSION_SERVEUR_INDISPONIBLE"); }
     let session = await reponse.json().catch(() => ({}));
-    if (session.approvalRequired) session = await confirmerNouvelAppareil(session.challengeToken); if (!session.sessionToken) throw new Error("SESSION_SERVEUR_INDISPONIBLE");
-    tokensTemporaires = null; ecrireCookie(SESSION_BRIDGE, session.sessionToken, 30 * 24 * 60 * 60, "Strict"); ecrireCookie(SESSION_HINT, "1", 30 * 24 * 60 * 60, "Strict");
+    if (session.approvalRequired) session = await confirmerNouvelAppareil(session.challengeToken); if (!session.success) throw new Error("SESSION_SERVEUR_INDISPONIBLE");
+    tokensTemporaires = null; ecrireCookie(SESSION_BRIDGE, genererChaineAleatoire(24), 12 * 60 * 60, "Strict"); ecrireCookie(SESSION_HINT, "1", 12 * 60 * 60, "Strict");
   }
 
   // Bug trouvé : le cache partagé nom/logo/rôle/permissions/stats (voir
@@ -143,7 +144,7 @@ const KADOSK_AUTH = (function () {
   async function effacerTokens() {
     const sessionBridge = lireCookie(SESSION_BRIDGE);
     tokensTemporaires = null; ecrireCookie(PKCE_STORAGE_KEY, "", 0); ecrireCookie(STATE_STORAGE_KEY, "", 0); ecrireCookie(SESSION_HINT, "", 0, "Strict"); ecrireCookie(SESSION_BRIDGE, "", 0, "Strict");
-    fetch(config().siteBaseUrl + "/_functions/sessionEnd", { method: "POST", credentials: "include", headers: { "X-Kadosk-Session": sessionBridge } }).catch(() => {});
+    fetch(config().siteBaseUrl + "/_functions/sessionEnd", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } }).catch(() => {});
     effacerVerification2FA();
     effacerCacheKadosk();
   }
