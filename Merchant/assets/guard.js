@@ -20,13 +20,15 @@
   // déconnecte immédiatement plutôt que de laisser une page à moitié
   // fonctionnelle s'afficher.
   // ---------------------------------------------------------------------
-  const PAGE_CASHIER = "cashier.html";
+  const PAGE_CASHIER = "scanner.html";
   const ACCES_CASHIER_PAR_PAGE = {
     "cashier.html": () => true,
     "scanner.html": () => true,
     "gift-cards.html": (permissions) => !!(permissions && permissions.viewGiftCards)
   };
   const ERREURS_ACCES_REVOQUE = [
+    "ROLE_REQUIRED",
+    "FORBIDDEN",
     "EMAIL_NON_VERIFIE",
     "MERCHANT_NOT_FOUND",
     "MERCHANT_ROLE_NOT_ASSIGNED",
@@ -46,6 +48,14 @@
   // dashboard.html a réellement besoin de ces statistiques (dashboardInitial).
   KADOSK_NAV.chargerChromeInfo()
     .then(({ role, permissions }) => {
+      if (permissions && permissions.v6Only) {
+        const page = window.location.pathname.split('/').pop() || 'dashboard.html';
+        const allowed = role === 'OWNER' ? ['demarrage.html','abonnement.html','cartes.html','settings.html','scanner.html','statistiques.html','two-factor.html'] : ['scanner.html','two-factor.html'];
+        if (!allowed.includes(page)) {
+          window.location.replace(role === 'OWNER' ? 'demarrage.html' : 'scanner.html');
+          return;
+        }
+      }
       if (role === "CASHIER") {
         const pageEnCours = window.location.pathname.split("/").pop() || "dashboard.html";
         const verificateur = ACCES_CASHIER_PAR_PAGE[pageEnCours];
