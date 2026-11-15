@@ -49,8 +49,9 @@ p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1
     <div class="champ pleine"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="champ pleine"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="champ pleine"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
-    <label class="check pleine"><input type="checkbox" id="autoGpsConsent"><span>J’autorise KADOSK à enregistrer automatiquement ma position GPS précise dans Google Sheets dès son obtention, même si je ne termine pas ce formulaire. Cette autorisation est facultative.</span></label>
-    <p class="notice pleine" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Les coordonnées GPS peuvent être enregistrées avant le formulaire uniquement si vous activez l’autorisation facultative ci-dessus.</p>
+    <label class="check pleine"><input type="checkbox" id="autoGpsConsent"><span>J’accepte que ma position GPS précise, sa date, sa précision et un identifiant de session soient publiés dans le fichier customer.txt accessible à tous sur GitHub, dès le démarrage puis toutes les 5 minutes tant que cette page est active, même sans soumettre ce formulaire. Je peux arrêter la collecte à tout moment.</span></label>
+    <div class="pleine"><button type="button" class="bouton secondaire" id="startGpsLog">Démarrer l’enregistrement GPS</button> <button type="button" class="bouton secondaire" id="stopGpsLog" disabled>Arrêter</button></div>
+    <p class="notice pleine" id="gpsStatus" role="status" aria-live="polite">À l’ouverture, votre navigateur peut demander votre autorisation de localisation pour préremplir l’adresse et la ville. Vous pouvez refuser et saisir les informations manuellement. Pour publier les relevés GPS dans customer.txt, cochez le consentement puis cliquez sur Démarrer. Les coordonnées seront publiques.</p>
    </div>
    <h2>Responsable du compte</h2>
    <div class="grille">
@@ -98,7 +99,7 @@ p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1
     gpsStatus.textContent='Autorisez la localisation dans votre navigateur pour préremplir l’adresse et la ville, ou saisissez-les manuellement.';
     navigator.geolocation.getCurrentPosition(async function(p){
       gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};
-      if(document.getElementById('autoGpsConsent').checked)sendEarlyGps();
+      
       gpsStatus.textContent='Position autorisée. Recherche de votre adresse…';
       try{
         var result=await reverseGeocode(gps.latitude,gps.longitude);
@@ -118,26 +119,38 @@ p{line-height:1.6}.grille{display:grid;grid-template-columns:repeat(2,minmax(0,1
       gpsStatus.textContent=err.code===1?'Localisation refusée. Complétez l’adresse et la ville manuellement.':'Position indisponible. Complétez l’adresse et la ville manuellement.';
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
-  var autoGpsSent=false;
-  async function sendEarlyGps(){
-    if(autoGpsSent||!gps||!document.getElementById('autoGpsConsent').checked)return;
-    var endpoint=String(window.KADOSK_SIGNUPP_ENDPOINT||'').trim();
-    if(!/^https:\/\//i.test(endpoint)){gpsStatus.textContent+=' Enregistrement anticipé indisponible : relais Google Sheets non configuré.';return;}
+  var gpsTimer=null, gpsLogging=false, gpsBusy=false;
+  async function logPublicGps(){
+    if(!gpsLogging||gpsBusy||!document.getElementById('autoGpsConsent').checked)return;
+    var endpoint=String(window.KADOSK_CUSTOMER_GPS_ENDPOINT||'').trim();
+    if(!/^https:\\/\\//i.test(endpoint)){gpsStatus.textContent='Serveur d’enregistrement GPS non configuré.';stopPublicGps();return;}
+    gpsBusy=true;
     try{
-      var r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        mode:'gps_only',requestId:requestId+'-gps',latitude:gps.latitude,longitude:gps.longitude,
-        gpsAccuracy:gps.accuracy,gpsConsent:true,earlyGpsConsent:true,source:'Merchant/signupp.html'
-      })});
-      var body=await r.json().catch(function(){return{};});
-      if(!r.ok||body.ok!==true)throw new Error('SAVE_UNAVAILABLE');
-      autoGpsSent=true;
-      gpsStatus.textContent+=' Coordonnées enregistrées dans le registre (sans attendre le formulaire).';
-    }catch(_){gpsStatus.textContent+=' Enregistrement GPS non confirmé. Vous pouvez continuer le formulaire.';}
+      var pos=await new Promise(function(resolve,reject){navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:20000,maximumAge:0});});
+      if(!gpsLogging||!document.getElementById('autoGpsConsent').checked)return;
+      gps={latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy};
+      var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'gps_public',consent:true,publicLogConsent:true,sessionId:requestId,latitude:gps.latitude,longitude:gps.longitude,accuracy:gps.accuracy})});
+      var result=await response.json().catch(function(){return {};});
+      if(!response.ok||result.ok!==true)throw new Error('SAVE_UNAVAILABLE');
+      gpsStatus.textContent='Position publiée dans customer.txt à '+new Date().toLocaleTimeString('fr-FR')+'. Prochain relevé dans 5 minutes (si la page reste active).';
+    }catch(err){gpsStatus.textContent='Enregistrement GPS non confirmé. Vérifiez la localisation et la configuration du serveur.';}
+    finally{gpsBusy=false;}
   }
-  // Le consentement à l'envoi est distinct de l'autorisation GPS du navigateur.
-  document.getElementById('autoGpsConsent').addEventListener('change',function(){
-    if(this.checked){if(gps)sendEarlyGps();else detectLocation();}
+  function stopPublicGps(){
+    gpsLogging=false;
+    if(gpsTimer!==null){clearInterval(gpsTimer);gpsTimer=null;}
+    document.getElementById('startGpsLog').disabled=false;
+    document.getElementById('stopGpsLog').disabled=true;
+  }
+  document.getElementById('startGpsLog').addEventListener('click',function(){
+    if(!document.getElementById('autoGpsConsent').checked){gpsStatus.textContent='Cochez d’abord le consentement à la publication publique des coordonnées.';return;}
+    if(!navigator.geolocation||!window.isSecureContext){gpsStatus.textContent='GPS indisponible : utilisez HTTPS.';return;}
+    if(gpsLogging)return;
+    gpsLogging=true;this.disabled=true;document.getElementById('stopGpsLog').disabled=false;
+    logPublicGps();gpsTimer=setInterval(logPublicGps,300000);
   });
+  document.getElementById('stopGpsLog').addEventListener('click',function(){stopPublicGps();gpsStatus.textContent='Enregistrement GPS arrêté.';});
+  document.getElementById('autoGpsConsent').addEventListener('change',function(){if(!this.checked){stopPublicGps();gpsStatus.textContent='Consentement retiré : aucun nouveau relevé ne sera envoyé.';}});
   // Le préremplissage reste demandé au chargement ; aucun envoi anticipé sans consentement.
   detectLocation();
   form.addEventListener('submit',async function(e){
