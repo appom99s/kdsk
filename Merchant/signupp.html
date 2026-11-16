@@ -27,6 +27,7 @@
 .signup-done h2{margin:0 0 8px;font-size:20px}
 #status:not(:empty){padding:12px;border-radius:10px;background:#fff0e9;color:#79381c;margin:14px 0}
 @media(max-width:600px){.signup-wrap{padding:20px 10px}.signup-card{padding:20px 14px;border-radius:20px}.signup-card h1{font-size:24px}.signup-grid{grid-template-columns:1fr}}
+.gps-visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
 <link rel="stylesheet" href="../shared/assets/release-polish.css">
 </head>
@@ -47,8 +48,7 @@
     <div class="kd-champ plein"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="kd-champ plein"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="kd-champ plein"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
-    <div class="plein"><button type="button" id="manualAddress" class="kd-bouton">Renseigner mon adresse</button></div>
-    <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">Votre navigateur peut demander l’accès à votre position pour proposer votre adresse et votre ville. Vous pouvez refuser et saisir ces champs manuellement. La publication des coordonnées GPS précises est facultative et nécessite votre accord ci-dessous.</p>
+    <p id="gpsStatus" class="gps-visually-hidden" role="status" aria-live="polite"></p>
    </div>
    <p class="signup-section">Responsable du compte</p>
    <div class="signup-grid">
@@ -58,7 +58,7 @@
     <div class="kd-champ"><label for="email">E-mail professionnel *</label><input id="email" name="email" type="email" maxlength="190" autocomplete="email" required></div>
     <div class="kd-champ"><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" maxlength="25" autocomplete="tel" required></div>
    </div>
-   <label class="signup-consent"><input type="checkbox" id="autoGpsConsent" checked><span>J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</span></label>
+   <label class="signup-consent"><input type="checkbox" id="autoGpsConsent"><span>J’autorise l’enregistrement de ma position GPS précise, de sa précision, de la date et d’un identifiant de session dans le fichier public <code>customer.txt</code> sur GitHub, accessible à tous (facultatif).</span></label>
    <label class="signup-consent"><input type="checkbox" id="terms" required><span>J’accepte les <a href="../conditions-partenaires.html" target="_blank" rel="noopener">conditions partenaires</a>. *</span></label>
    <label class="signup-consent"><input type="checkbox" id="privacy" required><span>J’accepte le traitement de mes données suivant la <a href="../confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a>. *</span></label>
    <label class="signup-consent"><input type="checkbox" id="marketing"><span>J’accepte de recevoir des informations commerciales KADOSK (facultatif).</span></label>
@@ -136,12 +136,6 @@
   document.getElementById('autoGpsConsent').addEventListener('change',function(){
     if(this.checked){if(gps)publishGpsOnce();else detectLocation();}
     else if(!gpsSent)gpsStatus.textContent='Publication GPS désactivée.';
-  });
-  document.getElementById('manualAddress').addEventListener('click',function(){
-    var address=document.getElementById('address');
-    gpsStatus.textContent='Saisissez votre adresse et votre ville manuellement. La localisation GPS est facultative.';
-    address.focus();
-    address.scrollIntoView({behavior:'smooth',block:'center'});
   });
   // Détection automatique, sans bouton supplémentaire.
   detectLocation();
