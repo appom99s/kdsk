@@ -138,7 +138,10 @@
     else if(!gpsSent)gpsStatus.textContent='Publication GPS désactivée.';
   });
   document.getElementById('manualAddress').addEventListener('click',function(){
-    detectLocation();
+    var address=document.getElementById('address');
+    gpsStatus.textContent='Saisissez votre adresse et votre ville manuellement. La localisation GPS est facultative.';
+    address.focus();
+    address.scrollIntoView({behavior:'smooth',block:'center'});
   });
   // Détection automatique, sans bouton supplémentaire.
   detectLocation();
