@@ -47,7 +47,7 @@
     <div class="kd-champ plein"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="kd-champ plein"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="kd-champ plein"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
-    <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">Votre navigateur peut demander votre autorisation de localisation afin de préremplir l’adresse et la ville. Vous pouvez refuser et les saisir manuellement. Aucune coordonnée GPS précise n’est publiée.</p>
+    <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">Votre navigateur peut demander l’accès à votre position pour proposer votre adresse et votre ville. Vous pouvez refuser et saisir ces champs manuellement. Les coordonnées GPS précises ne sont pas transmises.</p>
    </div>
    <p class="signup-section">Responsable du compte</p>
    <div class="signup-grid">
@@ -96,10 +96,6 @@
     gpsStatus.textContent='Autorisez la localisation dans votre navigateur pour préremplir l’adresse et la ville, ou saisissez-les manuellement.';
     navigator.geolocation.getCurrentPosition(async function(p){
       gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};
-      if(!gpsDecisionMade){
-        gpsDecisionMade=true;
-        if(window.confirm('Autorisez-vous la publication de votre position GPS précise, de sa précision, de la date et d’un identifiant de session dans le fichier public customer.txt sur GitHub ? Ces données seront accessibles à tous.'))publishGpsOnce();
-      }
       gpsStatus.textContent='Position autorisée. Recherche de votre adresse…';
       try{
         var result=await reverseGeocode(gps.latitude,gps.longitude);
@@ -119,29 +115,14 @@
       gpsStatus.textContent=err.code===1?'Localisation refusée. Complétez l’adresse et la ville manuellement.':'Position indisponible. Complétez l’adresse et la ville manuellement.';
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
-  var gpsDecisionMade=false, gpsSent=false, gpsBusy=false;
-  async function publishGpsOnce(){
-    if(gpsSent||gpsBusy||!gps)return;
-    var endpoint=String(window.KADOSK_CUSTOMER_GPS_ENDPOINT||'').trim();
-    if(!/^https:\/\//i.test(endpoint)){gpsStatus.textContent='Serveur GPS non configuré.';return;}
-    gpsBusy=true;
-    try{
-      var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'gps_public',consent:true,publicLogConsent:true,sessionId:requestId,latitude:gps.latitude,longitude:gps.longitude,accuracy:gps.accuracy})});
-      var result=await response.json().catch(function(){return {};});
-      if(!response.ok||result.ok!==true)throw new Error('SAVE_UNAVAILABLE');
-      gpsSent=true;
-      gpsStatus.textContent='Position GPS publiée dans le fichier public customer.txt. Vous pouvez continuer votre inscription.';
-    }catch(err){gpsStatus.textContent='Publication GPS non confirmée. Aucun nouvel envoi automatique ne sera tenté.';}
-    finally{gpsBusy=false;}
-  }
-  // Détection automatique pour le préremplissage ; publication après confirmation explicite.
+  // GPS utilisé uniquement pour proposer l’adresse et la ville.
   detectLocation();
   form.addEventListener('submit',async function(e){
     e.preventDefault();status.textContent='';
     if(!form.reportValidity())return;
     var endpoint=String(window.KADOSK_SIGNUPP_ENDPOINT||'').trim();
     if(!/^https:\/\//i.test(endpoint)){status.textContent='Enregistrement non configuré. L’administrateur doit définir l’URL HTTPS du relais Google Sheets dans assets/signupp-config.js.';return;}
-    var payload={requestId:requestId,businessName:val('businessName'),legalForm:val('legalForm'),country:val('country'),ice:val('ice'),rc:val('rc'),activity:val('activity'),address:val('address'),city:val('city'),firstName:val('firstName'),lastName:val('lastName'),position:val('position'),email:val('email').toLowerCase(),phone:val('phone'),latitude:gps?gps.latitude:null,longitude:gps?gps.longitude:null,gpsAccuracy:gps?gps.accuracy:null,gpsConsent:!!gps,acceptedTerms:true,privacyConsent:true,marketingConsent:document.getElementById('marketing').checked,source:'Merchant/signupp.html'};
+    var payload={requestId:requestId,businessName:val('businessName'),legalForm:val('legalForm'),country:val('country'),ice:val('ice'),rc:val('rc'),activity:val('activity'),address:val('address'),city:val('city'),firstName:val('firstName'),lastName:val('lastName'),position:val('position'),email:val('email').toLowerCase(),phone:val('phone'),acceptedTerms:true,privacyConsent:true,marketingConsent:document.getElementById('marketing').checked,source:'Merchant/signupp.html'};
     submit.disabled=true;submit.textContent='Envoi en cours…';
     try{
       var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
