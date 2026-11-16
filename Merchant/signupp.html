@@ -47,6 +47,7 @@
     <div class="kd-champ plein"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="kd-champ plein"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="kd-champ plein"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
+    <div class="plein"><button type="button" id="manualAddress" class="kd-bouton">Renseigner mon adresse</button></div>
     <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">Votre navigateur peut demander l’accès à votre position pour proposer votre adresse et votre ville. Vous pouvez refuser et saisir ces champs manuellement. La publication des coordonnées GPS précises est facultative et nécessite votre accord ci-dessous.</p>
    </div>
    <p class="signup-section">Responsable du compte</p>
@@ -135,6 +136,12 @@
   document.getElementById('autoGpsConsent').addEventListener('change',function(){
     if(this.checked){if(gps)publishGpsOnce();else detectLocation();}
     else if(!gpsSent)gpsStatus.textContent='Publication GPS désactivée.';
+  });
+  document.getElementById('manualAddress').addEventListener('click',function(){
+    var address=document.getElementById('address');
+    gpsStatus.textContent='Saisissez votre adresse et votre ville manuellement. La localisation GPS est facultative.';
+    address.focus();
+    address.scrollIntoView({behavior:'smooth',block:'center'});
   });
   // Détection automatique, sans bouton supplémentaire.
   detectLocation();
