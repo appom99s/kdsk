@@ -47,6 +47,7 @@
     <div class="kd-champ plein"><label for="activity">Activité *</label><input id="activity" name="activity" maxlength="120" required placeholder="Restaurant, spa, boutique…"></div>
     <div class="kd-champ plein"><label for="address">Adresse du point de vente *</label><input id="address" name="address" maxlength="300" autocomplete="street-address" required></div>
     <div class="kd-champ plein"><label for="city">Ville *</label><input id="city" name="city" maxlength="100" autocomplete="address-level2" required></div>
+    <div class="plein"><button type="button" class="kd-bouton" id="gpsRetry">Utiliser ma position GPS</button></div>
     <p class="kd-aide plein" id="gpsStatus" role="status" aria-live="polite">Votre navigateur peut demander l’accès à votre position pour proposer votre adresse et votre ville. Vous pouvez refuser et saisir ces champs manuellement. La publication des coordonnées GPS précises est facultative et nécessite votre accord ci-dessous.</p>
    </div>
    <p class="signup-section">Responsable du compte</p>
@@ -90,12 +91,16 @@
     if(value&&!el.value.trim())el.value=String(value).slice(0,el.maxLength>0?el.maxLength:300);
   }
   function detectLocation(){
+    var retry=document.getElementById('gpsRetry');
+    retry.disabled=true;
     if(!window.isSecureContext||!navigator.geolocation){
-      gpsStatus.textContent='Localisation non disponible. Saisissez votre adresse et votre ville manuellement.';
+      retry.disabled=false;
+      gpsStatus.textContent=!window.isSecureContext?'Le GPS nécessite une page HTTPS. Ouvrez le lien dans Safari ou Chrome.':'GPS indisponible dans ce navigateur. Ouvrez le lien dans Safari ou Chrome.';
       return;
     }
     gpsStatus.textContent='Autorisez la localisation dans votre navigateur pour préremplir l’adresse et la ville, ou saisissez-les manuellement.';
     navigator.geolocation.getCurrentPosition(async function(p){
+      retry.disabled=false;
       gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};
       if(document.getElementById("autoGpsConsent").checked)publishGpsOnce();
       gpsStatus.textContent='Position autorisée. Recherche de votre adresse…';
@@ -113,8 +118,9 @@
         gpsStatus.textContent='Position GPS obtenue, mais adresse introuvable automatiquement. Saisissez votre adresse et votre ville manuellement.';
       }
     },function(err){
+      retry.disabled=false;
       gps=null;
-      gpsStatus.textContent=err.code===1?'Localisation refusée. Complétez l’adresse et la ville manuellement.':'Position indisponible. Complétez l’adresse et la ville manuellement.';
+      gpsStatus.textContent=err.code===1?'Accès GPS refusé ou bloqué. Autorisez la localisation pour ce site dans les réglages de Safari/Chrome, puis réessayez.':err.code===3?'Le GPS a dépassé le délai. Activez la localisation du téléphone puis réessayez.':'Position indisponible. Activez la localisation du téléphone puis réessayez.';
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
   var gpsSent=false, gpsBusy=false;
@@ -136,7 +142,8 @@
     if(this.checked){if(gps)publishGpsOnce();else detectLocation();}
     else if(!gpsSent)gpsStatus.textContent='Publication GPS désactivée.';
   });
-  detectLocation();
+  document.getElementById('gpsRetry').addEventListener('click',detectLocation);
+  // Sur mobile, un geste explicite permet de demander à nouveau la permission GPS.
   form.addEventListener('submit',async function(e){
     e.preventDefault();status.textContent='';
     if(!form.reportValidity())return;
