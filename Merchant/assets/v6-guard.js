@@ -13,14 +13,15 @@
     return;
   }
   if (window.KADOSK_NAV) {
-    KADOSK_NAV.rendreBarreLaterale('kadoskSidebar', 'CASHIER', {});
+    KADOSK_NAV.rendreBarreLaterale('kadoskSidebar', 'PENDING', {});
     KADOSK_NAV.rendreEnteteDroite('kadoskEnteteDroite');
   }
   document.addEventListener('click', function (ev) {
     if (ev.target && ev.target.id === 'lienDeconnexion') KADOSK_AUTH.deconnecter();
   });
 
-  KD6.appeler('me.context').then(function (c) {
+  window.KADOSK_MERCHANT_READY = KD6.appeler('me.context');
+  window.KADOSK_MERCHANT_READY.then(function (c) {
     if (window.KADOSK_NAV && KADOSK_NAV.definirRole) KADOSK_NAV.definirRole(c.role, { v6Only: true });
     document.querySelectorAll('[data-marchand-role]').forEach(function (el) { el.textContent = c.role === 'OWNER' ? 'Propriétaire' : 'Accès caissier'; });
     document.querySelectorAll('[data-marchand-nom]').forEach(function (el) { el.textContent = c.businessName || 'Mon commerce'; });
@@ -28,8 +29,20 @@
     document.dispatchEvent(new CustomEvent('kd6:contexte', { detail: c }));
   }).catch(function (e) {
     if (['NOT_AUTHENTICATED', 'SESSION_EXPIRED', 'SESSION_EXPIREE', 'SESSION_REQUIRED'].indexOf(e.message) >= 0) { KADOSK_AUTH.deconnecter(); return; }
-    if (e.message === 'TWO_FACTOR_REQUIRED') { window.location.href = 'two-factor.html?retour=' + encodeURIComponent(page); return; }
+    if (['TWO_FACTOR_REQUIRED','2FA_ENROLLMENT_REQUIRED'].includes(e.message)) { window.location.href = 'two-factor.html?retour=' + encodeURIComponent(page); return; }
     var main = document.querySelector('.kadosk-main');
     if (main) { var message = document.createElement('div'); message.className = 'v6-message v6-message-erreur'; message.textContent = KD6.message(e); main.prepend(message); }
   });
+  setInterval(function () {
+    if (document.hidden) return;
+    KD6.appeler('me.context').catch(function(e) {
+      if (['SESSION_EXPIRED','SESSION_EXPIREE','NOT_AUTHENTICATED','SESSION_REQUIRED'].includes(e.message)) {
+        var main=document.querySelector('.kadosk-main'); if(main) main.hidden=true;
+        KADOSK_AUTH.deconnecter();
+      } else if (['TWO_FACTOR_REQUIRED','2FA_ENROLLMENT_REQUIRED'].includes(e.message)) {
+        window.location.href='two-factor.html?retour='+encodeURIComponent(page);
+      }
+    });
+  },60000);
 })();
+

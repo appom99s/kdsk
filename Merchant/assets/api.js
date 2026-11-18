@@ -36,6 +36,7 @@ const KADOSK_API = (function () {
         erreur.status = reponseSession.status;
         throw erreur;
       }
+      if (["verify2FA", "confirm2FA"].includes(nom) && donneesSession.success === true && KADOSK_AUTH.memoriserAppareil) KADOSK_AUTH.memoriserAppareil(donneesSession);
       return donneesSession;
     }
     const options = {
