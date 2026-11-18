@@ -421,3 +421,4 @@ const KADOSK_API = (function () {
 // pas de propriété sur window : sans cette affectation, aucun appel chromeInfo
 // n'était jamais envoyé et le menu restait bloqué sur son état minimal.
 window.KADOSK_API = KADOSK_API;
+

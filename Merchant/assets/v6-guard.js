@@ -21,7 +21,7 @@
   });
 
   KD6.appeler('me.context').then(function (c) {
-    if (window.KADOSK_NAV && KADOSK_NAV.definirRole) KADOSK_NAV.definirRole(c.role, { v6Only: !c.legacyAccess });
+    if (window.KADOSK_NAV && KADOSK_NAV.definirRole) KADOSK_NAV.definirRole(c.role, { v6Only: true });
     document.querySelectorAll('[data-marchand-role]').forEach(function (el) { el.textContent = c.role === 'OWNER' ? 'Propriétaire' : 'Accès caissier'; });
     document.querySelectorAll('[data-marchand-nom]').forEach(function (el) { el.textContent = c.businessName || 'Mon commerce'; });
     if (c.role === 'CASHIER' && PAGES_CAISSIER.indexOf(page) < 0) window.location.href = 'scanner.html';

@@ -80,3 +80,4 @@
   $('dashboardRetry').addEventListener('click',refresh);
   refresh();
 })();
+
