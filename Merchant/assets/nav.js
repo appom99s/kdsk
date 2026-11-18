@@ -54,7 +54,7 @@
   const GROUPES = [
     {
       titre: null,
-      items: [{ fichier: "statistiques.html", libelle: "Statistiques des points de vente", icone: "dashboard" }]
+      items: [{ fichier: "dashboard.html", libelle: "Tableau de bord", icone: "dashboard" }, { fichier: "statistiques.html", libelle: "Statistiques des points de vente", icone: "dashboard" }]
     },
     {
       titre: "Encaisser",
@@ -92,7 +92,7 @@
   }
   function filtrerGroupesPourRole(role, permissions) {
     if (permissions && permissions.v6Only) {
-      const pages = role === 'OWNER' ? ['demarrage.html', 'abonnement.html', 'cartes.html', 'settings.html', 'scanner.html', 'statistiques.html'] : ['scanner.html'];
+      const pages = role === 'OWNER' ? ['dashboard.html', 'demarrage.html', 'abonnement.html', 'cartes.html', 'settings.html', 'scanner.html', 'statistiques.html'] : ['scanner.html'];
       return GROUPES.map(g => ({ ...g, items: g.items.filter(i => pages.includes(i.fichier)) })).filter(g => g.items.length);
     }
     if (role === "OWNER") return GROUPES;
@@ -186,7 +186,7 @@
 
     const actuelle = pageActuelle();
     const items = [
-      { fichier: (permissionsCourantes && permissionsCourantes.v6Only) ? "demarrage.html" : "dashboard.html", libelle: "Accueil", icone: "dashboard" },
+      { fichier: "dashboard.html", libelle: "Accueil", icone: "dashboard" },
       { fichier: "cartes.html", libelle: "Cartes", icone: "cartes" },
       { fichier: "scanner.html", libelle: "Scanner", icone: "encaisser" },
       { fichier: "__menu__", libelle: "Menu", icone: "menu" }
@@ -415,7 +415,11 @@
     // stale-while-revalidate ici. Une valeur en cache permettait à un caissier
     // retiré de conserver temporairement son menu et empêchait la révocation
     // immédiate de prendre effet dans un onglet déjà ouvert.
-    const promesse = KADOSK_API.getMerchantChromeInfo()
+    const promesse = KADOSK_API.v6("me.context", {}).then(function (response) {
+      if (!response || response.ok !== true || !response.data) throw new Error("ERREUR_SERVEUR");
+      const c = response.data;
+      return { merchantName: c.businessName, role: c.role, subscriptionActive: null, permissions: {v6Only: true} };
+    })
       .then((infos) => {
         appliquer(infos);
         return infos;
