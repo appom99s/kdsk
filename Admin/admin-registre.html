@@ -1,0 +1,14 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KADOSK — Marchands et cartes V6</title>
+<link rel="stylesheet" href="assets/admin-style.css"><link rel="stylesheet" href="../shared/assets/ui-system.css"><link rel="stylesheet" href="../shared/assets/v6.css"><link rel="stylesheet" href="../shared/assets/release-polish.css"></head>
+<body class="v6-page" data-registry="true"><div class="adm-app"><aside class="adm-sidebar" id="admSidebar"></aside><main class="adm-main"><h1>Marchands et cartes V6</h1><span id="admBadgeRole"></span><div id="kadoskEnteteDroite"></div>
+<section class="v6-carte"><p>Données courantes des boutiques et cartes cadeaux.</p>
+<label for="recordKind">Catégorie</label><select id="recordKind"><option value="merchants">Marchands</option><option value="cards">Cartes cadeaux</option></select>
+<p id="recordMessage" role="status" class="v6-message" hidden></p><div id="recordResults" style="overflow-x:auto"></div><button id="recordPrev" class="v6-bouton" disabled>Précédent</button> <button id="recordNext" class="v6-bouton" disabled>Suivant</button>
+<button id="dataHealth" class="v6-bouton">Vérifier la connexion aux données</button></section></main></div>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/admin-nav.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script>KADOSK_ADMIN_NAV.rendre("registre");</script>
+<script src="assets/v6-admin-guard.js"></script><script src="../shared/assets/v6-records.js"></script></body></html>

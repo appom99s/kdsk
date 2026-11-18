@@ -1,0 +1,14 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KADOSK — Archives</title>
+<link rel="stylesheet" href="assets/admin-style.css"><link rel="stylesheet" href="../shared/assets/ui-system.css"><link rel="stylesheet" href="../shared/assets/v6.css"><link rel="stylesheet" href="../shared/assets/release-polish.css"></head>
+<body class="v6-page" data-registry="false"><div class="adm-app"><aside class="adm-sidebar" id="admSidebar"></aside><main class="adm-main"><h1>Archives</h1><span id="admBadgeRole"></span><div id="kadoskEnteteDroite"></div>
+<section class="v6-carte"><p>Historique en lecture seule. Les nouvelles opérations sont disponibles dans les écrans V6 ; les abonnements et paiements sont gérés par Wix.</p>
+<label for="recordKind">Catégorie</label><select id="recordKind"><option value="orders">Commandes</option><option value="cards">Cartes historiques</option><option value="transactions">Transactions historiques</option><option value="commissions">Commissions</option><option value="invoices">Factures de commission</option></select>
+<p id="recordMessage" role="status" class="v6-message" hidden></p><div id="recordResults" style="overflow-x:auto"></div><button id="recordPrev" class="v6-bouton" disabled>Précédent</button> <button id="recordNext" class="v6-bouton" disabled>Suivant</button>
+</section></main></div>
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/admin-nav.js"></script>
+<script src="../shared/assets/v6-client.js"></script>
+<script>KADOSK_ADMIN_NAV.rendre("archives");</script>
+<script src="assets/v6-admin-guard.js"></script><script src="../shared/assets/v6-records.js"></script></body></html>
