@@ -27,7 +27,8 @@ const KADOSK_API = (function () {
       try { donneesSession = texteSession ? JSON.parse(texteSession) : {}; } catch (erreur) { donneesSession = {}; }
       if (!reponseSession.ok) {
         const code = donneesSession.error || "ERREUR_SERVEUR";
-        if (reponseSession.status === 401 || code === "SESSION_EXPIREE") KADOSK_AUTH.deconnecter();
+        const demande2FA = ["TWO_FACTOR_REQUIRED", "2FA_ENROLLMENT_REQUIRED"].includes(code);
+        if (!demande2FA && (reponseSession.status === 401 || ["SESSION_EXPIREE", "SESSION_EXPIRED"].includes(code))) KADOSK_AUTH.deconnecter();
         if (["TWO_FACTOR_REQUIRED", "2FA_ENROLLMENT_REQUIRED"].includes(code) && !window.location.pathname.endsWith("two-factor.html")) {
           window.location.href = "two-factor.html?retour=" + encodeURIComponent(window.location.pathname.split("/").pop());
         }
