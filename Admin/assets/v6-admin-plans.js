@@ -19,6 +19,7 @@
       const section = document.createElement('section');
       section.className = 'v6-carte';
       section.innerHTML = '<h2>' + esc(row.name) + '</h2><form data-kind="quota">' +
+        '<label>Points de vente actifs <input name="locations" type="number" min="0" max="1000" required value="' + row.quota.max_locations + '"></label> ' +
         '<label>Caissiers actifs <input name="cashiers" type="number" min="0" max="1000" required value="' + row.quota.max_cashiers + '"></label> ' +
         '<label>Cartes émises par mois <input name="cards" type="number" min="0" max="100000" placeholder="Illimité" value="' + (row.quota.gift_card_limit ?? '') + '"></label>' +
         '<p>Un champ vide pour les cartes signifie illimité. Les quotas enregistrés s’appliquent aux prochaines émissions et invitations.</p>' +
@@ -32,6 +33,7 @@
           const saved = await KD6.appeler('admin.plans.saveQuota', {
             planId: row.quota.plan_id, revision: row.quota.revision,
             maxCashiers: Number(quotaForm.elements.cashiers.value),
+            maxLocations: Number(quotaForm.elements.locations.value),
             giftCardLimit: quotaForm.elements.cards.value === '' ? null : Number(quotaForm.elements.cards.value)
           });
           row.quota = saved;
@@ -72,3 +74,4 @@
     return load();
   }).catch(report);
 })();
+

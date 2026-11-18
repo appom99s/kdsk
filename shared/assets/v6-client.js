@@ -4,6 +4,7 @@
   'use strict';
 
   var MESSAGES = {
+    LOCATION_LIMIT_REACHED: 'Limite de points de vente atteinte. Consultez votre abonnement.',
     FORWARD_BUSY: 'Un envoi est déjà en cours. Attendez quelques minutes avant de vérifier à nouveau.',
     FORWARD_ALREADY_SENT: 'Ce cadeau a déjà été envoyé au destinataire final.',
     FORWARD_RECIPIENT_LOCKED: 'Un envoi a déjà été tenté pour une autre adresse. Contactez le commerce.',
@@ -54,7 +55,7 @@
     VERIFICATION_EXPIRED: 'Code expiré. Demandez-en un nouveau.',
     IDEMPOTENCY_CONFLICT: 'Opération déjà utilisée avec d’autres données. Recommencez.',
     TOKEN_INVALID: 'Lien invalide ou expiré.',
-    GIFT_CARD_LIMIT_REACHED: 'Limite de cartes du plan gratuit atteinte ce mois-ci.',
+    GIFT_CARD_LIMIT_REACHED: 'Limite de cartes de votre abonnement atteinte ce mois-ci.',
     FUNDS_CONFIRMATION_REQUIRED: 'Confirmez avoir constaté la réception des fonds.',
     SELF_VALIDATION_FORBIDDEN: 'Vous ne pouvez pas valider un paiement d’un commerce dont vous êtes membre.',
     BANK_REFERENCE_REQUIRED: 'Indiquez la référence bancaire du virement reçu.',
@@ -135,3 +136,4 @@
 
   global.KD6 = { appeler: appeler, appelerPublic: function (action, params) { return tracked(function () { return appelerPublic(action, params); }); }, message: message, cle: cle, argent: argent, date: date, esc: esc, afficher: afficher, PERIODES: PERIODES };
 })(window);
+

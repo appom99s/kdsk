@@ -17,8 +17,8 @@
     <div id="caMessage" class="v6-message" hidden role="status"></div>
 
     <section class="v6-carte" aria-labelledby="caEmettreTitre">
-      <h2 id="caEmettreTitre">Émettre une carte</h2>
-      <p class="v6-aide">Une carte à la fois. Le client reçoit la carte par e-mail et crée lui-même son PIN secret : vous ne le voyez jamais. 0 % de commission.</p>
+      <h2 id="caEmettreTitre">Créer une carte cadeau</h2>
+      <p class="v6-aide">Générez une carte cadeau et envoyez-la par e-mail au destinataire.</p>
       <div class="v6-segment" role="group" aria-label="Montant" id="caMontants"></div>
       <div class="v6-champ" id="caLibreChamp"><label for="caMontant">Montant</label><input id="caMontant" inputmode="decimal" autocomplete="off" /><span class="v6-aide" id="caFourchette"></span></div>
       <div class="v6-grille v6-grille-2">
@@ -26,12 +26,12 @@
         <div class="v6-champ"><label for="caNom">Nom du bénéficiaire</label><input id="caNom" maxlength="120" autocomplete="off" /></div>
       </div>
       <div class="v6-champ"><label><input type="checkbox" id="caOffrir"> Le premier destinataire offrira cette carte à une autre personne</label><p class="v6-aide">Il recevra un lien pour saisir l’e-mail du bénéficiaire final et son message personnel, non conservé dans notre base.</p></div>
-      <div class="v6-champ"><label for="caDe">De la part de</label><input id="caDe" maxlength="120" /></div>
+      <details class="kd-advanced"><summary>Options d’envoi et de validité</summary><div class="v6-champ"><label for="caDe">De la part de</label><input id="caDe" maxlength="120" /></div>
       <div class="v6-grille v6-grille-2">
         <div class="v6-champ"><label for="caEnvoi">Envoi programmé (facultatif)</label><input id="caEnvoi" type="datetime-local" /></div>
         <div class="v6-champ"><label for="caExpiration">Date d’expiration (facultatif)</label><input id="caExpiration" type="date" /></div>
       </div>
-      <button type="button" class="v6-bouton v6-bouton-plein" id="caEmettre">Émettre et envoyer</button>
+      </details><button type="button" class="v6-bouton v6-bouton-plein" id="caEmettre">Créer la carte</button>
     </section>
 
     <section class="v6-carte" aria-labelledby="caListeTitre">
@@ -55,4 +55,5 @@
 <script src="assets/v6-cartes.js"></script>
 </body>
 </html>
+
 

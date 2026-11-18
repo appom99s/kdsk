@@ -54,40 +54,21 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.7-6 6-6s6 2.4 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15 14c2.6 0 5 1.9 5 5.2"/></svg>'
   };
 
-  const GROUPES = [
-    {
-      titre: null,
-      items: [{ fichier: "dashboard.html", libelle: "Tableau de bord", icone: "dashboard" }, { fichier: "statistiques.html", libelle: "Statistiques des points de vente", icone: "dashboard" }]
-    },
-    {
-      titre: "Encaisser",
-      items: [{ fichier: "scanner.html", libelle: "Encaisser une carte", icone: "encaisser" }]
-    },
-
-    {
-      titre: "Transactions",
-      items: [{ fichier: "transactions.html", libelle: "Toutes les transactions", icone: "transactions" }]
-    },
-    {
-      titre: "Cartes cadeaux",
-      items: [{ fichier: "cartes.html", libelle: "Créer et gérer les cartes", icone: "cartes" }]
-    },
-    {
-      titre: "Finances",
-      items: [{ fichier: "finance.html", libelle: "Finances", icone: "finances" }]
-    },
-    {
-      titre: "Paramètres",
-      items: [
-        { fichier: "settings.html", libelle: "Paramètres", icone: "parametres" },
-        { fichier: "abonnement.html", libelle: "Abonnement", icone: "finances" },
-        { fichier: "business.html", libelle: "Mon entreprise", icone: "entreprise" },
-        { fichier: "email-design.html", libelle: "Design de l’e-mail cadeau", icone: "parametres" },
-        { fichier: "invoice-settings.html", libelle: "Personnalisation facture", icone: "finances" },
-        { fichier: "equipe.html", libelle: "Équipe", icone: "equipe" }
-      ]
-    }
-  ];
+  const GROUPES = [{titre:null,items:[
+    {fichier:"dashboard.html",libelle:"Tableau de bord",icone:"dashboard"},
+    {fichier:"cartes.html",libelle:"Cartes cadeaux",icone:"cartes"},
+    {fichier:"scanner.html",libelle:"Encaisser",icone:"encaisser"},
+    {fichier:"transactions.html",libelle:"Transactions",icone:"transactions"},
+    {fichier:"statistiques.html",libelle:"Points de vente",icone:"entreprise"},
+    {fichier:"equipe.html",libelle:"Équipe",icone:"equipe"},
+    {fichier:"abonnement.html",libelle:"Abonnement",icone:"finances"},
+    {fichier:"settings.html",libelle:"Paramètres",icone:"parametres"}
+  ]},{titre:"Personnalisation et archives",items:[
+    {fichier:"email-design.html",libelle:"E-mail cadeau",icone:"cartes"},
+    {fichier:"business.html",libelle:"Mon entreprise",icone:"entreprise"},
+    {fichier:"invoice-settings.html",libelle:"Factures",icone:"finances"},
+    {fichier:"finance.html",libelle:"Archives",icone:"commandes"}
+  ]}];
 
   function pageActuelle() {
     const segments = window.location.pathname.split("/");
@@ -193,7 +174,7 @@
     const items = [
       { fichier: "dashboard.html", libelle: "Accueil", icone: "dashboard" },
       { fichier: "cartes.html", libelle: "Cartes", icone: "cartes" },
-      { fichier: "scanner.html", libelle: "Scanner", icone: "encaisser" },
+      { fichier: "scanner.html", libelle: "Encaisser", icone: "encaisser" },
       { fichier: "__menu__", libelle: "Menu", icone: "menu" }
     ];
 
@@ -477,4 +458,5 @@
     definirRole
   };
 })();
+
 

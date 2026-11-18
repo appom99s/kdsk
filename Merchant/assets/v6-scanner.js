@@ -76,3 +76,4 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();clearPin();}});
   window.addEventListener('pagehide',()=>{stop();clearPin();gateway=null;});prepare();
 })();
+
