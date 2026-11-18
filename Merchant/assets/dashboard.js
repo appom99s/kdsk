@@ -75,8 +75,21 @@
     }
   }
   if (!KADOSK_AUTH.estConnecte()) { window.location.href = 'login.html'; return; }
-  KADOSK_NAV.rendreBarreLaterale('kadoskSidebar','CASHIER',{v6Only:true});
+  KADOSK_NAV.rendreBarreLaterale('kadoskSidebar','PENDING',{v6Only:true});
   document.addEventListener('click', e => { if(e.target.id === 'lienDeconnexion') KADOSK_AUTH.deconnecter(); });
   $('dashboardRetry').addEventListener('click',refresh);
   refresh();
+  setInterval(function () {
+    if(document.hidden)return;
+    KD6.appeler('me.context').then(function(c){
+      if(c.role==='CASHIER')window.location.href='scanner.html';
+    }).catch(function(e){
+      if(['SESSION_EXPIRED','SESSION_EXPIREE','NOT_AUTHENTICATED','SESSION_REQUIRED'].includes(e.message)){
+        $('dashboardContent').hidden=true;KADOSK_AUTH.deconnecter();
+      }else if(['TWO_FACTOR_REQUIRED','2FA_ENROLLMENT_REQUIRED'].includes(e.message)){
+        window.location.href='two-factor.html?retour=dashboard.html';
+      }
+    });
+  },60000);
 })();
+

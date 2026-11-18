@@ -25,6 +25,20 @@ const KADOSK_AUTH = (function () {
     if (!session.success || !/^[A-Za-z0-9_-]{40,80}$/.test(session.sessionToken || '')) throw new Error('SESSION_SERVEUR_INDISPONIBLE');
     sessionStorage.setItem(SESSION_TOKEN_KEY, JSON.stringify({token:session.sessionToken, expiresAt:Date.now()+12*60*60*1000}));
   }
+  const TRUST_KEY = 'kadosk_trusted_device_v1';
+  function lireAppareilFiable() {
+    try {
+      const v = JSON.parse(localStorage.getItem(TRUST_KEY) || 'null');
+      if (v && /^[A-Za-z0-9_-]{43}$/.test(v.token) && v.expiresAt > Date.now()) return v.token;
+      localStorage.removeItem(TRUST_KEY);
+    } catch (_) {}
+    return '';
+  }
+  function memoriserAppareil(result) {
+    if (!result || !/^[A-Za-z0-9_-]{43}$/.test(result.trustedDeviceToken || '') ||
+        !Number.isFinite(result.trustedDeviceExpiresAt)) return;
+    try { localStorage.setItem(TRUST_KEY, JSON.stringify({token:result.trustedDeviceToken,expiresAt:result.trustedDeviceExpiresAt})); } catch (_) {}
+  }
   let tokensTemporaires = null;
   document.cookie = "__Host-kadosk_session_bridge_v2=; Path=/; Max-Age=0; Secure; SameSite=Strict";
 
@@ -139,7 +153,7 @@ const KADOSK_AUTH = (function () {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", "X-Kadosk-Device-Id": appareilPersistant(), "X-Kadosk-Session-Transport": "header" },
-      body: JSON.stringify({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token, expiresIn: tokens.expires_in, clientId: config().clientId })
+      body: JSON.stringify({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token, expiresIn: tokens.expires_in, clientId: config().clientId, trustedDeviceToken: lireAppareilFiable() })
     });
     if (!reponse.ok) {
       const erreurSession = await reponse.json().catch(() => ({}));
@@ -388,6 +402,7 @@ const KADOSK_AUTH = (function () {
     obtenirTokenVisiteur,
     estConnecte,
     lireJetonSession,
+    memoriserAppareil,
     deconnecter,
     deconnecterSansRedirection,
     marquerVerification2FA,
@@ -399,3 +414,4 @@ const KADOSK_AUTH = (function () {
 
 // Les scripts des pages V6 consultent aussi cette API via window.
 window.KADOSK_AUTH = KADOSK_AUTH;
+

@@ -1,4 +1,7 @@
 (function () {
+  if (!document.querySelector('link[data-merchant-theme]')) {
+    const style = document.createElement('link'); style.rel='stylesheet'; style.href='assets/v61-theme.css'; style.dataset.merchantTheme='true'; document.head.appendChild(style);
+  }
   // Echappement HTML pour toute donnée saisie par un tiers non authentifié (nom/email
   // acheteur venant des commandes publiques, etc.) avant insertion via innerHTML.
   // Ne jamais concaténer une valeur non fiable dans du HTML sans passer par cette fonction.
@@ -76,10 +79,10 @@
     {
       titre: "Paramètres",
       items: [
-        { fichier: "demarrage.html", libelle: "Démarrage", icone: "dashboard" },
+        { fichier: "settings.html", libelle: "Paramètres", icone: "parametres" },
         { fichier: "abonnement.html", libelle: "Abonnement", icone: "finances" },
         { fichier: "business.html", libelle: "Mon entreprise", icone: "entreprise" },
-        { fichier: "settings.html", libelle: "Design de l’e-mail cadeau", icone: "parametres" },
+        { fichier: "email-design.html", libelle: "Design de l’e-mail cadeau", icone: "parametres" },
         { fichier: "invoice-settings.html", libelle: "Personnalisation facture", icone: "finances" },
         { fichier: "equipe.html", libelle: "Équipe", icone: "equipe" }
       ]
@@ -91,8 +94,9 @@
     return segments[segments.length - 1] || "dashboard.html";
   }
   function filtrerGroupesPourRole(role, permissions) {
+    if (role === "PENDING") return GROUPES;
     if (permissions && permissions.v6Only) {
-      const pages = role === 'OWNER' ? ['dashboard.html', 'demarrage.html', 'abonnement.html', 'cartes.html', 'settings.html', 'scanner.html', 'statistiques.html'] : ['scanner.html'];
+      const pages = role === 'OWNER' ? ['dashboard.html','settings.html','email-design.html','business.html','equipe.html','abonnement.html','cartes.html','scanner.html','statistiques.html','transactions.html','finance.html','invoice-settings.html'] : ['scanner.html'];
       return GROUPES.map(g => ({ ...g, items: g.items.filter(i => pages.includes(i.fichier)) })).filter(g => g.items.length);
     }
     if (role === "OWNER") return GROUPES;
@@ -152,6 +156,7 @@
       html += "</div>";
     });
 
+    conteneur.setAttribute("aria-busy", role === "PENDING" ? "true" : "false");
     conteneur.innerHTML = html;
 
     conteneur.querySelectorAll("[data-acces-verrouille]").forEach((lien) => {
@@ -397,7 +402,6 @@
     }
 
     function appliquer(infos) {
-      rendreInfosMarchand(infos);
       roleCourant = (infos && infos.role) || "CASHIER";
       permissionsCourantes = (infos && infos.permissions) || null;
       document.querySelectorAll("[data-marchand-role]").forEach((el) => {
@@ -407,6 +411,7 @@
       // filtrer les sections non autorisées (voir filtrerGroupesPourRole).
       const mobile=document.getElementById("kadoskBarreMobile");if(mobile)mobile.remove();
       rendreBarreLaterale("kadoskSidebar", roleCourant, permissionsCourantes);
+      rendreInfosMarchand(infos);
       document.dispatchEvent(new CustomEvent("kadosk:permissions",{detail:{role:roleCourant,permissions:permissionsCourantes}}));
 
     }
@@ -472,3 +477,4 @@
     definirRole
   };
 })();
+
